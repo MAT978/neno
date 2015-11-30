@@ -72,7 +72,7 @@ JHtml::_('bootstrap.tooltip');
 							</td>
 							<td colspan="2">
 								<div class="pull-right">
-									<?php echo JLayoutHelper::render('translatewidget', $table, JPATH_NENO_LAYOUTS); ?>
+									<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
 								</div>
 							</td>
 						</tr>
