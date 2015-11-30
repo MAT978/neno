@@ -51,6 +51,11 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	protected $discovered;
 
 	/**
+	 * @var bool
+	 */
+	protected $translate;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   mixed $data          File data
@@ -94,7 +99,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 
 		$query
 			->select(
-				array (
+				array(
 					'SUM(word_counter) AS counter',
 					'tr.state'
 				)
@@ -103,7 +108,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 			->innerJoin('#__neno_content_element_language_strings AS ls ON tr.content_id = ls.id')
 			->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
 			->where(
-				array (
+				array(
 					'content_type = ' . $db->quote('lang_string'),
 					'lf.id = ' . $this->getId(),
 					'tr.language = ' . $db->quote($workingLanguage)
@@ -267,7 +272,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		// Check if the file exists.
 		if (file_exists($filePath) || !empty($overwrittenStrings))
 		{
-			$strings = array ();
+			$strings = array();
 
 			if (file_exists($filePath))
 			{
@@ -280,19 +285,21 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 			if ($strings !== false)
 			{
 				// Init the string array
-				$this->languageStrings = array ();
+				$this->languageStrings = array();
 
 				// Loop through all the strings
 				foreach ($strings as $constant => $string)
 				{
 					// If this language string exists already, let's load it
-					$languageString = NenoContentElementLanguageString::load(array ('constant' => $constant, 'languagefile_id' => $this->id));
+					$languageString = NenoContentElementLanguageString::load(array( 'constant'        => $constant,
+					                                                                'languagefile_id' => $this->id
+					));
 
 					// If it's not, let's create it
 					if (empty($languageString))
 					{
 						$languageString = new NenoContentElementLanguageString(
-							array (
+							array(
 								'constant'   => $constant,
 								'string'     => $string,
 								'time_added' => new DateTime
@@ -356,7 +363,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	 */
 	public function loadStringsFromTemplateOverwrite()
 	{
-		$strings  = array ();
+		$strings  = array();
 		$template = NenoHelper::getFrontendTemplate();
 
 		if (!empty($template))
@@ -384,7 +391,10 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		);
 
 		// Check if there are children not discovered
-		$languageString = NenoContentElementLanguageString::load(array ('discovered' => 0, '_limit' => 1, 'languagefile_id' => $this->id));
+		$languageString = NenoContentElementLanguageString::load(array( 'discovered'      => 0,
+		                                                                '_limit'          => 1,
+		                                                                'languagefile_id' => $this->id
+		));
 
 		if (empty($languageString))
 		{
@@ -459,5 +469,29 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		}
 
 		return parent::remove();
+	}
+
+	/**
+	 * Get translation status
+	 *
+	 * @return boolean
+	 */
+	public function isTranslate()
+	{
+		return $this->translate;
+	}
+
+	/**
+	 * Set translation status
+	 *
+	 * @param boolean $translate
+	 *
+	 * @return $this
+	 */
+	public function setTranslate($translate)
+	{
+		$this->translate = $translate;
+
+		return $this;
 	}
 }
