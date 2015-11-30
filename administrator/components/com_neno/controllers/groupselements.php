@@ -740,4 +740,35 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		JFactory::getApplication()->redirect('index.php?option=com_neno&view=groupselements');
 	}
+
+	/**
+	 * Toggle content element language file translate status
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function toggleContentElementLanguageFile()
+	{
+		$input = JFactory::getApplication()->input;
+
+		$languageFile    = $input->getInt('fileId');
+		$translateStatus = $input->getInt('translateStatus');
+
+		/* @var $languageFile NenoContentElementLanguageFile */
+		$languageFile = NenoContentElementLanguageFile::load($languageFile);
+
+		// If the table exists, let's work with it.
+		if ($languageFile !== false)
+		{
+			$languageFile->setTranslate($translateStatus);
+
+			if ($languageFile->persist() === false)
+			{
+				NenoLog::log('Error saving new state!', NenoLog::PRIORITY_ERROR);
+			}
+		}
+
+		JFactory::getApplication()->close();
+	}
 }

@@ -244,7 +244,7 @@ function setOldTableStatus(event) {
 		var oldStatus = parseInt(modal.data('current-status'));
 		var tableId = modal.data('table-id');
 
-		markLabelAsActiveByStatus(tableId, oldStatus, false);
+		markLabelAsActiveByStatus(tableId, 'table', oldStatus, false);
 		if (event.type != 'hide') {
 			modal.modal('hide');
 		}
@@ -278,29 +278,21 @@ function saveFilter(event) {
 /**
  *
  */
-function changeTableTranslateState() {
+function changeTranslateState() {
 	var id = jQuery(this).parent('fieldset').attr('data-field');
+	var type = jQuery(this).parent('fieldset').attr('data-type');
 	var status = parseInt(jQuery(this).val());
-	markLabelAsActiveByStatus(id, status, status == 2);
-	setTranslateStatus(id, status);
-
-	jQuery.ajax({
-			url    : 'index.php?option=com_neno&task=groupselements.toggleContentElementTable&tableId=' + id + '&translateStatus=' + status,
-			success: function () {
-				if (typeof tableFiltersCallback != 'undefined') {
-					tableFiltersCallback(id);
-				}
-			}
-		}
-	);
+	markLabelAsActiveByStatus(id, type, status, status == 2);
+	setTranslateStatus(id, type, status);
 }
 
 /**
  *
- * @param tableId
+ * @param elementId
+ * @param type
  * @param status
  */
-function setTranslateStatus(tableId, status) {
+function setTranslateStatus(elementId, type, status) {
 	//Show an alert that count no longer is accurate only on Groups&Elements view
 	if (getViewName() != 'installation') {
 		jQuery('#reload-notice').remove();
@@ -313,10 +305,27 @@ function setTranslateStatus(tableId, status) {
 		jQuery('body').css('padding-top', '93px');
 	}
 
-	jQuery.ajax({
-			url: 'index.php?option=com_neno&task=groupselements.toggleContentElementTable&tableId=' + tableId + '&translateStatus=' + status
-		}
-	);
+	var url = null;
+	switch (type) {
+		case 'table':
+			url = 'index.php?option=com_neno&task=groupselements.toggleContentElementTable&tableId=' + elementId + '&translateStatus=' + status;
+			break;
+		case 'file':
+			url = 'index.php?option=com_neno&task=groupselements.toggleContentElementLanguageFile&fileId=' + elementId + '&translateStatus=' + status;
+			break;
+	}
+
+	if (url !== null) {
+		jQuery.ajax({
+				url    : url,
+				success: function () {
+					if (typeof tableFiltersCallback != 'undefined') {
+						tableFiltersCallback(id);
+					}
+				}
+			}
+		);
+	}
 }
 
 /**
@@ -342,17 +351,18 @@ function getViewName() {
 /**
  *
  * @param id Table Id
+ * @param type Type
  * @param status Table status
  * @param showFiltersModal Whether or not the filter modal need to be shown
  *
  * @return void
  */
-function markLabelAsActiveByStatus(id, status, showFiltersModal) {
-	var row = jQuery('.row-table[data-id="table-' + id + '"]');
+function markLabelAsActiveByStatus(id, type, status, showFiltersModal) {
+	var row = jQuery('.row-table[data-id="' + type + '-' + id + '"]');
 	var toggler = row.find('.toggle-fields');
-	var translateButton = jQuery('[for="check-toggle-translate-table-' + id + '-1"]');
-	var translateSomeButton = jQuery('[for="check-toggle-translate-table-' + id + '-2"]');
-	var doNotTranslateButton = jQuery('[for="check-toggle-translate-table-' + id + '-0"]');
+	var translateButton = jQuery('[for="check-toggle-translate-' + type + '-' + id + '-1"]');
+	var translateSomeButton = jQuery('[for="check-toggle-translate-' + type + '-' + id + '-2"]');
+	var doNotTranslateButton = jQuery('[for="check-toggle-translate-' + type + '-' + id + '-0"]');
 	switch (status) {
 		case 1:
 			row.find('.bar').removeClass('bar-disabled');
@@ -364,7 +374,7 @@ function markLabelAsActiveByStatus(id, status, showFiltersModal) {
 			break;
 		case 2:
 			row.find('.bar').removeClass('bar-disabled');
-			var currentStatus = jQuery(".active[for|='check-toggle-translate-table-" + id + "']").attr('for').replace('check-toggle-translate-table-' + id + '-', '');
+			var currentStatus = jQuery(".active[for|='check-toggle-translate-" + type + "-" + id + "']").attr('for').replace('check-toggle-translate-' + type + '-' + id + '-', '');
 			translateButton.removeClass('active btn-success');
 			doNotTranslateButton.removeClass('active btn-danger');
 			translateSomeButton.addClass('active btn-warning');
@@ -391,7 +401,7 @@ function markLabelAsActiveByStatus(id, status, showFiltersModal) {
 			break;
 	}
 
-	jQuery('#check-toggle-translate-table-' + id + '-' + status).click();
+	jQuery('#check-toggle-translate-' + type + '-' + id + '-' + status).click();
 }
 
 function bindToggleFieldVisibilityEvent(toggler) {
@@ -551,7 +561,7 @@ function checkStatus() {
 
 function bindTranslateSomeButtonEvents() {
 	//Attach the translate state toggler
-	jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTableTranslateState);
+	jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
 	jQuery('.filter').off('click').on('click', saveFilter);
 
 	jQuery('#filters-close-button').off('click').on('click', setOldTableStatus);

@@ -15,7 +15,7 @@ $table = $displayData;
 ?>
 
 <fieldset id="check-toggle-translate-table-<?php echo $table->id; ?>"
-	class="radio btn-group" data-field="<?php echo $table->id; ?>">
+	class="radio btn-group" data-field="<?php echo $table->id; ?>" data-type="table">
 	<!-- Translate -->
 	<input class="check-toggle-translate-table-radio" type="radio"
 		id="check-toggle-translate-table-<?php echo $table->id; ?>-1"

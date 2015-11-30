@@ -140,7 +140,10 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		jQuery('.check-toggle-translate-radio').off('change').on('change', changeFieldTranslateState);
 
 		//Attach the translate state toggler
-		jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTableTranslateState);
+		jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
+
+		//Attach the translate state toggler
+		jQuery('.check-toggle-translate-file-radio').off('change').on('change', changeTranslateState);
 
 		//Bind modal clicks
 		jQuery('.modalgroupform').off('click').on('click', showModalGroupForm);
