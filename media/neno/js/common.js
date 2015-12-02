@@ -320,7 +320,7 @@ function setTranslateStatus(elementId, type, status) {
 				url    : url,
 				success: function () {
 					if (typeof tableFiltersCallback != 'undefined') {
-						tableFiltersCallback(id);
+						tableFiltersCallback(elementId, type);
 					}
 				}
 			}
@@ -562,6 +562,7 @@ function checkStatus() {
 function bindTranslateSomeButtonEvents() {
 	//Attach the translate state toggler
 	jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
+	jQuery('.check-toggle-translate-file-radio').off('change').on('change', changeTranslateState);
 	jQuery('.filter').off('click').on('click', saveFilter);
 
 	jQuery('#filters-close-button').off('click').on('click', setOldTableStatus);

@@ -182,21 +182,29 @@ JHtml::_('bootstrap.tooltip');
 
 	/**
 	 *
-	 * @param tableId
+	 * @param id
+	 * @param type
 	 */
-	function refreshRecordCounter(tableId) {
-		if (typeof tableId == 'undefined') {
-			tableId = jQuery(this).data('table-id');
+	function refreshRecordCounter(id, type) {
+		if (typeof id == 'undefined') {
+			id = jQuery(this).data('table-id');
 		}
-		jQuery.post(
-			'index.php?option=com_neno&task=installation.refreshRecordCounter&r=' + Math.random(),
-			{
-				tableId: tableId
-			},
-			function (text) {
-				jQuery('#record-count-' + tableId).text(text);
-			}
-		)
+
+		if (typeof type == 'undefined') {
+			type = 'table';
+		}
+
+		if (type == 'table') {
+			jQuery.post(
+				'index.php?option=com_neno&task=installation.refreshRecordCounter&r=' + Math.random(),
+				{
+					tableId: id
+				},
+				function (text) {
+					jQuery('#record-count-' + id).text(text);
+				}
+			)
+		}
 	}
 
 	function resetDiscoveringVariables() {
