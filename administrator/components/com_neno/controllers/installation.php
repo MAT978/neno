@@ -199,6 +199,7 @@ class NenoControllerInstallation extends JControllerAdmin
 				foreach ($groups as $key => $group)
 				{
 					$group->getTables();
+					$group->getLanguageFiles();
 					$groups[ $key ] = $group->prepareDataForView();
 				}
 				$data->groups = $groups;
@@ -215,37 +216,56 @@ class NenoControllerInstallation extends JControllerAdmin
 	 *
 	 * @throws Exception
 	 */
-	public function previewContentFromTable()
+	public function previewContentFromElement()
 	{
-		$app     = JFactory::getApplication();
-		$input   = $app->input;
-		$tableId = $input->getInt('tableId');
+		$app               = JFactory::getApplication();
+		$input             = $app->input;
+		$id                = $input->getInt('id');
+		$type              = $input->getCmd('type');
+		$displayData       = new stdClass;
+		$displayData->type = $type;
 
-		/* @var $table NenoContentElementTable */
-		$table                  = NenoContentElementTable::load($tableId);
-		$displayData            = new stdClass;
-		$displayData->tableName = $table->getTableName();
-		$displayData->tableId   = $table->getId();
-
-		if (!empty($table))
+		switch ($type)
 		{
-			$displayData->records = $table->getRandomContentFromTable();
-			$fields               = $table->getFields();
+			case 'table':
+				/* @var $table NenoContentElementTable */
+				$table = NenoContentElementTable::load($id);
 
-			/* @var $field NenoContentElementField */
-			foreach ($fields as $key => $field)
-			{
-				if ($field->isTranslatableType($field->getFieldType()))
-				{
-					$fields[ $key ] = $field->prepareDataForView();
-				}
-				else
-				{
-					unset($fields[ $key ]);
-				}
-			}
+				$displayData->name = $table->getTableName();
+				$displayData->id   = $table->getId();
 
-			$displayData->fields = $fields;
+				if (!empty($table))
+				{
+					$displayData->records = $table->getRandomContentFromTable();
+					$fields               = $table->getFields();
+
+					/* @var $field NenoContentElementField */
+					foreach ($fields as $key => $field)
+					{
+						if ($field->isTranslatableType($field->getFieldType()))
+						{
+							$fields[ $key ] = $field->prepareDataForView();
+						}
+						else
+						{
+							unset($fields[ $key ]);
+						}
+					}
+
+					$displayData->fields = $fields;
+				}
+				break;
+			case 'file':
+				/* @var $languageFile NenoContentElementLanguageFile */
+				$languageFile      = NenoContentElementLanguageFile::load($id);
+				$displayData->name = $languageFile->getFilename();
+				$displayData->id   = $languageFile->getId();
+
+				if (!empty($languageFile))
+				{
+					$displayData->records = $languageFile->getRandomContentFromLanguageFile();
+				}
+				break;
 		}
 
 		echo JLayoutHelper::render('previewcontent', $displayData, JPATH_NENO_LAYOUTS);
@@ -520,6 +540,11 @@ class NenoControllerInstallation extends JControllerAdmin
 		$app->close();
 	}
 
+	/**
+	 * @param $type
+	 *
+	 * @return NenoContentElementInterface|null
+	 */
 	protected function getLeafElement($type)
 	{
 		return $this->getElementByLevel($type);

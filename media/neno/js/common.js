@@ -592,9 +592,10 @@ function removeFilterRow() {
 function previewContent() {
 	var button = jQuery(this);
 	jQuery.post(
-		'index.php?option=com_neno&task=installation.previewContentFromTable&r=' + Math.random(),
+		'index.php?option=com_neno&task=installation.previewContentFromElement&r=' + Math.random(),
 		{
-			tableId: button.data('table-id')
+			id  : button.data('id'),
+			type: button.data('type')
 		},
 		function (html) {
 			var modal = jQuery('#preview-modal');

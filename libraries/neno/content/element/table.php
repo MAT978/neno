@@ -922,7 +922,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	 *
 	 * @param int $limit
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getRandomContentFromTable($limit = 3)
 	{

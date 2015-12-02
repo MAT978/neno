@@ -21,6 +21,11 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	public $wordCount;
 
 	/**
+	 * @var int
+	 */
+	public $stringsCount;
+
+	/**
 	 * @var NenoContentElementGroup
 	 */
 	protected $group;
@@ -83,6 +88,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		if ($loadExtraData && !$this->isNew())
 		{
 			$this->loadExtraData();
+			$this->getStringsCount();
 		}
 	}
 
@@ -245,13 +251,23 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	/**
 	 * Get language strings
 	 *
+	 * @param boolean $fromFile Whether or not the language strings must be loaded from the file
+	 *
 	 * @return array
 	 */
-	public function getLanguageStrings()
+	public function getLanguageStrings($fromFile = true)
 	{
 		if ($this->languageStrings == null)
 		{
-			$this->loadStringsFromFile();
+			if ($fromFile)
+			{
+				$this->loadStringsFromFile();
+			}
+			else
+			{
+				$this->languageStrings = NenoContentElementLanguageString::load(array( 'languagefile_id' => $this->id ));
+			}
+
 		}
 
 		return $this->languageStrings;
@@ -291,8 +307,9 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 				foreach ($strings as $constant => $string)
 				{
 					// If this language string exists already, let's load it
-					$languageString = NenoContentElementLanguageString::load(array( 'constant'        => $constant,
-					                                                                'languagefile_id' => $this->id
+					$languageString = NenoContentElementLanguageString::load(array(
+						'constant'        => $constant,
+						'languagefile_id' => $this->id
 					));
 
 					// If it's not, let's create it
@@ -391,9 +408,10 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		);
 
 		// Check if there are children not discovered
-		$languageString = NenoContentElementLanguageString::load(array( 'discovered'      => 0,
-		                                                                '_limit'          => 1,
-		                                                                'languagefile_id' => $this->id
+		$languageString = NenoContentElementLanguageString::load(array(
+			'discovered'      => 0,
+			'_limit'          => 1,
+			'languagefile_id' => $this->id
 		));
 
 		if (empty($languageString))
@@ -493,5 +511,38 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		$this->translate = $translate;
 
 		return $this;
+	}
+
+	/**
+	 * Get random content from a language file
+	 *
+	 * @return array
+	 */
+	public function getRandomContentFromLanguageFile()
+	{
+		$randomArray = array_rand($this->getLanguageStrings(false), 3);
+		$records     = array();
+
+		foreach ($randomArray as $randomIndex)
+		{
+			$records[] = (string) $this->languageStrings[ $randomIndex ];
+		}
+
+		return $records;
+	}
+
+	public function getStringsCount()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('COUNT(*)')
+			->from('#__neno_content_element_language_strings')
+			->where('languagefile_id = ' . $db->quote($this->id));
+
+		$db->setQuery($query);
+		$this->stringsCount = $db->loadResult();
+
 	}
 }

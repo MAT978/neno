@@ -52,11 +52,12 @@ JHtml::_('bootstrap.tooltip');
 					</tr>
 					<?php foreach ($group->tables as $table): ?>
 						<tr>
-							<td><h6><?php echo $table->table_name; ?></h6></td>
+							<td><h6><i class="icon-grid"></i> <?php echo $table->table_name; ?></h6></td>
 							<td>
 								<button class="btn btn-mini preview-btn" type="button"
-									data-table-id="<?php echo $table->id; ?>"
-									data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_BTN_TOOLTIP'); ?>">
+									data-id="<?php echo $table->id; ?>"
+									data-type="table" data-toogle="tooltip"
+									title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_BTN_TOOLTIP'); ?>">
 									<i class="icon-eye"></i>
 								</button>
 							</td>
@@ -73,6 +74,30 @@ JHtml::_('bootstrap.tooltip');
 							<td colspan="2">
 								<div class="pull-right">
 									<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
+								</div>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					<?php foreach ($group->language_files as $languageFile): ?>
+						<tr>
+							<td><h6><i class="icon-file"></i> <?php echo $languageFile->filename; ?></h6></td>
+							<td>
+								<button class="btn btn-mini preview-btn" type="button"
+									data-id="<?php echo $languageFile->id; ?>"
+									data-type="file" data-toogle="tooltip"
+									title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_BTN_TOOLTIP'); ?>">
+									<i class="icon-eye"></i>
+								</button>
+							</td>
+							<td>
+								<?php echo JText::sprintf('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_STRING_COUNT', $languageFile->strings_count); ?>
+								<?php if ($table->record_count > 1000): ?>
+									<i class="icon-warning" data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_RECORD_COUNT_WARNING'); ?>"></i>
+								<?php endif; ?>
+							</td>
+							<td colspan="2">
+								<div class="pull-right">
+									<?php echo JLayoutHelper::render('translatefilewidget', $languageFile, JPATH_NENO_LAYOUTS); ?>
 								</div>
 							</td>
 						</tr>
