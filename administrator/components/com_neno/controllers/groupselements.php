@@ -765,7 +765,15 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			if ($languageFile->persist() === false)
 			{
-				NenoLog::log('Error saving new state!', NenoLog::PRIORITY_ERROR);
+				$languageStrings = $languageFile->getLanguageStrings(false);
+
+				/* @var $languageString NenoContentElementLanguageString */
+				foreach ($languageStrings as $languageString)
+				{
+					$languageString
+						->setTranslate($translateStatus)
+						->persist();
+				}
 			}
 		}
 

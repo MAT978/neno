@@ -451,7 +451,7 @@ class NenoControllerInstallation extends JControllerAdmin
 	 */
 	protected function isLeafLevel($level)
 	{
-		list($branch, $branchLevel) = explode('.', $level);
+		list($branch,) = explode('.', $level);
 
 		return $branch == 2;
 	}
@@ -716,7 +716,8 @@ class NenoControllerInstallation extends JControllerAdmin
 					$languageString = NenoContentElementLanguageString::load(
 						array(
 							'discovered' => 0,
-							'_limit'     => 1
+							'_limit'     => 1,
+							'translate'  => 1
 						), false, true
 					);
 				}
