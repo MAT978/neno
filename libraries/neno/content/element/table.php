@@ -113,14 +113,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				if ($filter['operator'] == 'IN')
-				{
-					$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' (' . $db->quote($filter['value']) . ')');
-				}
-				else
-				{
-					$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
-				}
+				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 		}
 
@@ -875,7 +868,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
+				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 
 			$db->setQuery($query);

@@ -702,6 +702,22 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$subqueryProcessed = 0;
 		}
 
+		// If there's no filter applied, let's applied the ones for the tables
+		if ($this->getTable()->isTranslate() == 2)
+		{
+			$filters = $this->getTable()->getTableFilters();
+
+			foreach ($filters as $filter)
+			{
+				if ($subqueryProcessed !== 0)
+				{
+					$subqueryProcessed->where(NenoHelper::getWhereClauseForTableFilters($filter));
+				}
+
+				$subqueryTotal->where(NenoHelper::getWhereClauseForTableFilters($filter));
+			}
+		}
+
 		$query
 			->select(
 				array(
@@ -781,14 +797,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 				foreach ($filters as $filter)
 				{
-					if ($filter['operator'] == 'IN')
-					{
-						$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' (' . $db->quote($filter['value']) . ')');
-					}
-					else
-					{
-						$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
-					}
+					$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 				}
 			}
 

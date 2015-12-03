@@ -3970,4 +3970,28 @@ class NenoHelper
 		// we are done...
 		return $data;
 	}
+
+	/**
+	 * Generate where statement based on
+	 *
+	 * @param array $filter
+	 *
+	 * @return string
+	 */
+	public static function getWhereClauseForTableFilters($filter)
+	{
+		$db = JFactory::getDbo();
+		if ($filter['operator'] == 'IN')
+		{
+			$values = explode(',', $filter['value']);
+			array_walk($values, 'trim');
+			$whereClause = $db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' (' . implode(',', $db->quote($values)) . ')';
+		}
+		else
+		{
+			$whereClause = $db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']);
+		}
+
+		return $whereClause;
+	}
 }
