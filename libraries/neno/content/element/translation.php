@@ -510,6 +510,8 @@ class NenoContentElementTranslation extends NenoContentElement
 			->select('tr.*')
 			->from('`#__neno_content_element_translations` AS tr');
 
+		$query = static::assigningSourceDataToQuery($sourceElementData, $query);
+
 		foreach ($sourceElementData as $index => $sourceData)
 		{
 			/* @var $field NenoContentElementField */
@@ -653,27 +655,15 @@ class NenoContentElementTranslation extends NenoContentElement
 
 			if ($this->contentType == self::DB_STRING)
 			{
-				foreach ($this->sourceElementData as $index => $sourceData)
-				{
-					/* @var $field NenoContentElementField */
-					$field = $sourceData['field'];
+				$result = static::assigningSourceDataToQuery($this->sourceElementData, $query);
 
-					if (!empty($field))
-					{
-						$fieldValue = $sourceData['value'];
-						$query
-							->innerJoin('#__neno_content_element_fields_x_translations AS ft' . $index . ' ON ft' . $index . '.translation_id = tr.id')
-							->where(
-								array(
-									'ft' . $index . '.field_id = ' . $field->getId(),
-									'ft' . $index . '.value = ' . $db->quote($fieldValue)
-								)
-							);
-					}
-					else
-					{
-						return false;
-					}
+				if ($result !== false)
+				{
+					$query = $result;
+				}
+				else
+				{
+					return false;
 				}
 			}
 
@@ -690,6 +680,42 @@ class NenoContentElementTranslation extends NenoContentElement
 		}
 
 		return true;
+	}
+
+	/**
+	 * Assign sourcedata elements to Sql Query
+	 *
+	 * @param array          $sourceElementData
+	 * @param JDatabaseQuery $query
+	 *
+	 * @return bool|JDatabaseQuery
+	 */
+	protected static function assigningSourceDataToQuery($sourceElementData, $query)
+	{
+		foreach ($sourceElementData as $index => $sourceData)
+		{
+			/* @var $field NenoContentElementField */
+			$field = $sourceData['field'];
+
+			if (!empty($field))
+			{
+				$fieldValue = $sourceData['value'];
+				$query
+					->innerJoin('#__neno_content_element_fields_x_translations AS ft' . $index . ' ON ft' . $index . '.translation_id = tr.id')
+					->where(
+						array(
+							'ft' . $index . '.field_id = ' . $field->getId(),
+							'ft' . $index . '.value = ' . $db->quote($fieldValue)
+						)
+					);
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		return $query;
 	}
 
 	/**
