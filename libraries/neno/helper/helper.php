@@ -2423,15 +2423,16 @@ class NenoHelper
 	 */
 	public static function fixLanguageIssues($language, $issue)
 	{
+		$result = false;
 		switch ($issue)
 		{
 			case 'content_missing':
 				if (!self::hasContentCreated($language))
 				{
-					return self::createContentRow($language);
+					$result = self::createContentRow($language);
 				}
 
-				return true;
+				$result = true;
 
 				break;
 			case 'language_file_out_of_date':
@@ -2452,17 +2453,17 @@ class NenoHelper
 				{
 					if ($updateLanguage['iso'] == $language)
 					{
-						return self::installLanguage($updateLanguage['update_id']);
+						$result = self::installLanguage($updateLanguage['update_id']);
 						break;
 					}
 				}
 				break;
 			case 'content_out_of_neno':
-				return self::moveContentIntoShadowTables($language);
+				$result = self::moveContentIntoShadowTables($language);
 				break;
 		}
 
-		return false;
+		return $result;
 	}
 
 	/**
