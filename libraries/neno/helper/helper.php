@@ -3595,7 +3595,6 @@ class NenoHelper
 			->where('table_schema = DATABASE()');
 
 		$db->setQuery($query);
-		$result = 0;
 
 		try
 		{
@@ -3603,7 +3602,7 @@ class NenoHelper
 			$result        = $spaceOccupied * 0.8;
 		} catch (RuntimeException $e)
 		{
-
+			$result = 0;
 		}
 
 		return $result;
