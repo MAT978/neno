@@ -692,6 +692,8 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	protected static function assigningSourceDataToQuery($sourceElementData, $query)
 	{
+		$db = JFactory::getDbo();
+		
 		foreach ($sourceElementData as $index => $sourceData)
 		{
 			/* @var $field NenoContentElementField */
