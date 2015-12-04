@@ -26,14 +26,17 @@ class NenoModelSettings extends JModelList
 	 * @see        JController
 	 * @since      1.6
 	 */
-	public function __construct($config = array ())
+	public function __construct($config = array())
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array (
-				'id', 'a.id',
-				'setting_key', 'a.setting_key',
-				'setting_value', 'a.setting_value'
+			$config['filter_fields'] = array(
+				'id',
+				'a.id',
+				'setting_key',
+				'a.setting_key',
+				'setting_value',
+				'a.setting_value'
 			);
 		}
 
@@ -61,7 +64,7 @@ class NenoModelSettings extends JModelList
 					$query
 						->clear()
 						->select(
-							array (
+							array(
 								'id',
 								'name_constant'
 							)
@@ -75,10 +78,10 @@ class NenoModelSettings extends JModelList
 
 					break;
 				case 'schedule_task_option':
-					$values         = array (
-						array ('value' => 'ajax', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_AJAX_MODULE_TITLE'),
-						array ('value' => 'cron', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_CRON_TITLE'),
-						array ('value' => 'disabled', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_DISABLE_TITLE'),
+					$values         = array(
+						array( 'value' => 'ajax', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_AJAX_MODULE_TITLE' ),
+						array( 'value' => 'cron', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_CRON_TITLE' ),
+						array( 'value' => 'disabled', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_DISABLE_TITLE' ),
 					);
 					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
 					break;
@@ -86,7 +89,7 @@ class NenoModelSettings extends JModelList
 					$query
 						->clear()
 						->select(
-							array (
+							array(
 								'translator_name AS value',
 								'translator_name AS text',
 							)
@@ -98,23 +101,32 @@ class NenoModelSettings extends JModelList
 					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
 					break;
 				case 'default_translate_action':
-                    if ($item->setting_key == '')
-                    {
-                        $item->setting_key = 0;
-                    }
-					$values         = array (
-						array ('value' => '0', 'text' => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_NO'),
-						array ('value' => '1', 'text' => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_COPY'),
-						array ('value' => '2', 'text' => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_TRANSLATE'),
+					if ($item->setting_key == '')
+					{
+						$item->setting_key = 0;
+					}
+					$values         = array(
+						array(
+							'value' => '0',
+							'text'  => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_NO'
+						),
+						array(
+							'value' => '1',
+							'text'  => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_COPY'
+						),
+						array(
+							'value' => '2',
+							'text'  => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_TRANSLATE'
+						),
 					);
 					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
 					break;
 			}
 		}
-        
-        // Ensure defaults are set
-        $items = $this->ensureDefaultsExists($items);
-        
+
+		// Ensure defaults are set
+		$items = $this->ensureDefaultsExists($items);
+
 		return $items;
 	}
 
@@ -135,7 +147,7 @@ class NenoModelSettings extends JModelList
 			->select('a.*')
 			->from('#__neno_settings AS a')
 			->where(
-				array (
+				array(
 					'a.setting_key NOT LIKE ' . $db->quote('%installation%'),
 					'a.setting_key NOT LIKE ' . $db->quote('%setup%'),
 					'a.setting_key NOT LIKE ' . $db->quote('%discovering%')
@@ -175,27 +187,31 @@ class NenoModelSettings extends JModelList
 		// List state information.
 		parent::populateState('a.setting_key', 'asc');
 	}
-    
-    
-    protected function ensureDefaultsExists($items) 
-    {
-        // Create a simple array with key value of settings
-        $settings = array();
-        foreach ($items as $item)
-        {
-            $settings[$item->setting_key] = $item->setting_value;
-        }
-        
-        // Related content
-        if (!isset($settings['load_related_content']))
-        {
-            NenoSettings::set('load_related_content', '0');
-            $items = $this->getItems(); // Refresh the items 
-        }
 
-        return $items;
-        
-    }
-    
-    
+	/**
+	 * This method takes care that all the default settings exist.
+	 *
+	 * @param array $items Setting items
+	 *
+	 * @return array
+	 */
+	protected function ensureDefaultsExists($items)
+	{
+		// Create a simple array with key value of settings
+		$settings = array();
+		foreach ($items as $item)
+		{
+			$settings[ $item->setting_key ] = $item->setting_value;
+		}
+
+		// Related content
+		if (!isset($settings['load_related_content']))
+		{
+			NenoSettings::set('load_related_content', '0');
+			$items = $this->getItems(); // Refresh the items
+		}
+
+		return $items;
+	}
+
 }
