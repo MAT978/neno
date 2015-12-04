@@ -402,17 +402,7 @@ class NenoControllerInstallation extends JControllerAdmin
 				}
 				elseif ($element == null && $level != 0)
 				{
-					list($firstPart, $secondPart) = explode('.', $level);
-					$firstPart--;
-
-					if ($firstPart == 0)
-					{
-						NenoSettings::set('installation_level', $firstPart);
-					}
-					else
-					{
-						NenoSettings::set('installation_level', implode('.', array( $firstPart, $secondPart )));
-					}
+					$this->goingBackInTheHierarchy($level);
 				}
 				else
 				{
@@ -422,23 +412,33 @@ class NenoControllerInstallation extends JControllerAdmin
 			}
 			else
 			{
-				list($firstPart, $secondPart) = explode('.', $level);
-				$firstPart--;
-
-				if ($firstPart == 0)
-				{
-					NenoSettings::set('installation_level', $firstPart);
-				}
-				else
-				{
-					NenoSettings::set('installation_level', implode('.', array( $firstPart, $secondPart )));
-				}
+				$this->goingBackInTheHierarchy($level);
 			}
 		}
 
 		if ($finished)
 		{
 			echo 'ok';
+		}
+	}
+
+	/**
+	 * @param string $level Hierarchy level
+	 *
+	 * @return void
+	 */
+	protected function goingBackInTheHierarchy($level)
+	{
+		list($firstPart, $secondPart) = explode('.', $level);
+		$firstPart--;
+
+		if ($firstPart == 0)
+		{
+			NenoSettings::set('installation_level', $firstPart);
+		}
+		else
+		{
+			NenoSettings::set('installation_level', implode('.', array( $firstPart, $secondPart )));
 		}
 	}
 
