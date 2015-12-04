@@ -614,9 +614,10 @@ class NenoHelper
 		$db     = JFactory::getDbo();
 		$tables = $group->isOtherGroup() ? NenoHelperBackend::getTablesNotDiscovered() : $db->getComponentTables($tablePattern === null ? $group->getGroupName() : $tablePattern);
 
-		$result = array();
+		$result      = array();
+		$tablesCount = count($tables);
 
-		for ($i = 0; $i < count($tables); $i++)
+		for ($i = 0; $i < $tablesCount; $i++)
 		{
 			// Get Table name
 			$tableName     = self::unifyTableName($tables[ $i ]);
@@ -875,7 +876,8 @@ class NenoHelper
 	 */
 	public static function concatenateStringToStringArray($string, &$array, $prepend = true)
 	{
-		for ($i = 0; $i < count($array); $i++)
+		$arrayCount = count($array);
+		for ($i = 0; $i < $arrayCount; $i++)
 		{
 			if ($prepend)
 			{

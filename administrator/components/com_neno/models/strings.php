@@ -28,19 +28,27 @@ class NenoModelStrings extends JModelList
 	 * @see        JController
 	 * @since      1.6
 	 */
-	public function __construct($config = array ())
+	public function __construct($config = array())
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array (
-				'id', 'a.id',
-				'string', 'a.string',
-				'word_counter', 'a.word_counter',
-				'group', 'a.group',
-				'key', 'a.key',
-				'element_name', 'a.element_name',
-				'word_counter', 'a.word_counter',
-				'characters', 'a.characters'
+			$config['filter_fields'] = array(
+				'id',
+				'a.id',
+				'string',
+				'a.string',
+				'word_counter',
+				'a.word_counter',
+				'group',
+				'a.group',
+				'key',
+				'a.key',
+				'element_name',
+				'a.element_name',
+				'word_counter',
+				'a.word_counter',
+				'characters',
+				'a.characters'
 			);
 		}
 
@@ -55,8 +63,8 @@ class NenoModelStrings extends JModelList
 	public function getItems()
 	{
 		$elements     = parent::getItems();
-		$translations = array ();
-		$groups       = array ();
+		$translations = array();
+		$groups       = array();
 
 		foreach ($elements as $element)
 		{
@@ -87,19 +95,18 @@ class NenoModelStrings extends JModelList
 		$store = $this->getStoreId('getstart');
 
 		// Try to load the data from internal storage.
-		if (isset($this->cache[$store]))
+		if (isset($this->cache[ $store ]))
 		{
-			return $this->cache[$store];
+			return $this->cache[ $store ];
 		}
 
 		$start = $this->getState('list.start');
 
 		// Add the total to the internal cache.
-		$this->cache[$store] = $start;
+		$this->cache[ $store ] = $start;
 
-		return $this->cache[$store];
+		return $this->cache[ $store ];
 	}
-
 
 	/**
 	 * Get and set current values of filters
@@ -114,12 +121,12 @@ class NenoModelStrings extends JModelList
 		// Initialise variables.
 		$app = JFactory::getApplication();
 
-		$groups = $app->getUserStateFromRequest($this->context . '.group', 'group', array ());
+		$groups = $app->getUserStateFromRequest($this->context . '.group', 'group', array());
 
 		if (!empty($groups))
 		{
 			$this->setState('filter.group_id', $groups);
-			$app->setUserState($this->context . '.filter.elements', array ());
+			$app->setUserState($this->context . '.filter.elements', array());
 		}
 
 		$search = $app->getUserStateFromRequest($this->context . '.filter.search', 'filter_search', '', 'raw');
@@ -130,29 +137,27 @@ class NenoModelStrings extends JModelList
 		}
 
 		// Element(s) filtering
-		$elements = $app->getUserStateFromRequest($this->context . '.filter.elements', 'table', array ());
+		$elements = $app->getUserStateFromRequest($this->context . '.filter.elements', 'table', array());
 
 		if (!empty($elements))
 		{
 			$app->setUserState($this->context . '.filter.elements', $elements);
-			//$this->setState('filter.group_id', array ());
 		}
 
 		$this->setState('filter.element', $app->getUserState($this->context . '.filter.elements'));
 
 		// Language file filtering
-		$elements = $app->getUserStateFromRequest($this->context . '.filter.files', 'file', array ());
+		$elements = $app->getUserStateFromRequest($this->context . '.filter.files', 'file', array());
 
 		if (!empty($elements))
 		{
 			$app->setUserState($this->context . '.filter.files', $elements);
-			//$this->setState('filter.group_id', array ());
 		}
 
 		$this->setState('filter.files', $app->getUserState($this->context . '.filter.files'));
 
 		// Field(s) filtering
-		$fields = $app->getUserStateFromRequest($this->context . '.field', 'field', array ());
+		$fields = $app->getUserStateFromRequest($this->context . '.field', 'field', array());
 
 		if (!empty($fields))
 		{
@@ -160,7 +165,7 @@ class NenoModelStrings extends JModelList
 		}
 
 		// Status filtering
-		$status = (array) $app->getUserStateFromRequest($this->context . '.status', 'status', array ());
+		$status = (array) $app->getUserStateFromRequest($this->context . '.status', 'status', array());
 
 		if (!empty($status))
 		{
@@ -168,14 +173,14 @@ class NenoModelStrings extends JModelList
 
 			if ($index !== false)
 			{
-				unset($status[$index]);
+				unset($status[ $index ]);
 			}
 
 			$this->setState('filter.translation_status', $status);
 		}
 
 		// Translation methods filtering
-		$method = (array) $app->getUserStateFromRequest($this->context . '.type', 'type', array ());
+		$method = (array) $app->getUserStateFromRequest($this->context . '.type', 'type', array());
 
 		if (!empty($method))
 		{
@@ -183,7 +188,7 @@ class NenoModelStrings extends JModelList
 
 			if ($index !== false)
 			{
-				unset($method[$index]);
+				unset($method[ $index ]);
 			}
 
 			$app->setUserState($this->context . '.filter.translator_type', $method);
@@ -213,7 +218,7 @@ class NenoModelStrings extends JModelList
 
 		$dbStrings
 			->select(
-				array (
+				array(
 					'tr1.*',
 					'f.field_name AS `key`',
 					't.table_name AS element_name',
@@ -226,14 +231,14 @@ class NenoModelStrings extends JModelList
 			->innerJoin('`#__neno_content_element_tables` AS t ON t.id = f.table_id')
 			->innerJoin('`#__neno_content_element_groups` AS g1 ON t.group_id = g1.id ')
 			->where(
-				array (
+				array(
 					'tr1.language = ' . $db->quote($workingLanguage),
 					'tr1.content_type = ' . $db->quote('db_string'),
 					'f.translate = 1'
 				)
 			)
 			->group(
-				array (
+				array(
 					'HEX(tr1.string)',
 					'tr1.state'
 				)
@@ -242,7 +247,7 @@ class NenoModelStrings extends JModelList
 
 		$languageFileStrings
 			->select(
-				array (
+				array(
 					'tr2.*',
 					'ls.constant AS `key`',
 					'lf.filename AS element_name',
@@ -255,39 +260,38 @@ class NenoModelStrings extends JModelList
 			->innerJoin('`#__neno_content_element_language_files` AS lf ON lf.id = ls.languagefile_id')
 			->innerJoin('`#__neno_content_element_groups` AS g2 ON lf.group_id = g2.id ')
 			->where(
-				array (
+				array(
 					'tr2.language = ' . $db->quote($workingLanguage),
 					'tr2.content_type = ' . $db->quote('lang_string')
 				)
 			)
 			->group(
-				array (
+				array(
 					'HEX(tr2.string)',
 					'tr2.state'
 				)
 			)
 			->order('tr2.id');
 
-		$queryWhereDb = array ();
-
+		$queryWhereDb = array();
 
 		/* @var $groups array */
-		$groups = $this->getState('filter.group_id', array ());
+		$groups = $this->getState('filter.group_id', array());
 
 		/* @var $element array */
-		$element = $this->getState('filter.element', array ());
+		$element = $this->getState('filter.element', array());
 
 		/* @var $field array */
-		$field = $this->getState('filter.field', array ());
+		$field = $this->getState('filter.field', array());
 
 		/* @var $file array */
-		$file = $this->getState('filter.files', array ());
+		$file = $this->getState('filter.files', array());
 
 		$groupIdAdded = false;
 
 		if (!is_array($groups))
 		{
-			$groups = array ($groups);
+			$groups = array( $groups );
 		}
 
 		if (!empty($groups) && !in_array('none', $groups))
@@ -313,7 +317,6 @@ class NenoModelStrings extends JModelList
 				$languageFileStrings->where('lf.id = 0');
 			}
 		}
-
 
 		if (!empty($field))
 		{
@@ -347,7 +350,7 @@ class NenoModelStrings extends JModelList
 			$dbStrings->where('(' . implode(' OR ', $queryWhereDb) . ')');
 		}
 
-		$method = (array) $this->getState('filter.translator_type', array ());
+		$method = (array) $this->getState('filter.translator_type', array());
 
 		if (!empty($method) && !in_array('none', $method))
 		{
@@ -359,7 +362,7 @@ class NenoModelStrings extends JModelList
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
 		}
 
-		$status = (array) $this->getState('filter.translation_status', array ());
+		$status = (array) $this->getState('filter.translation_status', array());
 
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{

@@ -655,7 +655,8 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		}
 		else
 		{
-			for ($i = 0; $i < count($this->translations); $i++)
+			$translationsCount = count($this->translations);
+			for ($i = 0; $i < $translationsCount; $i++)
 			{
 				$translation = $this->translations[ $i ];
 				/* @var $translation NenoContentElementTranslation */

@@ -32,8 +32,8 @@ abstract class NenoContentElement extends NenoObject
 		$parentColumnName,
 		$parentId,
 		$transformProperties = false,
-		$extraWhereStatements = array ())
-	{
+		$extraWhereStatements = array()
+	){
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
@@ -56,18 +56,19 @@ abstract class NenoContentElement extends NenoObject
 
 		if ($transformProperties)
 		{
-			for ($i = 0; $i < count($elements); $i++)
+			$elementsCount = count($elements);
+			for ($i = 0; $i < $elementsCount; $i++)
 			{
 				$data = new stdClass;
 
-				$elementArray = get_object_vars($elements[$i]);
+				$elementArray = get_object_vars($elements[ $i ]);
 
 				foreach ($elementArray as $property => $value)
 				{
 					$data->{NenoHelper::convertDatabaseColumnNameToPropertyName($property)} = $value;
 				}
 
-				$elements[$i] = $data;
+				$elements[ $i ] = $data;
 			}
 		}
 
@@ -136,6 +137,5 @@ abstract class NenoContentElement extends NenoObject
 
 		return $this;
 	}
-
 
 }

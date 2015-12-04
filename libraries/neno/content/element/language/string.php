@@ -429,7 +429,8 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 			}
 			elseif ($this->hasChanged)
 			{
-				for ($i = 0; $i < count($this->translations); $i++)
+				$translationsCount = count($this->translations);
+				for ($i = 0; $i < $translationsCount; $i++)
 				{
 					/* @var $translation NenoContentElementTranslation */
 					$translation = $this->translations[ $i ];

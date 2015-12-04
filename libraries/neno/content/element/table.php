@@ -172,8 +172,9 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			else
 			{
 				$fieldsInfo = self::getElementsByParentId(NenoContentElementField::getDbTable(), 'table_id', $this->getId(), true);
+				$fieldsInfoCount = count($fieldsInfo);
 
-				for ($i = 0; $i < count($fieldsInfo); $i++)
+				for ($i = 0; $i < $fieldsInfoCount; $i++)
 				{
 					$fieldInfo        = $fieldsInfo[ $i ];
 					$fieldInfo->table = $this;
