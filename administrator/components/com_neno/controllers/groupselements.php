@@ -38,66 +38,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	}
 
 	/**
-	 * Read content files
-	 *
-	 * @return void
-	 *
-	 * @throws Exception
-	 */
-	public function readContentElementFile()
-	{
-		NenoLog::log('Method readContentElementFile of NenoControllerGroupsElements called', 3);
-
-		jimport('joomla.filesystem.file');
-
-		NenoLog::log('Trying to move content element files', 3);
-
-		$input       = JFactory::getApplication()->input;
-		$fileData    = $input->files->get('content_element');
-		$destFile    = JFactory::getConfig()->get('tmp_path') . '/' . $fileData['name'];
-		$extractPath = JFactory::getConfig()->get('tmp_path') . '/' . JFile::stripExt($fileData['name']);
-
-		// If the file has been moved successfully, let's work with it.
-		if (JFile::move($fileData['tmp_name'], $destFile) === true)
-		{
-			NenoLog::log('Content element files moved successfully', 2);
-
-			// If the file is a zip file, let's extract it
-			if ($fileData['type'] == 'application/zip')
-			{
-				NenoLog::log('Extracting zip content element files', 3);
-
-				$adapter = JArchive::getAdapter('zip');
-				$adapter->extract($destFile, $extractPath);
-				$contentElementFiles = JFolder::files($extractPath);
-			}
-			else
-			{
-				$contentElementFiles = array( $destFile );
-			}
-
-			// Add to each content file the path of the extraction location.
-			NenoHelper::concatenateStringToStringArray($extractPath . '/', $contentElementFiles);
-
-			NenoLog::log('Parsing element files for readContentElementFile', 3);
-
-			// Parse element file(s)
-			NenoHelperBackend::parseContentElementFile(JFile::stripExt($fileData['name']), $contentElementFiles);
-
-			NenoLog::log('Cleaning temporal folder for readContentElementFile', 3);
-
-			// Clean temporal folder
-			NenoHelperBackend::cleanFolder(JFactory::getConfig()->get('tmp_path'));
-		}
-
-		NenoLog::log('Redirecting to groupselements view', 3);
-
-		$this
-			->setRedirect('index.php?option=com_neno&view=groupselements')
-			->redirect();
-	}
-
-	/**
 	 * Enable/Disable a database table to be translate
 	 *
 	 * @return void

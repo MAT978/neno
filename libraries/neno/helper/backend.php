@@ -449,20 +449,6 @@ class NenoHelperBackend
 	}
 
 	/**
-	 * Read content element file(s) and create the content element hierarchy needed.
-	 *
-	 * @param   string $extensionName       Extension name
-	 * @param   array  $contentElementFiles Content element files
-	 *
-	 * @return void
-	 */
-	public static function parseContentElementFile($extensionName, $contentElementFiles)
-	{
-		// Create a group for this extension.
-		NenoContentElementGroup::parseContentElementFiles($extensionName, $contentElementFiles);
-	}
-
-	/**
 	 * Check if the database driver is enabled
 	 *
 	 * @return bool True if it's enabled, false otherwise
