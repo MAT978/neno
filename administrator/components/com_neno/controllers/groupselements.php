@@ -450,6 +450,11 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function moveTranslationsToTarget()
 	{
+		$this->executeMethodOnTranslationListPassedByInput('moveTranslationToTarget');
+	}
+
+	protected function executeMethodOnTranslationListPassedByInput($method)
+	{
 		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
 
 		foreach ($translationIds as $translationId)
@@ -457,7 +462,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			/* @var $translation NenoContentElementTranslation */
 			$translation = NenoContentElementTranslation::load($translationId, false, true);
 
-			$translation->moveTranslationToTarget();
+			$translation->{$method}();
 		}
 
 		JFactory::getApplication()->redirect('index.php?option=com_neno&view=groupselements');
@@ -572,16 +577,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 	public function refreshWordCount()
 	{
-		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
-		foreach ($translationIds as $translationId)
-		{
-			/* @var $translation NenoContentElementTranslation */
-			$translation = NenoContentElementTranslation::load($translationId, false, true);
-
-			$translation->persist();
-		}
-
-		JFactory::getApplication()->redirect('index.php?option=com_neno&view=groupselements');
+		$this->executeMethodOnTranslationListPassedByInput('persist');
 	}
 
 	/**
