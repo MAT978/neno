@@ -286,7 +286,7 @@ class NenoJob extends NenoObject
 	/**
 	 * Set sent time
 	 *
-	 * @param   Datetime $sentTime Time when the job has been sent
+	 * @param   Datetime|null $sentTime Time when the job has been sent
 	 *
 	 * @return $this
 	 */
