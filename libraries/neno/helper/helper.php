@@ -2431,8 +2431,10 @@ class NenoHelper
 				{
 					$result = self::createContentRow($language);
 				}
-
-				$result = true;
+				else
+				{
+					$result = true;
+				}
 
 				break;
 			case 'language_file_out_of_date':
