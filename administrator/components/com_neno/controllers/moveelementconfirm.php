@@ -96,11 +96,11 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 
 		/* @var $view NenoViewMoveElementConfirm */
 		$view         = $this->getView('MoveElementConfirm', 'html');
-		$view->groups = NenoHelper::convertNenoObjectListToJObjectList(NenoHelper::getGroups());
+		$view->groups = NenoHelper::convertNenoObjectListToJobjectList(NenoHelper::getGroups());
         
 		// Assign data from the model
-		$view->tables = NenoHelper::convertNenoObjectListToJObjectList($tables);
-		$view->files  = NenoHelper::convertNenoObjectListToJObjectList($files);
+		$view->tables = NenoHelper::convertNenoObjectListToJobjectList($tables);
+		$view->files  = NenoHelper::convertNenoObjectListToJobjectList($files);
 
 		// Display the view
 		$view->display();

@@ -505,9 +505,6 @@ class NenoJob extends NenoObject
 			'strings'            => $this->getTranslations()
 		);
 
-		$config  = JFactory::getConfig();
-		$tmpPath = $config->get('tmp_path');
-
 		$fileData = array(
 			'name' => $filename . '.json',
 			'data' => json_encode($jobData)

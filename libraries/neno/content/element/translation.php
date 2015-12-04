@@ -141,6 +141,11 @@ class NenoContentElementTranslation extends NenoContentElement
 	protected $comment;
 
 	/**
+	 * @var array
+	 */
+	public $related;
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Element data

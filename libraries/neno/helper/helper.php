@@ -64,7 +64,7 @@ class NenoHelper
 	 *
 	 * @return array
 	 */
-	public static function convertStdClassArrayToJObjectArray(array $objectList)
+	public static function convertStdClassArrayToObjectArray(array $objectList)
 	{
 		$jObjectList = array();
 
@@ -83,7 +83,7 @@ class NenoHelper
 	 *
 	 * @return array
 	 */
-	public static function convertNenoObjectListToJObjectList(array $objectList)
+	public static function convertNenoObjectListToJobjectList(array $objectList)
 	{
 		$jObjectList = array();
 
@@ -3061,7 +3061,7 @@ class NenoHelper
 			$startTime = microtime(true);
 			$canWrite  = flock($fp, LOCK_EX);
 
-			while ((!$canWrite) and ((microtime(true) - $startTime) < 5))
+			while ((!$canWrite) && ((microtime(true) - $startTime) < 5))
 			{
 				// If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
 				if (!$canWrite)

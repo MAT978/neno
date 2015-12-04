@@ -323,8 +323,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$files                 = $group->getLanguageFiles();
 		$displayData           = array();
 		$displayData['group']  = $group->prepareDataForView();
-		$displayData['tables'] = NenoHelper::convertNenoObjectListToJObjectList($tables);
-		$displayData['files']  = NenoHelper::convertNenoObjectListToJObjectList($files);
+		$displayData['tables'] = NenoHelper::convertNenoObjectListToJobjectList($tables);
+		$displayData['files']  = NenoHelper::convertNenoObjectListToJobjectList($files);
 		$tablesHTML            = JLayoutHelper::render('rowelementtable', $displayData, JPATH_NENO_LAYOUTS);
 
 		echo $tablesHTML;

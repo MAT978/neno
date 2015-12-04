@@ -36,13 +36,13 @@ class NenoLog extends JLog
 	/**
 	 * A static method that allows logging of errors and messages
 	 *
-	 * @param   string  $string          The log line that should be saved
-	 * @param   integer $level           1=error, 2=info, 3=debug
-	 * @param   boolean $display_message Weather or not the logged message should be displayed to the user
+	 * @param   string  $string         The log line that should be saved
+	 * @param   integer $level          1=error, 2=info, 3=debug
+	 * @param   boolean $displayMessage Weather or not the logged message should be displayed to the user
 	 *
 	 * @return bool true on success
 	 */
-	public static function log($string, $level = 2, $display_message = false)
+	public static function log($string, $level = 2, $displayMessage = false)
 	{
 		// Add an extra tab to debug messages
 		if ($level > 2)
@@ -63,7 +63,7 @@ class NenoLog extends JLog
 			self::add($string, $priority, 'com_neno');
 		}
 
-		if ($display_message === true)
+		if ($displayMessage === true)
 		{
 			JFactory::getApplication()->enqueueMessage($string);
 		}
