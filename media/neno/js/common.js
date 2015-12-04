@@ -606,3 +606,34 @@ function previewContent() {
 		}
 	)
 }
+
+function resetDiscoveringVariables() {
+	jQuery.get('index.php?option=com_neno&task=installation.resetDiscoveringVariables&r=' + Math.random());
+}
+
+/**
+ *
+ * @param id
+ * @param type
+ */
+function refreshRecordCounter(id, type) {
+	if (typeof id == 'undefined' || typeof id == 'object') {
+		id = jQuery(this).data('table-id');
+	}
+
+	if (typeof type == 'undefined') {
+		type = 'table';
+	}
+
+	if (type == 'table') {
+		jQuery.post(
+			'index.php?option=com_neno&task=installation.refreshRecordCounter&r=' + Math.random(),
+			{
+				tableId: id
+			},
+			function (text) {
+				jQuery('#record-count-' + id).text(text);
+			}
+		)
+	}
+}

@@ -174,42 +174,11 @@ JHtml::_('bootstrap.tooltip');
 		sendDiscoveringContentStep();
 	});
 
-	jQuery('#backup-created-checkbox').off('click').on('click', function () {
+	jQuery('#backup-created-checkbox').on('click', function () {
 		jQuery('#proceed-button').attr('disabled', !jQuery(this).prop('checked'));
 	});
 
-	jQuery('.record-refresher-btn').off('click').on('click', refreshRecordCounter);
-
-	/**
-	 *
-	 * @param id
-	 * @param type
-	 */
-	function refreshRecordCounter(id, type) {
-		if (typeof id == 'undefined') {
-			id = jQuery(this).data('table-id');
-		}
-
-		if (typeof type == 'undefined') {
-			type = 'table';
-		}
-
-		if (type == 'table') {
-			jQuery.post(
-				'index.php?option=com_neno&task=installation.refreshRecordCounter&r=' + Math.random(),
-				{
-					tableId: id
-				},
-				function (text) {
-					jQuery('#record-count-' + id).text(text);
-				}
-			)
-		}
-	}
-
-	function resetDiscoveringVariables() {
-		jQuery.get('index.php?option=com_neno&task=installation.resetDiscoveringVariables&r=' + Math.random());
-	}
+	jQuery('.record-refresher-btn').on('click', refreshRecordCounter);
 
 </script>
 
