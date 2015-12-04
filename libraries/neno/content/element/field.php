@@ -89,9 +89,8 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @param   mixed $data              Field data
 	 * @param   bool  $loadExtraData     Load extra data flag
 	 * @param   bool  $loadParent        Load parent flag
-	 * @param   bool  $fetchTranslations If the translation have to be loaded
 	 */
-	public function __construct($data, $loadExtraData = true, $loadParent = false, $fetchTranslations = false)
+	public function __construct($data, $loadExtraData = true, $loadParent = false)
 	{
 		parent::__construct($data);
 

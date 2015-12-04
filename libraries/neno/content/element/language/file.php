@@ -65,9 +65,8 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	 *
 	 * @param   mixed $data          File data
 	 * @param   bool  $loadExtraData Load extra data flag
-	 * @param   bool  $loadParent    Load parent flag
 	 */
-	public function __construct($data, $loadExtraData = true, $loadParent = false)
+	public function __construct($data, $loadExtraData = true)
 	{
 		parent::__construct($data);
 

@@ -592,7 +592,7 @@ class NenoHelperBackend
 					echo " ###\r    ";
 				}
 
-				echo self::printServerInformation($name, $key) . "\r    ";
+				echo self::printServerInformation($name) . "\r    ";
 			}
 		}
 		else
