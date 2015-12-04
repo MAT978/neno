@@ -100,7 +100,7 @@ class NenoTaskMonitor
     {
         if (self::$maxExecutionTime === null) {
             // Setting max_execution_time to 1 hour
-            $result = set_time_limit(3600);
+            $result = ini_set('max_execution_time',3600);
 
             $executionTime = 3600;
 
@@ -109,7 +109,7 @@ class NenoTaskMonitor
                 $executionTime = ini_get('max_execution_time');
             }
 
-            self::$maxExecutionTime = $executionTime * 0.9;
+            self::$maxExecutionTime = (int) $executionTime * 0.9;
         }
     }
 

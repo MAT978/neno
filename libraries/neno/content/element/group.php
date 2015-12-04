@@ -791,7 +791,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			/* @var $table NenoContentElementTable */
 			$table = NenoContentElementTable::load($tableId);
 
-			if (!empty($table) && $table->remove())
+			if (!empty($table) && $table->remove() && empty($this->tables))
 			{
 				/* @var $tableObject NenoContentElementTable */
 				foreach ($this->tables as $key => $tableObject)

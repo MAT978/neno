@@ -171,7 +171,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			}
 			else
 			{
-				$fieldsInfo = self::getElementsByParentId(NenoContentElementField::getDbTable(), 'table_id', $this->getId(), true);
+				$fieldsInfo      = self::getElementsByParentId(NenoContentElementField::getDbTable(), 'table_id', $this->getId(), true);
 				$fieldsInfoCount = count($fieldsInfo);
 
 				for ($i = 0; $i < $fieldsInfoCount; $i++)
@@ -565,28 +565,31 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				}
 			}
 
-			/* @var $field NenoContentElementField */
-			foreach ($this->fields as $field)
+			if (!empty($this->fields))
 			{
-				$field
-					->setTable($this)
-					->setTranslate($field->isTranslatable() && $this->isTranslate())
-					->persist();
-
-				if ($field->getFieldName() === 'language' && $this->isTranslate())
+				/* @var $field NenoContentElementField */
+				foreach ($this->fields as $field)
 				{
-					$languages       = NenoHelper::getTargetLanguages();
-					$defaultLanguage = NenoSettings::get('source_language');
+					$field
+						->setTable($this)
+						->setTranslate($field->isTranslatable() && $this->isTranslate())
+						->persist();
 
-					foreach ($languages as $language)
+					if ($field->getFieldName() === 'language' && $this->isTranslate())
 					{
-						if ($language->lang_code != $defaultLanguage)
-						{
-							$db->deleteContentElementsFromSourceTableToShadowTables($this->tableName, $language->lang_code);
-						}
-					}
+						$languages       = NenoHelper::getTargetLanguages();
+						$defaultLanguage = NenoSettings::get('source_language');
 
-					$db->setContentForAllLanguagesToSourceLanguage($this->tableName, $defaultLanguage);
+						foreach ($languages as $language)
+						{
+							if ($language->lang_code != $defaultLanguage)
+							{
+								$db->deleteContentElementsFromSourceTableToShadowTables($this->tableName, $language->lang_code);
+							}
+						}
+
+						$db->setContentForAllLanguagesToSourceLanguage($this->tableName, $defaultLanguage);
+					}
 				}
 			}
 		}
@@ -925,10 +928,13 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 		$this->getFields();
 
-		/* @var $field NenoContentElementField */
-		foreach ($this->fields as $field)
+		if (!empty($this->fields))
 		{
-			$query->select($db->quoteName($field->getFieldName()));
+			/* @var $field NenoContentElementField */
+			foreach ($this->fields as $field)
+			{
+				$query->select($db->quoteName($field->getFieldName()));
+			}
 		}
 
 		$query

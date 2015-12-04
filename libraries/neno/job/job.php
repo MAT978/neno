@@ -73,7 +73,7 @@ class NenoJob extends NenoObject
 	protected $completedTime;
 
 	/**
-	 * @var string
+	 * @var stdClass
 	 */
 	protected $translationMethod;
 
