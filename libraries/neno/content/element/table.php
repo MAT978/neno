@@ -860,7 +860,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		{
 			/* @var $translation NenoContentElementTranslation */
 			$translation = NenoContentElementTranslation::load($translationId, false, true);
-			$sqlQuery    = $translation->generateSQLStatement();
+			$sqlQuery    = $translation->generateSqlStatement();
 
 			$sqlQuery
 				->clear('select')

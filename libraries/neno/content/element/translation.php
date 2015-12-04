@@ -252,7 +252,7 @@ class NenoContentElementTranslation extends NenoContentElement
 
 		if ($translation->getContentType() == 'db_string')
 		{
-			$relatedIds = self::getRelatedDBTranslationIds($translationId);
+			$relatedIds = self::getRelatedDbTranslationIds($translationId);
 		}
 		else
 		{
@@ -295,7 +295,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return array
 	 */
-	public static function getRelatedDBTranslationIds($translationId)
+	public static function getRelatedDbTranslationIds($translationId)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -325,7 +325,8 @@ class NenoContentElementTranslation extends NenoContentElement
 				)
 			);
 
-		for ($key = 1; $key < count($whereValues); $key++)
+		$whereValuesCount = count($whereValues);
+		for ($key = 1; $key < $whereValuesCount; $key++)
 		{
 			$subquery = clone $query;
 			$query
@@ -993,7 +994,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	/**
 	 * Get type of the content to translate
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function getContentType()
 	{
@@ -1003,7 +1004,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	/**
 	 * Set content type
 	 *
-	 * @param   int $contentType content type
+	 * @param   string $contentType content type
 	 *
 	 * @return NenoContentElement
 	 */
@@ -1221,25 +1222,9 @@ class NenoContentElementTranslation extends NenoContentElement
 		// If the translation comes from database content, let's load it
 		if ($this->contentType == self::DB_STRING)
 		{
-			$query->clear()
-			      ->select(
-				      array(
-					      'f.field_name',
-					      't.table_name'
-				      )
-			      )
-			      ->from('`#__neno_content_element_fields` AS f')
-			      ->innerJoin('`#__neno_content_element_tables` AS t ON f.table_id = t.id')
-			      ->where('f.id = ' . $this->element->id);
-
-			$db->setQuery($query);
-			$row = $db->loadRow();
-
-			list($fieldName, $tableName) = $row;
-
 			// Ensure data integrity
 			$this->string = NenoHelperData::ensureDataIntegrity($this->element->id, $this->string, $this->language);
-			$query        = $this->generateSQLStatement('update', $this->string, true, $this->language);
+			$query        = $this->generateSqlStatement('update', $this->string, true, $this->language);
 
 			$db->setQuery($query);
 			$db->execute();
@@ -1381,7 +1366,7 @@ class NenoContentElementTranslation extends NenoContentElement
 		return empty($result);
 	}
 
-	public function generateSQLStatement($sqlType = 'select', $updateAssignment = null, $updateShadowTable = false, $language = null)
+	public function generateSqlStatement($sqlType = 'select', $updateAssignment = null, $updateShadowTable = false, $language = null)
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();

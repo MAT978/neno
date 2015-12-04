@@ -3844,65 +3844,6 @@ class NenoHelper
 	}
 
 	/**
-	 * Get related database translations Id
-	 *
-	 * @param int $translationId
-	 *
-	 * @return array
-	 */
-	public static function getRelatedDBTranslationIds($translationId)
-	{
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-		$query
-			->select(
-				array(
-					'ft.field_id',
-					'ft.value',
-				)
-			)
-			->from('`#__neno_content_element_fields_x_translations` AS ft')
-			->where('ft.translation_id = ' . $translationId);
-
-		$db->setQuery($query);
-		$whereValues = $db->loadAssocList();
-
-		$query->clear();
-
-		$query
-			->select('a2.translation_id')
-			->from('#__neno_content_element_fields_x_translations AS a2')
-			->where(
-				array(
-					'a2.field_id = ' . $db->quote($whereValues[0]['field_id']),
-					'a2.value = ' . $db->quote($whereValues[0]['value']),
-					'a2.translation_id <> ' . (int) $translationId
-				)
-			);
-
-		for ($key = 1; $key < count($whereValues); $key++)
-		{
-			$subquery = clone $query;
-			$query
-				->clear()
-				->select('a' . ($key + 2) . '.translation_id')
-				->from('#__neno_content_element_fields_x_translations AS a' . ($key + 2))
-				->where(
-					array(
-						'a' . ($key + 2) . '.field_id = ' . $db->quote($whereValues[ $key ]['field_id']),
-						'a' . ($key + 2) . '.value = ' . $db->quote($whereValues[ $key ]['value']),
-						'a' . ($key + 2) . '.translation_id IN (' . (string) $subquery . ')'
-					)
-				);
-		}
-
-		$db->setQuery($query);
-		$translations = array_keys($db->loadAssocList('translation_id'));
-
-		return $translations;
-	}
-
-	/**
 	 *
 	 *
 	 * @param string $string String where get the word count
