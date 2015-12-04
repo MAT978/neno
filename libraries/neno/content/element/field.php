@@ -669,6 +669,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		return true;
 	}
 
+	/**
+	 * Get installation progress counters
+	 *
+	 * @return array
+	 */
 	public function getProgressCounters()
 	{
 		$db                = JFactory::getDbo();
