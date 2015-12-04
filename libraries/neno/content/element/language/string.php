@@ -523,7 +523,7 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	 *
 	 * @param boolean $translate
 	 *
-	 * @return $this;
+	 * @return $this
 	 */
 	public function setTranslate($translate)
 	{
