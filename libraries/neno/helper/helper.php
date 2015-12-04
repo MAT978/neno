@@ -268,20 +268,7 @@ class NenoHelper
 	 */
 	public static function discoverExtension(array $extension)
 	{
-		// Check if this extension has been discovered already
-		$groupId = self::isExtensionAlreadyDiscovered($extension['extension_id']);
-
-		if ($groupId !== false)
-		{
-			$group = NenoContentElementGroup::load($groupId);
-		}
-		else
-		{
-			$group = new NenoContentElementGroup(array( 'group_name' => $extension['name'] ));
-		}
-
-		$group->addExtension($extension['extension_id']);
-
+		$group         = self::createGroupInstanceBasedOnExtensionId($extension);
 		$extensionName = self::getExtensionName($extension);
 		$languageFiles = self::getLanguageFiles($extensionName);
 		$tables        = self::getComponentTables($group, $extensionName);
@@ -301,6 +288,32 @@ class NenoHelper
 		}
 
 		return true;
+	}
+
+	/**
+	 * Create an instance of NenoContentElementGroup
+	 *
+	 * @param array $extension Extension Data
+	 *
+	 * @return array|mixed|NenoContentElementGroup
+	 */
+	public static function createGroupInstanceBasedOnExtensionId(array $extension)
+	{
+		// Check if this extension has been discovered already
+		$groupId = self::isExtensionAlreadyDiscovered($extension['extension_id']);
+
+		if ($groupId !== false)
+		{
+			$group = NenoContentElementGroup::load($groupId);
+		}
+		else
+		{
+			$group = new NenoContentElementGroup(array( 'group_name' => $extension['name'] ));
+		}
+
+		$group->addExtension($extension['extension_id']);
+
+		return $group;
 	}
 
 	/**

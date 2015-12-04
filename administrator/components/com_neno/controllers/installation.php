@@ -589,21 +589,7 @@ class NenoControllerInstallation extends JControllerAdmin
 
 				if (!empty($extension))
 				{
-					// Check if this extension has been discovered already
-					$groupId = NenoHelper::isExtensionAlreadyDiscovered($extension['extension_id']);
-
-					if ($groupId !== false)
-					{
-						$group = NenoContentElementGroup::load($groupId);
-					}
-					else
-					{
-						$group = new NenoContentElementGroup(array( 'group_name' => $extension['name'] ));
-					}
-
-					/* @var $group NenoContentElementGroup */
-					$group->addExtension($extension['extension_id']);
-
+					$group         = NenoHelper::createGroupInstanceBasedOnExtensionId($extension);
 					$extensionName = NenoHelper::getExtensionName($extension);
 					$languageFiles = NenoHelper::getLanguageFiles($extensionName);
 					$tables        = NenoHelper::getComponentTables($group, $extensionName);
