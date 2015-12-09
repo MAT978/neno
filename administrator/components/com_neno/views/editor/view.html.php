@@ -93,7 +93,7 @@ class NenoViewEditor extends JViewLegacy
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 		$this->defaultAction = self::getDefaultTranslateAction();
-		$this->getGroupData();
+		$this->groups        = NenoHelperBackend::getGroupDataForView();
 		$this->getStatuses();
 		$this->getTranslationMethods();
 
@@ -133,7 +133,7 @@ class NenoViewEditor extends JViewLegacy
 		/* @var $group NenoContentElementGroup */
 		foreach ($groups as $key => $group)
 		{
-			$groups[$key] = $group->prepareDataForView();
+			$groups[ $key ] = $group->prepareDataForView();
 		}
 
 		$this->groups = $groups;
@@ -186,7 +186,7 @@ class NenoViewEditor extends JViewLegacy
 	 */
 	protected function getSortFields()
 	{
-		return array (
+		return array(
 			'a.id'           => JText::_('JGRID_HEADING_ID'),
 			'a.string'       => JText::_('COM_NENO_SOURCES_STRING'),
 			'a.constant'     => JText::_('COM_NENO_SOURCES_CONSTANT'),

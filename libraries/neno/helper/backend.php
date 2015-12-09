@@ -1066,4 +1066,22 @@ class NenoHelperBackend
 
 		return isset($contextSupported[ $context ]) ? $contextSupported[ $context ] : false;
 	}
+
+	/**
+	 * Get groups data for a view
+	 *
+	 * @return array
+	 */
+	public static function getGroupDataForView()
+	{
+		$groups = NenoHelper::getGroups(false, true);
+
+		/* @var $group NenoContentElementGroup */
+		foreach ($groups as $key => $group)
+		{
+			$groups[ $key ] = $group->prepareDataForView();
+		}
+
+		return $groups;
+	}
 }
