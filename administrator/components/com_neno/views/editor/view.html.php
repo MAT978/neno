@@ -122,24 +122,6 @@ class NenoViewEditor extends JViewLegacy
 	}
 
 	/**
-	 * Load group data
-	 *
-	 * @return void
-	 */
-	protected function getGroupData()
-	{
-		$groups = NenoHelper::getGroups(false, true);
-
-		/* @var $group NenoContentElementGroup */
-		foreach ($groups as $key => $group)
-		{
-			$groups[ $key ] = $group->prepareDataForView();
-		}
-
-		$this->groups = $groups;
-	}
-
-	/**
 	 * Load translation statuses for filter
 	 *
 	 * @return void

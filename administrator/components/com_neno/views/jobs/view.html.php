@@ -104,24 +104,6 @@ class NenoViewJobs extends JViewLegacy
 	}
 
 	/**
-	 * Load group data
-	 *
-	 * @return void
-	 */
-	protected function getGroupData()
-	{
-		$groups = NenoHelper::getGroups(false);
-
-		/* @var $group NenoContentElementGroup */
-		foreach ($groups as $key => $group)
-		{
-			$groups[$key] = $group->prepareDataForView();
-		}
-
-		$this->groups = $groups;
-	}
-
-	/**
 	 * Get an array of fields to sort by
 	 *
 	 * @return array
