@@ -258,6 +258,7 @@ class NenoHelperBackend
 
 				// Get all the columns a table contains
 				$fields = $db->getTableColumns($table->getTableName());
+				$table  = static::createFieldInstances($fields, $table);
 
 				foreach ($fields as $fieldName => $fieldType)
 				{
@@ -277,6 +278,32 @@ class NenoHelperBackend
 
 			$doNotTranslateGroup->persist();
 		}
+	}
+
+	/**
+	 * Create NenoContentElementField instances based on a data array
+	 *
+	 * @param array                   $fields Fields data to instantiate
+	 * @param NenoContentElementTable $table  Table where the fields are
+	 *
+	 * @return mixed
+	 */
+	public static function createFieldInstances($fields, $table)
+	{
+		foreach ($fields as $fieldName => $fieldType)
+		{
+			$fieldData = array(
+				'fieldName' => $fieldName,
+				'fieldType' => $fieldType,
+				'translate' => NenoContentElementField::isTranslatableType($fieldType),
+				'table'     => $table
+			);
+
+			$field = new NenoContentElementField($fieldData);
+			$table->addField($field);
+		}
+
+		return $table;
 	}
 
 	/**
@@ -413,6 +440,7 @@ class NenoHelperBackend
 
 					// Get all the columns a table contains
 					$fields = $db->getTableColumns($table->getTableName());
+					$table  = static::createFieldInstances($fields, $table);
 
 					foreach ($fields as $fieldName => $fieldType)
 					{

@@ -686,6 +686,7 @@ class NenoHelper
 
 		// Get all the columns a table contains
 		$fields = $db->getTableColumns($table->getTableName());
+		$table  = NenoHelperBackend::createFieldInstances($fields, $table);
 
 		foreach ($fields as $fieldName => $fieldType)
 		{
