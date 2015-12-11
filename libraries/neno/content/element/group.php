@@ -539,7 +539,8 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	 */
 	public function refresh($language = null)
 	{
-		$tables = NenoHelper::getComponentTables($this);
+		$tables        = NenoHelper::getComponentTables($this);
+		$languageFiles = array();
 
 		if (!$this->isOtherGroup())
 		{
@@ -567,7 +568,20 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			$this->persist();
 		}
 
-		// Once the structure is saved, let's go through the translations.
+		$this->saveDatabaseTranslations($tables, $language);
+		$this->saveLanguageFileTranslations($languageFiles, $language);
+	}
+
+	/**
+	 * Save database translations for a particular language
+	 *
+	 * @param array  $tables   Database Tables
+	 * @param string $language Language tag
+	 *
+	 * @return void
+	 */
+	protected function saveDatabaseTranslations($tables, $language)
+	{
 		if (!empty($tables))
 		{
 			/* @var $table NenoContentElementTable */
@@ -585,7 +599,18 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				}
 			}
 		}
+	}
 
+	/**
+	 * Save language file translations for a particular language
+	 *
+	 * @param array  $languageFiles Language files
+	 * @param string $language      Language tag
+	 *
+	 * @return void
+	 */
+	protected function saveLanguageFileTranslations($languageFiles, $language)
+	{
 		if (!empty($languageFiles))
 		{
 			/* @var $languageFile NenoContentElementLanguageFile */
@@ -862,40 +887,12 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	 */
 	public function generateContentForLanguage($languageTag)
 	{
-		$tables = $this->getTables();
-
-		if (!empty($tables))
-		{
-			/* @var $table NenoContentElementTable */
-			foreach ($tables as $table)
-			{
-				$fields = $table->getFields(false, true);
-
-				/* @var $field NenoContentElementField */
-				foreach ($fields as $field)
-				{
-					$field->persistTranslations(null, $languageTag);
-				}
-			}
-		}
-
 		$languageFiles = $this->getLanguageFiles();
+		$tables        = $this->getTables();
 
-		if (!empty($languageFiles))
-		{
-			/* @var $languageFile NenoContentElementLanguageFile */
-			foreach ($languageFiles as $languageFile)
-			{
-				$languageStrings = $languageFile->getLanguageStrings();
-
-				/* @var $languageString NenoContentElementLanguageString */
-				foreach ($languageStrings as $languageString)
-				{
-					$languageString->persistTranslations($languageTag);
-				}
-			}
-		}
-
+		$this->saveDatabaseTranslations($tables, $languageTag);
+		$this->saveLanguageFileTranslations($languageFiles, $languageTag);
+		
 		// Assign default methods
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
