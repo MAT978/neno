@@ -51,7 +51,7 @@ class NenoLog extends JLog
 		}
 
 		// Get jLog priority
-		$priority = self::getJLogPriorityFromDebugLevel($level);
+		$priority = self::getLogPriorityFromDebugLevel($level);
 
 		// Setup the logging method
 		self::setLogMethod();
@@ -78,7 +78,7 @@ class NenoLog extends JLog
 	 *
 	 * @return int JLog priority integer
 	 */
-	private static function getJLogPriorityFromDebugLevel($priority)
+	private static function getLogPriorityFromDebugLevel($priority)
 	{
 		if ($priority == self::PRIORITY_ERROR)
 		{
