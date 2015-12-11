@@ -40,21 +40,21 @@ class JFormFieldTimeCreated extends JFormField
 		// Initialize variables.
 		$html = array();
 
-		$time_created = $this->value;
+		$timeCreated = $this->value;
 
-		if (!strtotime($time_created))
+		if (!strtotime($timeCreated))
 		{
-			$time_created = date("Y-m-d H:i:s");
-			$html[]       = '<input type="hidden" name="' . $this->name . '" value="' . $time_created . '" />';
+			$timeCreated = date("Y-m-d H:i:s");
+			$html[]       = '<input type="hidden" name="' . $this->name . '" value="' . $timeCreated . '" />';
 		}
 
 		$hidden = (boolean) $this->element['hidden'];
 
 		if ($hidden == null || !$hidden)
 		{
-			$jdate       = new JDate($time_created);
-			$pretty_date = $jdate->format(JText::_('DATE_FORMAT_LC2'));
-			$html[]      = "<div>" . $pretty_date . "</div>";
+			$jdate       = new JDate($timeCreated);
+			$prettyDate = $jdate->format(JText::_('DATE_FORMAT_LC2'));
+			$html[]      = "<div>" . $prettyDate . "</div>";
 		}
 
 		return implode($html);
