@@ -43,7 +43,7 @@ abstract class NenoDatabaseDriver extends JDatabaseDriver
 		if (empty(self::$instances[$driverSignature]))
 		{
 			// If the class doesn't exists, we cannot work with this driver.
-			if (!self::isMySQL($options['driver']))
+			if (!self::isMysql($options['driver']))
 			{
 				// Let's using parent method
 				return parent::getInstance($options);
@@ -80,7 +80,7 @@ abstract class NenoDatabaseDriver extends JDatabaseDriver
 	 *
 	 * @return boolean True if it's a mysql driver, false otherwise
 	 */
-	public static function isMySQL($driver)
+	public static function isMysql($driver)
 	{
 		return strpos(strtolower($driver), 'mysql') !== false;
 	}
