@@ -20,9 +20,9 @@ $document->addStyleSheet(JUri::root() . '/media/neno/css/toolbar.css');
              alt="Neno logo"/>
     </a>
 <?php if (!empty($displayData['view'])): ?>
-    <?php $default_lang_constant = 'COM_NENO_TITLE_' . strtoupper($displayData['view']); ?>
-    <?php if (JText::_($default_lang_constant) != $default_lang_constant): ?>
-        <?php echo ': ' . JText::_($default_lang_constant); ?>
+    <?php $defaultLanguageConstant = 'COM_NENO_TITLE_' . strtoupper($displayData['view']); ?>
+    <?php if (JText::_($defaultLanguageConstant) != $defaultLanguageConstant): ?>
+        <?php echo ': ' . JText::_($defaultLanguageConstant); ?>
     <?php endif; ?>
 <?php endif; ?>
 

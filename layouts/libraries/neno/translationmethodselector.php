@@ -38,10 +38,10 @@ if ($displayData !== null): ?>
 				<?php else: ?>
 					<option value="0"><?php echo JText::_('COM_NENO_TRANSLATION_METHOD_NONE'); ?></option>
 				<?php endif; ?>
-				<?php foreach ($displayData['translation_methods'] as $translation_method): ?>
+				<?php foreach ($displayData['translation_methods'] as $translationMethod): ?>
 					<option
-						value="<?php echo $translation_method->id; ?>" <?php echo ($translation_method->id == $displayData['assigned_translation_methods'][$n]->id) ? 'selected="selected"' : ''; ?>>
-						<?php echo JText::_($translation_method->name_constant); ?>
+						value="<?php echo $translationMethod->id; ?>" <?php echo ($translationMethod->id == $displayData['assigned_translation_methods'][$n]->id) ? 'selected="selected"' : ''; ?>>
+						<?php echo JText::_($translationMethod->name_constant); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
