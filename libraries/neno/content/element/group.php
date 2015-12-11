@@ -118,14 +118,14 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 		{
 			$tableCounter = NenoContentElementTable::load(
 				array(
-					'_select'  => array('COUNT(*) as counter'),
+					'_select'  => array( 'COUNT(*) as counter' ),
 					'group_id' => $this->getId()
 				)
 			);
 
 			$languageFileCounter = NenoContentElementLanguageFile::load(
 				array(
-					'_select'  => array('COUNT(*) as counter'),
+					'_select'  => array( 'COUNT(*) as counter' ),
 					'group_id' => $this->getId()
 				)
 			);
@@ -175,13 +175,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	{
 		if ($this->wordCount === null)
 		{
-			$this->wordCount               = new stdClass;
-			$this->wordCount->total        = 0;
-			$this->wordCount->untranslated = 0;
-			$this->wordCount->translated   = 0;
-			$this->wordCount->queued       = 0;
-			$this->wordCount->changed      = 0;
-
 			$db              = JFactory::getDbo();
 			$query           = $db->getQuery(true);
 			$workingLanguage = NenoHelper::getWorkingLanguage();
@@ -206,25 +199,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			$db->setQuery($query);
 			$statistics = $db->loadAssocList('state');
 
-			// Assign the statistics
-			foreach ($statistics as $state => $data)
-			{
-				switch ($state)
-				{
-					case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-						$this->wordCount->untranslated = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-						$this->wordCount->queued = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-						$this->wordCount->changed = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::TRANSLATED_STATE:
-						$this->wordCount->translated = (int) $data['counter'];
-						break;
-				}
-			}
+			$this->wordCount = $this->generateWordCountObjectByStatistics($statistics);
 
 			$query
 				->clear()
@@ -323,24 +298,24 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			}
 			else
 			{
-				$this->tables = NenoContentElementTable::load(array('group_id' => $this->getId()), $loadExtraData);
+				$this->tables = NenoContentElementTable::load(array( 'group_id' => $this->getId() ), $loadExtraData);
 
 				// If there's only one table
 				if ($this->tables instanceof NenoContentElementTable)
 				{
-					$this->tables = array($this->tables);
+					$this->tables = array( $this->tables );
 				}
 
 				/* @var $table NenoContentElementTable */
 				foreach ($this->tables as $key => $table)
 				{
-					if ($avoidDoNotTranslate && !$this->tables[$key]->isTranslate())
+					if ($avoidDoNotTranslate && !$this->tables[ $key ]->isTranslate())
 					{
-						unset ($this->tables[$key]);
+						unset ($this->tables[ $key ]);
 						continue;
 					}
 
-					$this->tables[$key]->setGroup($this);
+					$this->tables[ $key ]->setGroup($this);
 				}
 			}
 		}
@@ -685,7 +660,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 
 		foreach ($tables as $key => $table)
 		{
-			$tables[$key] = str_replace($db->getPrefix(), '#__', $table);
+			$tables[ $key ] = str_replace($db->getPrefix(), '#__', $table);
 		}
 
 		$query = $db->getQuery(true);
@@ -716,7 +691,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 					if ($tableObject->getId() == $tableId)
 					{
 						$reArrangeTables = true;
-						unset($this->tables[$key]);
+						unset($this->tables[ $key ]);
 					}
 				}
 			}
@@ -813,11 +788,11 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	{
 		if ($this->languageFiles === null)
 		{
-			$this->languageFiles = NenoContentElementLanguageFile::load(array('group_id' => $this->getId()));
+			$this->languageFiles = NenoContentElementLanguageFile::load(array( 'group_id' => $this->getId() ));
 
 			if (!is_array($this->languageFiles))
 			{
-				$this->languageFiles = array($this->languageFiles);
+				$this->languageFiles = array( $this->languageFiles );
 			}
 		}
 

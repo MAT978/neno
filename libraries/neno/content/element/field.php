@@ -86,9 +86,9 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @param   mixed $data              Field data
-	 * @param   bool  $loadExtraData     Load extra data flag
-	 * @param   bool  $loadParent        Load parent flag
+	 * @param   mixed $data          Field data
+	 * @param   bool  $loadExtraData Load extra data flag
+	 * @param   bool  $loadParent    Load parent flag
 	 */
 	public function __construct($data, $loadExtraData = true, $loadParent = false)
 	{
@@ -125,13 +125,6 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 			if ($cacheData === null)
 			{
-				$this->wordCount               = new stdClass;
-				$this->wordCount->total        = 0;
-				$this->wordCount->untranslated = 0;
-				$this->wordCount->translated   = 0;
-				$this->wordCount->queued       = 0;
-				$this->wordCount->changed      = 0;
-
 				$db              = JFactory::getDbo();
 				$query           = $db->getQuery(true);
 				$workingLanguage = NenoHelper::getWorkingLanguage();
@@ -156,26 +149,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 				$db->setQuery($query);
 				$statistics = $db->loadAssocList('state');
 
-				// Assign the statistics
-				foreach ($statistics as $state => $data)
-				{
-					switch ($state)
-					{
-						case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-							$this->wordCount->untranslated = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-							$this->wordCount->queued = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-							$this->wordCount->changed = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::TRANSLATED_STATE:
-							$this->wordCount->translated = (int) $data['counter'];
-							break;
-					}
-				}
-
+				$this->wordCount        = $this->generateWordCountObjectByStatistics($statistics);
 				$this->wordCount->total = $this->wordCount->untranslated + $this->wordCount->queued + $this->wordCount->changed + $this->wordCount->translated;
 
 				$cacheData = $this->wordCount;
