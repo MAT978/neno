@@ -124,34 +124,8 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		$db->setQuery($query);
 		$statistics = $db->loadAssocList('state');
 
-		$wordCount               = new stdClass;
-		$wordCount->untranslated = 0;
-		$wordCount->queued       = 0;
-		$wordCount->changed      = 0;
-		$wordCount->translated   = 0;
-
-		// Assign the statistics
-		foreach ($statistics as $state => $data)
-		{
-			switch ($state)
-			{
-				case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-					$wordCount->untranslated = (int) $data['counter'];
-					break;
-				case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-					$wordCount->queued = (int) $data['counter'];
-					break;
-				case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-					$wordCount->changed = (int) $data['counter'];
-					break;
-				case NenoContentElementTranslation::TRANSLATED_STATE:
-					$wordCount->translated = (int) $data['counter'];
-					break;
-			}
-		}
-
-		$wordCount->total = $wordCount->untranslated + $wordCount->queued + $wordCount->changed + $wordCount->translated;
-		$this->wordCount  = $wordCount;
+		$this->wordCount        = $this->generateWordCountObjectByStatistics($statistics);
+		$this->wordCount->total = $this->wordCount->untranslated + $this->wordCount->queued + $this->wordCount->changed + $this->wordCount->translated;
 	}
 
 	/**
