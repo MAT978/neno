@@ -19,21 +19,11 @@ defined('_JEXEC') or die;
 class NenoModelExternalTranslations extends JModelList
 {
 	/**
-	 * Get the amount of link credits available
-	 *
-	 * @return int
-	 */
-	public function getTCAvailable()
-	{
-		return NenoHelperApi::getTCAvailable();
-	}
-
-	/**
 	 * Get TC needed
 	 *
 	 * @return int
 	 */
-	public function getTCNeeded()
+	public function getTcNeeded()
 	{
 		$db    = JFactory::getDbo();
 		$query = $this->getListQuery();

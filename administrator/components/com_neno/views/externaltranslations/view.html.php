@@ -68,9 +68,9 @@ class NenoViewExternalTranslations extends JViewLegacy
     {
         $this->state    = $this->get('State');
         $this->items    = $this->get('Items');
-        $this->tcNeeded = $this->get('TCNeeded');
+        $this->tcNeeded = $this->get('TcNeeded');
         $this->comment  = $this->get('Comment');
-        $this->needsTc  = NenoHelperApi::getTCAvailable() < $this->tcNeeded;
+        $this->needsTc  = NenoHelperApi::getTcAvailable() < $this->tcNeeded;
 
         // Check for errors.
         if (count($errors = $this->get('Errors')))
