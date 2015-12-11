@@ -892,7 +892,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 
 		$this->saveDatabaseTranslations($tables, $languageTag);
 		$this->saveLanguageFileTranslations($languageFiles, $languageTag);
-		
+
 		// Assign default methods
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);

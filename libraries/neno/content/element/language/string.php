@@ -399,12 +399,12 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 						$string = $this->getString();
 
 						// Check if this string already exists in other language file
-						$StringTranslation = NenoHelper::existsStringInsideOfLanguageFile(str_replace($defaultLanguage, $language->lang_code, $languageFilename), $this->getConstant());
+						$stringTranslation = NenoHelper::existsStringInsideOfLanguageFile(str_replace($defaultLanguage, $language->lang_code, $languageFilename), $this->getConstant());
 
-						if ($StringTranslation !== false)
+						if ($stringTranslation !== false)
 						{
 							$commonData['state']  = NenoContentElementTranslation::TRANSLATED_STATE;
-							$commonData['string'] = $StringTranslation;
+							$commonData['string'] = $stringTranslation;
 						}
 						elseif (empty($string) || is_numeric($string)) // If the string is empty or is a number, let's mark as translated.
 						{
