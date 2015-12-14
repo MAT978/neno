@@ -21,3 +21,4 @@ DROP TABLE IF EXISTS `#__neno_translation_methods`;
 DROP TABLE IF EXISTS `#__neno_settings`;
 DROP TABLE IF EXISTS `#__neno_machine_translation_apis`;
 DROP TABLE IF EXISTS `#__neno_language_external_translators_comments`;
+DROP TABLE IF EXISTS `#__neno_content_element_table_filters`;

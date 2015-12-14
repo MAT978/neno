@@ -330,22 +330,6 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_element_groups_x_extensions` (
 	DEFAULT CHARSET = utf8;
 
 --
--- Table structure for table `#__neno_installation_messages`
---
-
-CREATE TABLE IF NOT EXISTS `#__neno_installation_messages` (
-	`id`      INT(11)     NOT NULL AUTO_INCREMENT,
-	`message` TEXT        NOT NULL,
-	`type`    VARCHAR(50) NOT NULL,
-	`percent` INT         NOT NULL,
-	`level`   SMALLINT    NOT NULL,
-	`fetched` TINYINT(1)  NOT NULL,
-	PRIMARY KEY (`id`)
-)
-	ENGINE = InnoDB
-	DEFAULT CHARSET = utf8;
-
---
 -- Table structure for table `#__neno_language_external_translators_comments`
 --
 
