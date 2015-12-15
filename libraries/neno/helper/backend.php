@@ -259,20 +259,6 @@ class NenoHelperBackend
 				// Get all the columns a table contains
 				$fields = $db->getTableColumns($table->getTableName());
 				$table  = static::createFieldInstances($fields, $table);
-
-				foreach ($fields as $fieldName => $fieldType)
-				{
-					$fieldData = array(
-						'fieldName' => $fieldName,
-						'fieldType' => $fieldType,
-						'translate' => NenoContentElementField::isTranslatableType($fieldType),
-						'table'     => $table
-					);
-
-					$field = new NenoContentElementField($fieldData);
-					$table->addField($field);
-				}
-
 				$doNotTranslateGroup->addTable($table);
 			}
 
@@ -441,20 +427,6 @@ class NenoHelperBackend
 					// Get all the columns a table contains
 					$fields = $db->getTableColumns($table->getTableName());
 					$table  = static::createFieldInstances($fields, $table);
-
-					foreach ($fields as $fieldName => $fieldType)
-					{
-						$fieldData = array(
-							'fieldName' => $fieldName,
-							'fieldType' => $fieldType,
-							'translate' => NenoContentElementField::isTranslatableType($fieldType),
-							'table'     => $table
-						);
-
-						$field = new NenoContentElementField($fieldData);
-						$table->addField($field);
-					}
-
 					$otherGroup->addTable($table);
 					$tablesAdded = true;
 				}
@@ -510,7 +482,7 @@ class NenoHelperBackend
 	 *
 	 * @return string
 	 */
-	public static function renderTranslationMethodsAsCSV($methods = array())
+	public static function renderTranslationMethodsAsCsv($methods = array())
 	{
 		if (!empty($methods))
 		{

@@ -412,7 +412,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 								<?php if (empty($group->assigned_translation_methods)): ?>
 									<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_ADD_TRANSLATION_METHOD'); ?>
 								<?php else: ?>
-									<?php echo NenoHelperBackend::renderTranslationMethodsAsCSV($group->assigned_translation_methods); ?>
+									<?php echo NenoHelperBackend::renderTranslationMethodsAsCsv($group->assigned_translation_methods); ?>
 								<?php endif; ?>
 							</a>
 						</td>
