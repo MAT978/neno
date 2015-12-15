@@ -36,7 +36,7 @@ JHtml::_('behavior.keepalive');
 </table>
 
 <script>
-	jQuery("#languages-modal button[data-language]").click(function () {
+	jQuery("#languages-modal").find('button[data-language]').click(function () {
 		var button = jQuery(this);
 		var iso = button.attr('data-language');
 		button.hide();
