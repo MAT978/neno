@@ -340,7 +340,7 @@ class NenoController extends JControllerLegacy
 			$acceptableFollowUpMethodIds = $translationMethods[ $parentMethod ]->acceptable_follow_up_method_ids;
 			$acceptableFollowUpMethods   = explode(',', $acceptableFollowUpMethodIds);
 
-			foreach ($translationMethods as $k => $translation_method)
+			foreach ($translationMethods as $k => $translationMethod)
 			{
 				if (!in_array($k, $acceptableFollowUpMethods))
 				{
