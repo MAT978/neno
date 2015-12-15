@@ -84,7 +84,7 @@ if (!empty($this->extra_sidebar))
 
 			jQuery("[data-issue]").off('click').on('click', fixIssue);
 			jQuery(".remove-language-button").off('click').on('click', function () {
-				var result = confirm("<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_1') ?>\n\n<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_2'); ?>");
+				var result = confirm("<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_1', true) ?>\n\n<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_2', true); ?>");
 
 				if (result) {
 					jQuery(this).closest('.language-wrapper').slideUp();
@@ -108,7 +108,7 @@ if (!empty($this->extra_sidebar))
 					function (response) {
 
 						if (response == 'ok') {
-							var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT'); ?>';
+							var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT', true); ?>';
 							text = text.replace('%s', language);
 							jQuery(".add-comment-to-translator-button[data-language='" + language + "']").html('<span class="icon-pencil"></span> ' + text);
 						}
@@ -130,8 +130,8 @@ if (!empty($this->extra_sidebar))
 	function showNotification() {
 		if (notifications) {
 			try {
-				installationNotification = new Notification('<?php echo JText::_('COM_NENO_INSTALLATION_POPUP'); ?>', {
-					body: '<?php echo JText::_('COM_NENO_INSTALLATION_POPUP'); ?>',
+				installationNotification = new Notification('<?php echo JText::_('COM_NENO_INSTALLATION_POPUP', true); ?>', {
+					body: '<?php echo JText::_('COM_NENO_INSTALLATION_POPUP', true); ?>',
 					dir : 'auto',
 					lang: '',
 					icon: '<?php echo JUri::root(); ?>/media/neno/images/neno_alert.png'

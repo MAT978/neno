@@ -117,8 +117,8 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 	jQuery(document).ready(function () {
 		statusChanged = false;
-		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING'); ?>';
-		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN'); ?>';
+		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING', true); ?>';
+		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN', true); ?>';
 		//Bind
 		bindEvents();
 
@@ -320,7 +320,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 			showModalGroupForm(true);
 		}
 		else if (task === 'groupselements.refreshWordCount') {
-			if (confirm('<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_REFRESH_WORD_COUNT_CONFIRMATION_MESSAGE'); ?>')) {
+			if (confirm('<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_REFRESH_WORD_COUNT_CONFIRMATION_MESSAGE', true); ?>')) {
 				originalJoomla.apply(this, arguments);
 			}
 		}
