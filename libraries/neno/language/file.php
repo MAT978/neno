@@ -214,7 +214,7 @@ class NenoLanguageFile
 	 *
 	 * @param   string $constant String constant
 	 *
-	 * @return bool
+	 * @return bool|string
 	 */
 	public function getString($constant)
 	{
@@ -288,30 +288,30 @@ class NenoLanguageFile
 			// Split extension name by _ to determine if it is a component, module or plugin
 			$extensionParts = explode('_', $extension);
 
-			$specific_path = '';
+			$specificPath = '';
 
 			if ($extensionParts[0] == 'com')
 			{
-				$specific_path = JPATH_SITE . '/components/' . $extension . '/language/';
+				$specificPath = JPATH_SITE . '/components/' . $extension . '/language/';
 			}
 			else
 			{
 				if ($extensionParts[0] == 'mod')
 				{
-					$specific_path = JPATH_SITE . '/modules/' . $extension . '/language/';
+					$specificPath = JPATH_SITE . '/modules/' . $extension . '/language/';
 				}
 				else
 				{
 					if ($extensionParts[0] == 'plg')
 					{
-						$specific_path = JPATH_SITE . '/plugins/';
+						$specificPath = JPATH_SITE . '/plugins/';
 					}
 				}
 			}
 
-			if (is_file($specific_path))
+			if (is_file($specificPath))
 			{
-				$folders[] = $specific_path;
+				$folders[] = $specificPath;
 			}
 		}
 		else
