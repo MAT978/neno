@@ -1071,14 +1071,14 @@ class NenoHelper
 
 		if ($truncate !== null)
 		{
-			$parts       = preg_split('/([\s\n\r]+)/', $string, null, PREG_SPLIT_DELIM_CAPTURE);
-			$parts_count = count($parts);
-			$length      = 0;
-			$last_part   = 0;
+			$parts      = preg_split('/([\s\n\r]+)/', $string, null, PREG_SPLIT_DELIM_CAPTURE);
+			$partsCount = count($parts);
+			$length     = 0;
+			$lastPart   = 0;
 
-			for (; $last_part < $parts_count; ++$last_part)
+			for (; $lastPart < $partsCount; ++$lastPart)
 			{
-				$length += mb_strlen($parts[ $last_part ]);
+				$length += mb_strlen($parts[ $lastPart ]);
 
 				if ($length - 3 > $truncate)
 				{
@@ -1093,7 +1093,7 @@ class NenoHelper
 			}
 			else
 			{
-				$string = implode(array_slice($parts, 0, $last_part)) . $ending;
+				$string = implode(array_slice($parts, 0, $lastPart)) . $ending;
 			}
 		}
 
@@ -2907,9 +2907,9 @@ class NenoHelper
 			->order('setting_key ASC');
 
 		$db->setQuery($query);
-		$translation_methods_selected = $db->loadObjectList();
+		$translationMethodsSelected = $db->loadObjectList();
 
-		return $translation_methods_selected;
+		return $translationMethodsSelected;
 	}
 
 	/**
@@ -3788,7 +3788,7 @@ class NenoHelper
 	 *
 	 * @return array
 	 */
-	public static function chunkHTMLString($string, $maxChunkLength)
+	public static function chunkHtmlString($string, $maxChunkLength)
 	{
 		$chunks = array();
 
@@ -3915,9 +3915,9 @@ class NenoHelper
 		do
 		{
 			// Remove really unwanted tags
-			$old_data = $data;
+			$oldData = $data;
 			$data     = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
-		} while ($old_data !== $data);
+		} while ($oldData !== $data);
 
 		// we are done...
 		return $data;
