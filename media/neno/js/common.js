@@ -617,8 +617,10 @@ function resetDiscoveringVariables() {
  * @param type
  */
 function refreshRecordCounter(id, type) {
+	var fromCallback = true;
 	if (typeof id == 'undefined' || typeof id == 'object') {
 		id = jQuery(this).data('table-id');
+		fromCallback = false;
 	}
 
 	if (typeof type == 'undefined') {
@@ -631,8 +633,12 @@ function refreshRecordCounter(id, type) {
 			{
 				tableId: id
 			},
-			function (text) {
-				jQuery('#record-count-' + id).text(text);
+			function (html) {
+				jQuery('#record-count-' + id).closest('td').empty().html(html);
+
+				if (!fromCallback) {
+					jQuery('.record-refresher-btn').off('click').on('click', refreshRecordCounter);
+				}
 			}
 		)
 	}

@@ -62,14 +62,7 @@ JHtml::_('bootstrap.tooltip');
 								</button>
 							</td>
 							<td>
-								<?php echo JText::sprintf('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_RECORD_COUNT', $table->id, $table->record_count); ?>
-								<button type="button" class="btn btn-mini record-refresher-btn" data-table-id="<?php echo $table->id; ?>"
-									data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_RECORD_COUNT_REFRESH_BTN'); ?>">
-									<i class="icon-loop"></i>
-								</button>
-								<?php if ($table->record_count > 1000): ?>
-									<i class="icon-warning" data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_RECORD_COUNT_WARNING'); ?>"></i>
-								<?php endif; ?>
+								<?php echo JLayoutHelper::render('installationrecordcount', $table, JPATH_NENO_LAYOUTS); ?>
 							</td>
 							<td colspan="2">
 								<div class="pull-right">

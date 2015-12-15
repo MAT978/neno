@@ -871,7 +871,7 @@ class NenoControllerInstallation extends JControllerAdmin
 		/* @var $table NenoContentElementTable */
 		$table = NenoContentElementTable::load($tableId);
 
-		echo $table->recordCount,
+		echo JLayoutHelper::render('installationrecordcount', $table->prepareDataForView(), JPATH_NENO_LAYOUTS);
 
 		$app->close();
 	}
