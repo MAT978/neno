@@ -662,16 +662,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 					if ($copyContent)
 					{
-						$this->copyContentElementsFromSourceTableToShadowTables($tableName, $shadowTableName);
-
-						if ($hasLanguage)
-						{
-							$query = $this->getQuery(true);
-							$query
-								->update($shadowTableName)
-								->set('language = ' . $this->quote($knownLanguage->lang_code));
-							$this->executeQuery($query);
-						}
+						$this->copyContentElementsFromSourceTableToShadowTables($tableName, $shadowTableName, $hasLanguage, $knownLanguage->lang_code);
 					}
 				}
 			}
@@ -684,7 +675,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 			if ($copyContent)
 			{
-				$this->copyContentElementsFromSourceTableToShadowTables($tableName, $shadowTableName);
+				$this->copyContentElementsFromSourceTableToShadowTables($tableName, $shadowTableName, $hasLanguage, $language);
 
 				if ($hasLanguage)
 				{
@@ -703,14 +694,25 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @param   string $sourceTableName Name of the source table
 	 * @param   string $shadowTableName Name of the shadow table
+	 * @param   bool   $hasLanguage     Whether or not the shadow table has language field
+	 * @param   string $language        Language to set the shadow table in case the it has language field
 	 *
 	 * @return void
 	 */
-	public function copyContentElementsFromSourceTableToShadowTables($sourceTableName, $shadowTableName)
+	public function copyContentElementsFromSourceTableToShadowTables($sourceTableName, $shadowTableName, $hasLanguage, $language)
 	{
 		$columns = array_keys($this->getTableColumns($sourceTableName));
 		$query   = 'REPLACE INTO ' . $this->quoteName($shadowTableName) . ' (' . implode(',', $this->quoteName($columns)) . ' ) SELECT * FROM ' . $this->quoteName($sourceTableName);
 		$this->executeQuery($query);
+
+		if ($hasLanguage)
+		{
+			$query = $this->getQuery(true);
+			$query
+				->update($shadowTableName)
+				->set('language = ' . $this->quote($language));
+			$this->executeQuery($query);
+		}
 	}
 
 	/**
@@ -1087,7 +1089,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @return void
 	 */
-	public function setSQLPropagation($sqlPropagation)
+	public function setSqlPropagation($sqlPropagation)
 	{
 		$this->propagateQuery = $sqlPropagation;
 	}
