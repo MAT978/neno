@@ -3742,6 +3742,14 @@ class NenoHelper
 		return $items;
 	}
 
+	/**
+	 * Get language stats
+	 *
+	 * @param array    $language Language internal items
+	 * @param stdClass $item     Language item
+	 *
+	 * @return stdClass
+	 */
 	public static function getLanguageStats($language, $item)
 	{
 		$translated   = 0;
@@ -3916,7 +3924,7 @@ class NenoHelper
 		{
 			// Remove really unwanted tags
 			$oldData = $data;
-			$data     = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
+			$data    = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
 		} while ($oldData !== $data);
 
 		// we are done...
