@@ -676,15 +676,6 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 			if ($copyContent)
 			{
 				$this->copyContentElementsFromSourceTableToShadowTables($tableName, $shadowTableName, $hasLanguage, $language);
-
-				if ($hasLanguage)
-				{
-					$query = $this->getQuery(true);
-					$query
-						->update($shadowTableName)
-						->set('language = ' . $this->quote($language));
-					$this->executeQuery($query);
-				}
 			}
 		}
 	}
