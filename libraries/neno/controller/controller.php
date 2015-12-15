@@ -248,10 +248,6 @@ class NenoController extends JControllerLegacy
 			{
 				foreach ($languages as $language)
 				{
-					$translated               = 0;
-					$queued                   = 0;
-					$changed                  = 0;
-					$untranslated             = 0;
 					$item->lang_code          = $language[0]->lang_code;
 					$item->published          = $language[0]->published;
 					$item->title              = $language[0]->title;
@@ -270,33 +266,8 @@ class NenoController extends JControllerLegacy
 					}
 
 					$item->isInstalled = NenoHelper::isCompletelyInstall($language[0]->lang_code);
-
-					foreach ($language as $internalItem)
-					{
-						switch ($internalItem->state)
-						{
-							case NenoContentElementTranslation::TRANSLATED_STATE:
-								$untranslated = (int) $internalItem->word_count;
-								break;
-							case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-								$untranslated = (int) $internalItem->word_count;
-								break;
-							case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-								$untranslated = (int) $internalItem->word_count;
-								break;
-							case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-								$untranslated = (int) $internalItem->word_count;
-								break;
-						}
-					}
-
-					$item->wordCount               = new stdClass;
-					$item->wordCount->translated   = $translated;
-					$item->wordCount->queued       = $queued;
-					$item->wordCount->changed      = $changed;
-					$item->wordCount->untranslated = $untranslated;
-					$item->wordCount->total        = $translated + $queued + $changed + $untranslated;
-					$item->placement               = $placement;
+					$item->placement   = $placement;
+					$item              = NenoHelper::getLanguageStats($language, $item);
 				}
 
 				echo JLayoutHelper::render('languageconfiguration', get_object_vars($item), JPATH_NENO_LAYOUTS);
@@ -345,33 +316,33 @@ class NenoController extends JControllerLegacy
 	{
 		$input              = $this->input;
 		$n                  = $input->getInt('n', 0);
-		$selected_methods   = $input->get('selected_methods', array(), 'ARRAY');
+		$selectedMethods    = $input->get('selected_methods', array(), 'ARRAY');
 		$placement          = $input->getString('placement', 'general');
 		$translationMethods = NenoHelper::loadTranslationMethods();
 		$app                = JFactory::getApplication();
 
 		// Ensure that we know what was selected for the previous selector
-		if (($n > 0 && !isset($selected_methods[ $n - 1 ])) || ($n > 0 && $selected_methods[ $n - 1 ] == 0))
+		if (($n > 0 && !isset($selectedMethods[ $n - 1 ])) || ($n > 0 && $selectedMethods[ $n - 1 ] == 0))
 		{
 			$app->close();
 		}
 
 		// As a safety measure prevent more than 5 selectors and always allow only one more selector than already selected
-		if ($n > 4 || $n > count($selected_methods) + 1)
+		if ($n > 4 || $n > count($selectedMethods) + 1)
 		{
 			$app->close();
 		}
 
 		// Reduce the translation methods offered depending on the parents
-		if ($n > 0 && !empty($selected_methods))
+		if ($n > 0 && !empty($selectedMethods))
 		{
-			$parent_method                   = $selected_methods[ $n - 1 ];
-			$acceptable_follow_up_method_ids = $translationMethods[ $parent_method ]->acceptable_follow_up_method_ids;
-			$acceptable_follow_up_methods    = explode(',', $acceptable_follow_up_method_ids);
+			$parentMethod                = $selectedMethods[ $n - 1 ];
+			$acceptableFollowUpMethodIds = $translationMethods[ $parentMethod ]->acceptable_follow_up_method_ids;
+			$acceptableFollowUpMethods   = explode(',', $acceptableFollowUpMethodIds);
 
 			foreach ($translationMethods as $k => $translation_method)
 			{
-				if (!in_array($k, $acceptable_follow_up_methods))
+				if (!in_array($k, $acceptableFollowUpMethods))
 				{
 					unset($translationMethods[ $k ]);
 				}
