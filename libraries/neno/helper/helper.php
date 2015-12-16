@@ -1978,30 +1978,49 @@ class NenoHelper
 			{
 				foreach ($modules as $module)
 				{
-					$previousId = $module->id;
-
-					if (!isset(self::$modulesDuplicated[ $previousId . $language ]) && $module->language != $language)
-					{
-						unset($module->id);
-						$module->language = $language;
-						$module->title    = $module->title . '(' . $language . ')';
-
-						if ($db->insertObject('#__modules', $module, 'id'))
-						{
-							self::$modulesDuplicated[ $previousId . $language ] = $module->id;
-						}
-					}
-
-					foreach ($newMenuItems as $newMenuItem)
-					{
-						$query->values(self::$modulesDuplicated[ $previousId . $language ] . ',' . $newMenuItem->id);
-					}
+					$query = self::createModuleInstance($language, $module, $newMenuItems, $query);
 				}
 			}
 
 			$db->setQuery($query);
 			$db->execute();
 		}
+	}
+
+	/**
+	 * Create a module instance and assign it to the menu items
+	 *
+	 * @param string         $language     Module language
+	 * @param stdClass       $module       Module data
+	 * @param array          $newMenuItems Menu items for the module to be assigned
+	 * @param JDatabaseQuery $query        Database query where the data will be saved
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected static function createModuleInstance($language, $module, $newMenuItems, $query)
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db         = JFactory::getDbo();
+		$previousId = $module->id;
+
+		if (!isset(self::$modulesDuplicated[ $previousId . $language ]) && $module->language != $language)
+		{
+			unset($module->id);
+			$module->language = $language;
+			$module->title    = $module->title . '(' . $language . ')';
+
+			if ($db->insertObject('#__modules', $module, 'id'))
+			{
+				self::$modulesDuplicated[ $previousId . $language ] = $module->id;
+			}
+		}
+
+		foreach ($newMenuItems as $newMenuItem)
+		{
+			$query->values(self::$modulesDuplicated[ $previousId . $language ] . ',' . $newMenuItem->id);
+		}
+
+		return $query;
 	}
 
 	/**
