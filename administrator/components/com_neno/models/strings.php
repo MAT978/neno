@@ -201,21 +201,18 @@ class NenoModelStrings extends JModelList
 	}
 
 	/**
-	 * Build an SQL query to load the list data.
+	 * Build base query for database content querying
 	 *
-	 * @return    JDatabaseQuery
+	 * @param string $workingLanguage Working Language
 	 *
-	 * @since    1.6
+	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getBaseDatabaseQueryStringQuery($workingLanguage)
 	{
-		$db              = JFactory::getDbo();
-		$workingLanguage = NenoHelper::getWorkingLanguage();
+		$db        = JFactory::getDbo();
+		$dbStrings = parent::getListQuery();
 
-		// Create a new query object.
-		$dbStrings           = parent::getListQuery();
-		$languageFileStrings = parent::getListQuery();
-
+		// Create base query
 		$dbStrings
 			->select(
 				array(
@@ -245,6 +242,107 @@ class NenoModelStrings extends JModelList
 			)
 			->order('tr1.id');
 
+		return $dbStrings;
+	}
+
+	/**
+	 * Get Database Query for Database content
+	 *
+	 * @param   string $workingLanguage Working language
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function buildDatabaseStringQuery($workingLanguage)
+	{
+		$db        = JFactory::getDbo();
+		$dbStrings = $this->getBaseDatabaseQueryStringQuery($workingLanguage);
+
+		$queryWhereDb = array();
+		$groupIdAdded = false;
+
+		/* @var $groups array */
+		/* @var $element array */
+		/* @var $field array */
+		/* @var $file array */
+		list($groups, $element, $field, $file) = $this->getFilterByElements();
+
+		if (!empty($groups) && !in_array('none', $groups))
+		{
+			$queryWhereDb[] = 't.group_id IN (' . implode(', ', $groups) . ')';
+		}
+
+		if (!empty($element))
+		{
+			if ($groupIdAdded === false)
+			{
+				$dbStrings->select('g1.id AS group_id');
+				$groupIdAdded = true;
+			}
+
+			$queryWhereDb[] = 't.id IN (' . implode(', ', $element) . ')';
+		}
+
+		if (!empty($field))
+		{
+			if ($groupIdAdded === false)
+			{
+				$dbStrings->select('g1.id AS group_id');
+			}
+
+			$queryWhereDb[] = 'f.id IN (' . implode(', ', $field) . ')';
+		}
+
+		if (!empty($file))
+		{
+			if (empty($field) && empty($element))
+			{
+				$queryWhereDb[] = 'f.id = 0 AND t.id = 0';
+			}
+		}
+
+		if (count($queryWhereDb))
+		{
+			$dbStrings->where('(' . implode(' OR ', $queryWhereDb) . ')');
+		}
+
+		$method = (array) $this->getState('filter.translator_type', array());
+
+		if (!empty($method) && !in_array('none', $method))
+		{
+			$dbStrings
+				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $method) . '")')
+				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
+		}
+
+		$status = (array) $this->getState('filter.translation_status', array());
+
+		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
+		{
+			$dbStrings->where('tr1.state IN (' . implode(', ', $status) . ')');
+		}
+
+		// Hide empty strings if the user wants to do that
+		if (NenoSettings::get('hide_empty_strings', true))
+		{
+			$dbStrings->where('tr1.original_text <> ' . $db->quote(''));
+		}
+
+		return $dbStrings;
+	}
+
+	/**
+	 * Build base query for language file content querying
+	 *
+	 * @param string $workingLanguage Working Language
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function getBaseLanguageFileQuery($workingLanguage)
+	{
+		$db                  = JFactory::getDbo();
+		$languageFileStrings = parent::getListQuery();
+
+		// Create base query
 		$languageFileStrings
 			->select(
 				array(
@@ -272,31 +370,30 @@ class NenoModelStrings extends JModelList
 				)
 			)
 			->order('tr2.id');
+	}
 
-		$queryWhereDb = array();
-
-		/* @var $groups array */
-		$groups = $this->getState('filter.group_id', array());
-
-		/* @var $element array */
-		$element = $this->getState('filter.element', array());
-
-		/* @var $field array */
-		$field = $this->getState('filter.field', array());
-
-		/* @var $file array */
-		$file = $this->getState('filter.files', array());
+	/**
+	 * Get Database Query for Language file content
+	 *
+	 * @param   string $workingLanguage Working language
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function buildLanguageFileQuery($workingLanguage)
+	{
+		$db                  = JFactory::getDbo();
+		$languageFileStrings = $this->getBaseLanguageFileQuery($workingLanguage);
 
 		$groupIdAdded = false;
 
-		if (!is_array($groups))
-		{
-			$groups = array( $groups );
-		}
+		/* @var $groups array */
+		/* @var $element array */
+		/* @var $field array */
+		/* @var $file array */
+		list($groups, $element, $field, $file) = $this->getFilterByElements();
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
-			$queryWhereDb[] = 't.group_id IN (' . implode(', ', $groups) . ')';
 			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $groups) . ')');
 		}
 
@@ -305,11 +402,8 @@ class NenoModelStrings extends JModelList
 			if ($groupIdAdded === false)
 			{
 				$languageFileStrings->select('g2.id AS group_id');
-				$dbStrings->select('g1.id AS group_id');
 				$groupIdAdded = true;
 			}
-
-			$queryWhereDb[] = 't.id IN (' . implode(', ', $element) . ')';
 
 			// Do not show any strings for this language file
 			if (empty($file))
@@ -323,7 +417,6 @@ class NenoModelStrings extends JModelList
 			if ($groupIdAdded === false)
 			{
 				$languageFileStrings->select('g2.id AS group_id');
-				$dbStrings->select('g1.id AS group_id');
 			}
 
 			// Do not show any strings for this language file
@@ -331,32 +424,17 @@ class NenoModelStrings extends JModelList
 			{
 				$languageFileStrings->where('lf.id = 0');
 			}
-
-			$queryWhereDb[] = 'f.id IN (' . implode(', ', $field) . ')';
 		}
 
 		if (!empty($file))
 		{
 			$languageFileStrings->where('lf.id IN (' . implode(',', $file) . ')');
-
-			if (empty($field) && empty($element))
-			{
-				$queryWhereDb[] = 'f.id = 0 AND t.id = 0';
-			}
-		}
-
-		if (count($queryWhereDb))
-		{
-			$dbStrings->where('(' . implode(' OR ', $queryWhereDb) . ')');
 		}
 
 		$method = (array) $this->getState('filter.translator_type', array());
 
 		if (!empty($method) && !in_array('none', $method))
 		{
-			$dbStrings
-				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $method) . '")')
-				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
 			$languageFileStrings
 				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $method) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
@@ -366,23 +444,40 @@ class NenoModelStrings extends JModelList
 
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{
-			$dbStrings->where('tr1.state IN (' . implode(', ', $status) . ')');
 			$languageFileStrings->where('tr2.state IN (' . implode(', ', $status) . ')');
 		}
 
 		// Hide empty strings if the user wants to do that
 		if (NenoSettings::get('hide_empty_strings', true))
 		{
-			$dbStrings->where('tr1.original_text <> ' . $db->quote(''));
 			$languageFileStrings->where('tr2.original_text <> ' . $db->quote(''));
 		}
 
-		$query = parent::getListQuery();
+		return $languageFileStrings;
+	}
+
+	/**
+	 * Build an SQL query to load the list data.
+	 *
+	 * @return    JDatabaseQuery
+	 *
+	 * @since    1.6
+	 */
+	protected function getListQuery()
+	{
+		$db              = JFactory::getDbo();
+		$workingLanguage = NenoHelper::getWorkingLanguage();
+
+		// Create a new query object.
+		$dbStrings           = $this->buildDatabaseStringQuery($workingLanguage);
+		$languageFileStrings = $this->buildLanguageFileQuery($workingLanguage);
+		$query               = parent::getListQuery();
 
 		$query
-			->select('DISTINCT *')
+			->select('DISTINCT a.*')
 			->from('((' . (string) $dbStrings . ') UNION (' . (string) $languageFileStrings . ')) AS a')
-			->group('id');
+			->group('id')
+			->order('a.id ASC');
 
 		$search = $this->getState('filter.search');
 
@@ -392,15 +487,33 @@ class NenoModelStrings extends JModelList
 			$query->where('(a.original_text LIKE ' . $search . ' OR a.string LIKE ' . $search . ')');
 		}
 
-		// Add the list ordering clause.
-		$orderCol       = $this->state->get('list.ordering');
-		$orderDirection = $this->state->get('list.direction');
+		return $query;
+	}
 
-		if ($orderCol && $orderDirection)
+	/**
+	 * Get elements to filter by
+	 *
+	 * @return array
+	 */
+	protected function getFilterByElements()
+	{
+		/* @var $groups array */
+		$groups = $this->getState('filter.group_id', array());
+
+		/* @var $element array */
+		$element = $this->getState('filter.element', array());
+
+		/* @var $field array */
+		$field = $this->getState('filter.field', array());
+
+		/* @var $file array */
+		$file = $this->getState('filter.files', array());
+
+		if (!is_array($groups))
 		{
-			$query->order($db->escape($orderCol . ' ' . $orderDirection));
+			$groups = array( $groups );
 		}
 
-		return $query;
+		return array( $groups, $element, $field, $file );
 	}
 }
