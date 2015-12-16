@@ -265,7 +265,7 @@ class NenoModelStrings extends JModelList
 		/* @var $field array */
 		/* @var $file array */
 		/* @var $method array */
-		list($groups, $element, $field, $file, $method, $status) = $this->getFilterByElements();
+		list($groups, $element, $field, $file, $method,) = $this->getFilterByElements();
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
@@ -297,17 +297,6 @@ class NenoModelStrings extends JModelList
 			$dbStrings
 				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $method) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
-		}
-
-		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
-		{
-			$dbStrings->where('tr1.state IN (' . implode(', ', $status) . ')');
-		}
-
-		// Hide empty strings if the user wants to do that
-		if (NenoSettings::get('hide_empty_strings', true))
-		{
-			$dbStrings->where('tr1.original_text <> ' . $db->quote(''));
 		}
 
 		return $dbStrings;
@@ -374,7 +363,7 @@ class NenoModelStrings extends JModelList
 		/* @var $file array */
 		/* @var $method array */
 		/* @var $status array */
-		list($groups, $element, $field, $file, $method, $status) = $this->getFilterByElements();
+		list($groups, $element, $field, $file, $method,) = $this->getFilterByElements();
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
@@ -405,12 +394,6 @@ class NenoModelStrings extends JModelList
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{
 			$languageFileStrings->where('tr2.state IN (' . implode(', ', $status) . ')');
-		}
-
-		// Hide empty strings if the user wants to do that
-		if (NenoSettings::get('hide_empty_strings', true))
-		{
-			$languageFileStrings->where('tr2.original_text <> ' . $db->quote(''));
 		}
 
 		return $languageFileStrings;
@@ -445,6 +428,19 @@ class NenoModelStrings extends JModelList
 		{
 			$search = $db->quote('%' . $search . '%');
 			$query->where('(a.original_text LIKE ' . $search . ' OR a.string LIKE ' . $search . ')');
+		}
+
+		// Hide empty strings if the user wants to do that
+		if (NenoSettings::get('hide_empty_strings', true))
+		{
+			$languageFileStrings->where('a.original_text <> ' . $db->quote(''));
+		}
+
+		list(, , , , , $status) = $this->getFilterByElements();
+
+		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
+		{
+			$dbStrings->where('a.state IN (' . implode(', ', $status) . ')');
 		}
 
 		return $query;
