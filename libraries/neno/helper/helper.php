@@ -1885,7 +1885,6 @@ class NenoHelper
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db              = JFactory::getDbo();
-		$query           = $db->getQuery(true);
 		$languages       = self::getTargetLanguages();
 		$defaultLanguage = NenoSettings::get('source_language');
 
@@ -1938,11 +1937,30 @@ class NenoHelper
 					$query = 'INSERT INTO #__modules_menu (moduleid,menuid) SELECT moduleid,' . $db->quote($newMenuItem->id) . ' FROM  #__modules_menu WHERE menuid = ' . $db->quote($menuItem->id);
 					$db->setQuery($query);
 					$db->execute();
-					$query          = $db->getQuery(true);
 					$associations[] = $newMenuItem->id;
 				}
 			}
 		}
+
+		self::duplicateModulesForMenuItem($menuItem);
+
+		self::createAssociations($associations, $menuItem);
+	}
+
+	/**
+	 * Duplicate all the modules assigned to a menu item
+	 *
+	 * @param stdClass $menuItem Menu item object
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected static function duplicateModulesForMenuItem($menuItem)
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
 
 		// Get all the modules assigned to this menu item using a different language from *
 		$query
@@ -2000,8 +2018,6 @@ class NenoHelper
 			$db->setQuery($query);
 			$db->execute();
 		}
-
-		self::createAssociations($associations, $menuItem);
 	}
 
 	/**
