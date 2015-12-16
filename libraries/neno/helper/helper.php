@@ -1958,30 +1958,14 @@ class NenoHelper
 	 */
 	protected static function duplicateModulesForMenuItem($menuItem)
 	{
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		// Get all the modules assigned to this menu item using a different language from *
-		$query
-			->clear()
-			->select('m.*')
-			->from('#__modules AS m')
-			->innerJoin('#__modules_menu AS mm ON m.id = mm.moduleid')
-			->where(
-				array(
-					'mm.menuid = ' . (int) $menuItem->id,
-					'm.language <> ' . $db->quote('*')
-				)
-			);
-
-		$db->setQuery($query);
-		$modules = $db->loadObjectList();
+		$modules = self::getModulesForMenuItemForAllLanguages($menuItem);
 
 		if (!empty($modules))
 		{
+			/* @var $db NenoDatabaseDriverMysqlx */
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
 			$query
-				->clear()
 				->insert('#__modules_menu')
 				->columns(
 					array(
@@ -2018,6 +2002,37 @@ class NenoHelper
 			$db->setQuery($query);
 			$db->execute();
 		}
+	}
+
+	/**
+	 * Get all the modules marked as '*' for a menu item
+	 *
+	 * @param stdClass $menuItem
+	 *
+	 * @return array
+	 */
+	protected static function getModulesForMenuItemForAllLanguages($menuItem)
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		// Get all the modules assigned to this menu item using a different language from *
+		$query
+			->clear()
+			->select('m.*')
+			->from('#__modules AS m')
+			->innerJoin('#__modules_menu AS mm ON m.id = mm.moduleid')
+			->where(
+				array(
+					'mm.menuid = ' . (int) $menuItem->id,
+					'm.language <> ' . $db->quote('*')
+				)
+			);
+
+		$db->setQuery($query);
+
+		return $db->loadObjectList();
 	}
 
 	/**
