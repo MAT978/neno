@@ -1889,9 +1889,9 @@ class NenoHelper
 		$languages       = self::getTargetLanguages();
 		$defaultLanguage = NenoSettings::get('source_language');
 
-		if (!isset($menuAssociations[ $menuItem->menutype ]))
+		if (!isset(self::$menuAssociations[ $menuItem->menutype ]))
 		{
-			$menuAssociations[ $menuItem->menutype ] = array();
+			self::$menuAssociations[ $menuItem->menutype ] = array();
 		}
 
 		$associations = array();
@@ -1903,11 +1903,11 @@ class NenoHelper
 				self::$menuItemsCreated[ $language->lang_code ] = array();
 
 				// If there's no menu associated
-				if (empty($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
+				if (empty(self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
 				{
-					if (!isset($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
+					if (!isset(self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
 					{
-						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ] = array();
+						self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ] = array();
 					}
 
 					$newMenuType           = new stdClass;
@@ -1918,14 +1918,14 @@ class NenoHelper
 					// If the menu has been inserted properly, let's save into the data structure
 					if (!empty($newMenuType))
 					{
-						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'] = $newMenuType->menutype;
-						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['language'] = $language->lang_code;
+						self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'] = $newMenuType->menutype;
+						self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['language'] = $language->lang_code;
 					}
 				}
 
 				$newMenuItem = clone $menuItem;
 				unset($newMenuItem->id);
-				$newMenuItem->menutype = $menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'];
+				$newMenuItem->menutype = self::$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'];
 				$newMenuItem->alias    = JFilterOutput::stringURLSafe($newMenuItem->alias . '-' . $language->lang_code);
 				$newMenuItem->language = $language->lang_code;
 
@@ -2007,8 +2007,8 @@ class NenoHelper
 	/**
 	 * Create all needed associations for a particular menu item
 	 *
-	 * @param array $associations associations to create
-	 * @param stdClass $menuItem Menu item
+	 * @param array    $associations associations to create
+	 * @param stdClass $menuItem     Menu item
 	 *
 	 * @return void
 	 *
