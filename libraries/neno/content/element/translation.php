@@ -1068,7 +1068,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	public function persist()
 	{
 		// Update word counter
-		$this->wordCounter = NenoHelper::getWordCount($this->getString());
+		$this->wordCounter = NenoHelperHtml::getWordCount($this->getString());
 
 		if ($this->contentType == self::DB_STRING)
 		{
@@ -1275,7 +1275,7 @@ class NenoContentElementTranslation extends NenoContentElement
 
 				if (file_exists($filePath))
 				{
-					$existingStrings = NenoHelper::readLanguageFile($filePath);
+					$existingStrings = NenoHelperFile::readLanguageFile($filePath);
 				}
 				else
 				{
@@ -1283,13 +1283,13 @@ class NenoContentElementTranslation extends NenoContentElement
 
 					if (file_exists(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']))
 					{
-						$existingStrings = NenoHelper::readLanguageFile(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']);
+						$existingStrings = NenoHelperFile::readLanguageFile(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']);
 					}
 				}
 
 				$existingStrings[ $translationData['constant'] ] = $this->string;
 
-				NenoHelper::saveIniFile($filePath, $existingStrings);
+				NenoHelperFile::saveIniFile($filePath, $existingStrings);
 			}
 		}
 

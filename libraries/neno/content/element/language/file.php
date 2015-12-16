@@ -265,7 +265,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 
 			if (file_exists($filePath))
 			{
-				$strings = NenoHelper::readLanguageFile($filePath);
+				$strings = NenoHelperFile::readLanguageFile($filePath);
 			}
 
 			// Merging these two arrays
@@ -362,7 +362,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 
 			if (file_exists($filePath))
 			{
-				$strings = NenoHelper::readLanguageFile($filePath);
+				$strings = NenoHelperFile::readLanguageFile($filePath);
 			}
 		}
 

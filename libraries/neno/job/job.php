@@ -386,7 +386,7 @@ class NenoJob extends NenoObject
 				if (!empty($translation))
 				{
 					$translation->setString(
-						NenoHelper::replaceTranslationsInHtmlTag($translation->getOriginalText(), html_entity_decode($translationText, ENT_COMPAT | ENT_HTML401, $this->getCorrectEncodingCharset($this->getToLanguage())))
+						NenoHelperHtml::replaceTranslationsInHtmlTag($translation->getOriginalText(), html_entity_decode($translationText, ENT_COMPAT | ENT_HTML401, $this->getCorrectEncodingCharset($this->getToLanguage())))
 					);
 
 					// Mark this translation method as completed
@@ -407,7 +407,7 @@ class NenoJob extends NenoObject
 			}
 
 			// Ensure the shadow tables of the target language have their language column (if there's any) properly set.
-			$tables = NenoContentElementTable::load(array('translate' => 1));
+			$tables = NenoContentElementTable::load(array( 'translate' => 1 ));
 
 			/* @var $table NenoContentElementTable */
 			foreach ($tables as $table)
@@ -428,7 +428,7 @@ class NenoJob extends NenoObject
 			'es-ES' => 'ISO8859-15'
 		);
 
-		return isset($encoding[$language]) ? $encoding[$language] : 'UTF-8';
+		return isset($encoding[ $language ]) ? $encoding[ $language ] : 'UTF-8';
 	}
 
 	/**
@@ -512,7 +512,7 @@ class NenoJob extends NenoObject
 
 		/* @var $zipArchiveAdapter JArchiveZip */
 		$zipArchiveAdapter = JArchive::getAdapter('zip');
-		$result            = $zipArchiveAdapter->create(JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . $filename . '.json.zip', array($fileData));
+		$result            = $zipArchiveAdapter->create(JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . $filename . '.json.zip', array( $fileData ));
 
 		$this->fileName = $filename;
 
@@ -607,13 +607,13 @@ class NenoJob extends NenoObject
 
 			foreach ($translations as $translation)
 			{
-				$translationOriginalText                = NenoHelper::getTranslationOriginalText(
+				$translationOriginalText                  = NenoHelper::getTranslationOriginalText(
 					$translation['id'],
 					$translation['content_type'],
 					$translation['content_id']
 				);
-				$this->translations[$translation['id']] = array(
-					'text'    => NenoHelper::splitHtmlText($translationOriginalText),
+				$this->translations[ $translation['id'] ] = array(
+					'text'    => NenoHelperHtml::splitHtmlText($translationOriginalText),
 					'comment' => $translation['comment']
 				);
 			}

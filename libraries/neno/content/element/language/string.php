@@ -399,7 +399,7 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 						$string = $this->getString();
 
 						// Check if this string already exists in other language file
-						$stringTranslation = NenoHelper::existsStringInsideOfLanguageFile(str_replace($defaultLanguage, $language->lang_code, $languageFilename), $this->getConstant());
+						$stringTranslation = NenoHelperFile::existsStringInsideOfLanguageFile(str_replace($defaultLanguage, $language->lang_code, $languageFilename), $this->getConstant());
 
 						if ($stringTranslation !== false)
 						{
