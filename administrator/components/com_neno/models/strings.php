@@ -220,7 +220,8 @@ class NenoModelStrings extends JModelList
 					'f.field_name AS `key`',
 					't.table_name AS element_name',
 					'g1.group_name AS `group`',
-					'CHAR_LENGTH(tr1.string) AS characters'
+					'CHAR_LENGTH(tr1.string) AS characters',
+					'g1.id AS group_id'
 				)
 			)
 			->from('`#__neno_content_element_translations` AS tr1')
@@ -258,7 +259,6 @@ class NenoModelStrings extends JModelList
 		$dbStrings = $this->getBaseDatabaseQueryStringQuery($workingLanguage);
 
 		$queryWhereDb = array();
-		$groupIdAdded = false;
 
 		/* @var $groups array */
 		/* @var $element array */
@@ -274,31 +274,17 @@ class NenoModelStrings extends JModelList
 
 		if (!empty($element))
 		{
-			if ($groupIdAdded === false)
-			{
-				$dbStrings->select('g1.id AS group_id');
-				$groupIdAdded = true;
-			}
-
 			$queryWhereDb[] = 't.id IN (' . implode(', ', $element) . ')';
 		}
 
 		if (!empty($field))
 		{
-			if ($groupIdAdded === false)
-			{
-				$dbStrings->select('g1.id AS group_id');
-			}
-
 			$queryWhereDb[] = 'f.id IN (' . implode(', ', $field) . ')';
 		}
 
-		if (!empty($file))
+		if (!empty($file) && empty($field) && empty($element))
 		{
-			if (empty($field) && empty($element))
-			{
-				$queryWhereDb[] = 'f.id = 0 AND t.id = 0';
-			}
+			$queryWhereDb[] = 'f.id = 0 AND t.id = 0';
 		}
 
 		if (count($queryWhereDb))
@@ -471,23 +457,12 @@ class NenoModelStrings extends JModelList
 	 */
 	protected function getFilterByElements()
 	{
-		/* @var $groups array */
-		$groups = $this->getState('filter.group_id', array());
-
-		/* @var $element array */
+		$groups  = $this->getState('filter.group_id', array());
 		$element = $this->getState('filter.element', array());
-
-		/* @var $field array */
-		$field = $this->getState('filter.field', array());
-
-		/* @var $file array */
-		$file = $this->getState('filter.files', array());
-
-		/* @var $method array */
-		$method = (array) $this->getState('filter.translator_type', array());
-
-		/* @var $status array */
-		$status = (array) $this->getState('filter.translation_status', array());
+		$field   = $this->getState('filter.field', array());
+		$file    = $this->getState('filter.files', array());
+		$method  = (array) $this->getState('filter.translator_type', array());
+		$status  = (array) $this->getState('filter.translation_status', array());
 
 		if (!is_array($groups))
 		{
