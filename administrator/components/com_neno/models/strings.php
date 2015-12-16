@@ -264,7 +264,8 @@ class NenoModelStrings extends JModelList
 		/* @var $element array */
 		/* @var $field array */
 		/* @var $file array */
-		list($groups, $element, $field, $file) = $this->getFilterByElements();
+		/* @var $method array */
+		list($groups, $element, $field, $file, $method, $status) = $this->getFilterByElements();
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
@@ -305,16 +306,12 @@ class NenoModelStrings extends JModelList
 			$dbStrings->where('(' . implode(' OR ', $queryWhereDb) . ')');
 		}
 
-		$method = (array) $this->getState('filter.translator_type', array());
-
 		if (!empty($method) && !in_array('none', $method))
 		{
 			$dbStrings
 				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $method) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
 		}
-
-		$status = (array) $this->getState('filter.translation_status', array());
 
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{
@@ -350,7 +347,8 @@ class NenoModelStrings extends JModelList
 					'ls.constant AS `key`',
 					'lf.filename AS element_name',
 					'g2.group_name AS `group`',
-					'CHAR_LENGTH(tr2.string) AS characters'
+					'CHAR_LENGTH(tr2.string) AS characters',
+					'g2.id AS group_id'
 				)
 			)
 			->from('`#__neno_content_element_translations` AS tr2')
@@ -384,54 +382,32 @@ class NenoModelStrings extends JModelList
 		$db                  = JFactory::getDbo();
 		$languageFileStrings = $this->getBaseLanguageFileQuery($workingLanguage);
 
-		$groupIdAdded = false;
-
 		/* @var $groups array */
 		/* @var $element array */
 		/* @var $field array */
 		/* @var $file array */
-		list($groups, $element, $field, $file) = $this->getFilterByElements();
+		/* @var $method array */
+		/* @var $status array */
+		list($groups, $element, $field, $file, $method, $status) = $this->getFilterByElements();
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
 			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $groups) . ')');
 		}
 
-		if (!empty($element))
+		if (empty($file) && !empty($element))
 		{
-			if ($groupIdAdded === false)
-			{
-				$languageFileStrings->select('g2.id AS group_id');
-				$groupIdAdded = true;
-			}
-
-			// Do not show any strings for this language file
-			if (empty($file))
-			{
-				$languageFileStrings->where('lf.id = 0');
-			}
-		}
-
-		if (!empty($field))
-		{
-			if ($groupIdAdded === false)
-			{
-				$languageFileStrings->select('g2.id AS group_id');
-			}
-
-			// Do not show any strings for this language file
-			if (empty($file))
-			{
-				$languageFileStrings->where('lf.id = 0');
-			}
+			$languageFileStrings->where('lf.id = 0');
 		}
 
 		if (!empty($file))
 		{
 			$languageFileStrings->where('lf.id IN (' . implode(',', $file) . ')');
 		}
-
-		$method = (array) $this->getState('filter.translator_type', array());
+		elseif (!empty($field))
+		{
+			$languageFileStrings->where('lf.id = 0');
+		}
 
 		if (!empty($method) && !in_array('none', $method))
 		{
@@ -439,8 +415,6 @@ class NenoModelStrings extends JModelList
 				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $method) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
 		}
-
-		$status = (array) $this->getState('filter.translation_status', array());
 
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{
@@ -509,11 +483,17 @@ class NenoModelStrings extends JModelList
 		/* @var $file array */
 		$file = $this->getState('filter.files', array());
 
+		/* @var $method array */
+		$method = (array) $this->getState('filter.translator_type', array());
+
+		/* @var $status array */
+		$status = (array) $this->getState('filter.translation_status', array());
+
 		if (!is_array($groups))
 		{
 			$groups = array( $groups );
 		}
 
-		return array( $groups, $element, $field, $file );
+		return array( $groups, $element, $field, $file, $method, $status );
 	}
 }
