@@ -24,6 +24,21 @@ class NenoHelper
 	protected static $menuModuleReplicated = array();
 
 	/**
+	 * @var array
+	 */
+	protected static $menuItemsCreated = array();
+
+	/**
+	 * @var array
+	 */
+	protected static $menuAssociations = array();
+
+	/**
+	 * @var array
+	 */
+	protected static $modulesDuplicated = array();
+
+	/**
 	 * Set the working language on the currently logged in user
 	 *
 	 * @param   string $lang 'en-GB' or 'de-DE'
@@ -36,7 +51,7 @@ class NenoHelper
 
 		$db = JFactory::getDbo();
 
-		/* @var $query NenoDatabaseQueryMysqli */
+		/* @var $query NenoDatabaseQueryMysqlx */
 		$query = $db->getQuery(true);
 
 		$query
@@ -1498,16 +1513,17 @@ class NenoHelper
 	}
 
 	/**
-	 * Create menu structure
+	 * Init menu structure process creation
 	 *
 	 * @return void
+	 *
+	 * @throws Exception
 	 */
-	public static function createMenuStructure()
+	protected static function initMenuStructureCreation()
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db              = JFactory::getDbo();
 		$query           = $db->getQuery(true);
-		$languages       = self::getTargetLanguages();
 		$defaultLanguage = NenoSettings::get('source_language');
 
 		// Delete all the menus trashed
@@ -1586,264 +1602,22 @@ class NenoHelper
 
 		$db->setQuery($query);
 		$db->execute();
+	}
 
-		$query
-			->clear()
-			->select(
-				array(
-					'm.*'
-				)
-			)
-			->from('#__menu_types AS mt')
-			->leftJoin('#__menu AS m ON mt.menutype = m.menutype')
-			->where(
-				array(
-					'NOT EXISTS(SELECT 1 FROM #__associations AS a WHERE a.id = m.id AND a.`key` = ' . $db->quote('com_menus.item') . ')',
-					'client_id = 0',
-					'level <> 0',
-					'published <> -2'
-				)
-			)
-			->order('level');
-
-		$db->setQuery($query);
-		$nonAssociatedMenuItems = $db->loadObjectList();
-		$menuAssociations       = array();
-
-		$query
-			->clear()
-			->select('DISTINCT m1.menutype AS m1')
-			->from('#__associations a1')
-			->innerJoin('#__menu AS m1 ON a1.id = m1.id')
-			->innerJoin('#__associations AS a2 ON a1.key = a2.key')
-			->innerJoin('#__menu AS m2 ON a2.id = m2.id')
-			->where(
-				array(
-					'a1.context = ' . $db->quote('com_menus.item'),
-					'a2.context = ' . $db->quote('com_menus.item'),
-					'a1.id <> a2.id',
-					'm1.client_id = 0',
-					'm1.level <> 0',
-					'm1.published <> -2',
-					'm2.client_id = 0',
-					'm2.level <> 0',
-					'm2.published <> -2',
-				)
-			);
-
-		$db->setQuery($query);
-		$menuTypes = $db->loadArray();
-
-		foreach ($menuTypes as $menuType)
-		{
-			$query
-				->clear()
-				->select(
-					array(
-						'DISTINCT m2.menutype',
-						'm2.language'
-					)
-				)
-				->from('#__associations a1')
-				->innerJoin('#__menu AS m1 ON a1.id = m1.id')
-				->innerJoin('#__associations AS a2 ON a1.key = a2.key')
-				->innerJoin('#__menu AS m2 ON a2.id = m2.id')
-				->where(
-					array(
-						'a1.context = ' . $db->quote('com_menus.item'),
-						'a2.context = ' . $db->quote('com_menus.item'),
-						'a1.id <> a2.id',
-						'm1.client_id = 0',
-						'm1.level <> 0',
-						'm1.published <> -2',
-						'm2.client_id = 0',
-						'm2.level <> 0',
-						'm2.published <> -2',
-						'm1.menutype = ' . $db->quote($menuType)
-					)
-				);
-
-			$db->setQuery($query);
-			$menuAssociations[ $menuType ] = $db->loadAssocList('language');
-		}
-
-		$menuItemsCreated  = array();
-		$modulesDuplicated = array();
-
-		foreach ($nonAssociatedMenuItems as $key => $menuItem)
-		{
-			if (!isset($menuAssociations[ $menuItem->menutype ]))
-			{
-				$menuAssociations[ $menuItem->menutype ] = array();
-			}
-
-			$associations = array();
-			$insert       = false;
-			$insertQuery  = $db->getQuery(true);
-			$insertQuery
-				->insert('#__associations')
-				->columns(
-					array(
-						'id',
-						$db->quoteName('context'),
-						$db->quoteName('key')
-					)
-				);
-
-			foreach ($languages as $language)
-			{
-				if ($language->lang_code !== $menuItem->language)
-				{
-					$menuItemsCreated[ $language->lang_code ] = array();
-
-					// If there's no menu associated
-					if (empty($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
-					{
-						if (!isset($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
-						{
-							$menuAssociations[ $menuItem->menutype ][ $language->lang_code ] = array();
-						}
-
-						$newMenuType           = new stdClass;
-						$newMenuType->menutype = $menuItem->menutype;
-						$newMenuType->title    = $menuItem->menutype;
-						$newMenuType           = self::createMenu($language->lang_code, $newMenuType, $defaultLanguage);
-
-						// If the menu has been inserted properly, let's save into the data structure
-						if (!empty($newMenuType))
-						{
-							$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'] = $newMenuType->menutype;
-							$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['language'] = $language->lang_code;
-						}
-					}
-
-					$newMenuItem = clone $menuItem;
-					unset($newMenuItem->id);
-					$newMenuItem->menutype = $menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'];
-					$newMenuItem->alias    = JFilterOutput::stringURLSafe($newMenuItem->alias . '-' . $language->lang_code);
-					$newMenuItem->language = $language->lang_code;
-
-					// If the menu item has been inserted properly, let's execute some actions
-					if ($db->insertObject('#__menu', $newMenuItem, 'id'))
-					{
-						$menuItemsCreated[ $language->lang_code ][] = $newMenuItem->id;
-
-						// Assign all the modules to this item
-						$query = 'INSERT INTO #__modules_menu (moduleid,menuid) SELECT moduleid,' . $db->quote($newMenuItem->id) . ' FROM  #__modules_menu WHERE menuid = ' . $db->quote($menuItem->id);
-						$db->setQuery($query);
-						$db->execute();
-						$query          = $db->getQuery(true);
-						$associations[] = $newMenuItem->id;
-					}
-				}
-			}
-
-			// Get all the modules assigned to this menu item using a different language from *
-			$query
-				->clear()
-				->select('m.*')
-				->from('#__modules AS m')
-				->innerJoin('#__modules_menu AS mm ON m.id = mm.moduleid')
-				->where(
-					array(
-						'mm.menuid = ' . (int) $menuItem->id,
-						'm.language <> ' . $db->quote('*')
-					)
-				);
-
-			$db->setQuery($query);
-			$modules = $db->loadObjectList();
-
-			if (!empty($modules))
-			{
-				$query
-					->clear()
-					->insert('#__modules_menu')
-					->columns(
-						array(
-							'moduleid',
-							'menuid'
-						)
-					);
-
-				foreach ($menuItemsCreated as $language => $newMenuItems)
-				{
-					foreach ($modules as $module)
-					{
-						$previousId = $module->id;
-
-						if (!isset($modulesDuplicated[ $previousId . $language ]) && $module->language != $language)
-						{
-							unset($module->id);
-							$module->language = $language;
-							$module->title    = $module->title . '(' . $language . ')';
-
-							if ($db->insertObject('#__modules', $module, 'id'))
-							{
-								$modulesDuplicated[ $previousId . $language ] = $module->id;
-							}
-						}
-
-						foreach ($newMenuItems as $newMenuItem)
-						{
-							$query->values($modulesDuplicated[ $previousId . $language ] . ',' . $newMenuItem->id);
-						}
-					}
-				}
-
-				$db->setQuery($query);
-				$db->execute();
-			}
-
-			$query
-				->clear()
-				->select($db->quoteName('key', 'associationKey'))
-				->from('#__associations')
-				->where(
-					array(
-						'id IN (' . implode(',', array_merge($associations, array( $menuItem->id ))) . ')',
-						'context = ' . $db->quote('com_menus.item')
-					)
-				);
-
-			$db->setQuery($query);
-			$associationKey = $db->loadResult();
-
-			if (empty($associationKey))
-			{
-				if (!in_array($menuItem->id, $associations))
-				{
-					$associations[] = $menuItem->id;
-				}
-
-				$associations   = array_unique($associations);
-				$associationKey = md5(json_encode($associations));
-			}
-			else
-			{
-				$query
-					->clear()
-					->select('id')
-					->from('#__associations')
-					->where($db->quoteName('key') . ' = ' . $db->quote($associationKey));
-
-				$db->setQuery($query);
-				$alreadyInserted = $db->loadArray();
-				$associations    = array_diff($associations, $alreadyInserted);
-			}
-
-			foreach ($associations as $association)
-			{
-				$insertQuery->values($association . ',' . $db->quote('com_menus.item') . ',' . $db->quote($associationKey));
-				$insert = true;
-			}
-
-			if ($insert)
-			{
-				$db->setQuery($insertQuery);
-				$db->execute();
-			}
-		}
+	/**
+	 * Replicate modules
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected static function replicateModules()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
+		$defaultLanguage = NenoSettings::get('source_language');
+		$languages       = self::getTargetLanguages();
 
 		// Get all the modules with the language as default
 		$query
@@ -1961,8 +1735,21 @@ class NenoHelper
 				}
 			}
 		}
+	}
 
-		// Fixing levels issue
+	/**
+	 * Fixing language level issue
+	 *
+	 * @return void
+	 */
+	protected static function fixLanguagesLevel()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
+		$defaultLanguage = NenoSettings::get('source_language');
+		$languages       = self::getTargetLanguages();
+
 		foreach ($languages as $language)
 		{
 			if ($language->lang_code !== $defaultLanguage)
@@ -2013,6 +1800,333 @@ class NenoHelper
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get Menu associations per menu type
+	 *
+	 * @return array
+	 */
+	protected static function getMenuAssociations()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db               = JFactory::getDbo();
+		$query            = $db->getQuery(true);
+		$menuAssociations = array();
+
+		$query
+			->clear()
+			->select('DISTINCT m1.menutype AS m1')
+			->from('#__associations a1')
+			->innerJoin('#__menu AS m1 ON a1.id = m1.id')
+			->innerJoin('#__associations AS a2 ON a1.key = a2.key')
+			->innerJoin('#__menu AS m2 ON a2.id = m2.id')
+			->where(
+				array(
+					'a1.context = ' . $db->quote('com_menus.item'),
+					'a2.context = ' . $db->quote('com_menus.item'),
+					'a1.id <> a2.id',
+					'm1.client_id = 0',
+					'm1.level <> 0',
+					'm1.published <> -2',
+					'm2.client_id = 0',
+					'm2.level <> 0',
+					'm2.published <> -2',
+				)
+			);
+
+		$db->setQuery($query);
+		$menuTypes = $db->loadArray();
+
+		foreach ($menuTypes as $menuType)
+		{
+			$query
+				->clear()
+				->select(
+					array(
+						'DISTINCT m2.menutype',
+						'm2.language'
+					)
+				)
+				->from('#__associations a1')
+				->innerJoin('#__menu AS m1 ON a1.id = m1.id')
+				->innerJoin('#__associations AS a2 ON a1.key = a2.key')
+				->innerJoin('#__menu AS m2 ON a2.id = m2.id')
+				->where(
+					array(
+						'a1.context = ' . $db->quote('com_menus.item'),
+						'a2.context = ' . $db->quote('com_menus.item'),
+						'a1.id <> a2.id',
+						'm1.client_id = 0',
+						'm1.level <> 0',
+						'm1.published <> -2',
+						'm2.client_id = 0',
+						'm2.level <> 0',
+						'm2.published <> -2',
+						'm1.menutype = ' . $db->quote($menuType)
+					)
+				);
+
+			$db->setQuery($query);
+			$menuAssociations[ $menuType ] = $db->loadAssocList('language');
+		}
+
+		return $menuAssociations;
+	}
+
+	/**
+	 * Creates a new menu type item per language
+	 *
+	 * @param stdClass $menuItem Menu item to duplicate
+	 *
+	 * @throws Exception
+	 */
+	protected static function duplicateMenuItem($menuItem)
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
+		$languages       = self::getTargetLanguages();
+		$defaultLanguage = NenoSettings::get('source_language');
+
+		if (!isset($menuAssociations[ $menuItem->menutype ]))
+		{
+			$menuAssociations[ $menuItem->menutype ] = array();
+		}
+
+		$associations = array();
+
+		foreach ($languages as $language)
+		{
+			if ($language->lang_code !== $menuItem->language)
+			{
+				self::$menuItemsCreated[ $language->lang_code ] = array();
+
+				// If there's no menu associated
+				if (empty($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
+				{
+					if (!isset($menuAssociations[ $menuItem->menutype ][ $language->lang_code ]))
+					{
+						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ] = array();
+					}
+
+					$newMenuType           = new stdClass;
+					$newMenuType->menutype = $menuItem->menutype;
+					$newMenuType->title    = $menuItem->menutype;
+					$newMenuType           = self::createMenu($language->lang_code, $newMenuType, $defaultLanguage);
+
+					// If the menu has been inserted properly, let's save into the data structure
+					if (!empty($newMenuType))
+					{
+						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'] = $newMenuType->menutype;
+						$menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['language'] = $language->lang_code;
+					}
+				}
+
+				$newMenuItem = clone $menuItem;
+				unset($newMenuItem->id);
+				$newMenuItem->menutype = $menuAssociations[ $menuItem->menutype ][ $language->lang_code ]['menutype'];
+				$newMenuItem->alias    = JFilterOutput::stringURLSafe($newMenuItem->alias . '-' . $language->lang_code);
+				$newMenuItem->language = $language->lang_code;
+
+				// If the menu item has been inserted properly, let's execute some actions
+				if ($db->insertObject('#__menu', $newMenuItem, 'id'))
+				{
+					self::$menuItemsCreated[ $language->lang_code ][] = $newMenuItem->id;
+
+					// Assign all the modules to this item
+					$query = 'INSERT INTO #__modules_menu (moduleid,menuid) SELECT moduleid,' . $db->quote($newMenuItem->id) . ' FROM  #__modules_menu WHERE menuid = ' . $db->quote($menuItem->id);
+					$db->setQuery($query);
+					$db->execute();
+					$query          = $db->getQuery(true);
+					$associations[] = $newMenuItem->id;
+				}
+			}
+		}
+
+		// Get all the modules assigned to this menu item using a different language from *
+		$query
+			->clear()
+			->select('m.*')
+			->from('#__modules AS m')
+			->innerJoin('#__modules_menu AS mm ON m.id = mm.moduleid')
+			->where(
+				array(
+					'mm.menuid = ' . (int) $menuItem->id,
+					'm.language <> ' . $db->quote('*')
+				)
+			);
+
+		$db->setQuery($query);
+		$modules = $db->loadObjectList();
+
+		if (!empty($modules))
+		{
+			$query
+				->clear()
+				->insert('#__modules_menu')
+				->columns(
+					array(
+						'moduleid',
+						'menuid'
+					)
+				);
+
+			foreach (self::$menuItemsCreated as $language => $newMenuItems)
+			{
+				foreach ($modules as $module)
+				{
+					$previousId = $module->id;
+
+					if (!isset(self::$modulesDuplicated[ $previousId . $language ]) && $module->language != $language)
+					{
+						unset($module->id);
+						$module->language = $language;
+						$module->title    = $module->title . '(' . $language . ')';
+
+						if ($db->insertObject('#__modules', $module, 'id'))
+						{
+							self::$modulesDuplicated[ $previousId . $language ] = $module->id;
+						}
+					}
+
+					foreach ($newMenuItems as $newMenuItem)
+					{
+						$query->values(self::$modulesDuplicated[ $previousId . $language ] . ',' . $newMenuItem->id);
+					}
+				}
+			}
+
+			$db->setQuery($query);
+			$db->execute();
+		}
+
+		self::createAssociations($associations, $menuItem);
+	}
+
+	/**
+	 * Create all needed associations for a particular menu item
+	 *
+	 * @param array $associations associations to create
+	 * @param stdClass $menuItem Menu item
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected static function createAssociations($associations, $menuItem)
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db          = JFactory::getDbo();
+		$query       = $db->getQuery(true);
+		$insert      = false;
+		$insertQuery = $db->getQuery(true);
+		$insertQuery
+			->insert('#__associations')
+			->columns(
+				array(
+					'id',
+					$db->quoteName('context'),
+					$db->quoteName('key')
+				)
+			);
+
+		$query
+			->clear()
+			->select($db->quoteName('key', 'associationKey'))
+			->from('#__associations')
+			->where(
+				array(
+					'id IN (' . implode(',', array_merge($associations, array( $menuItem->id ))) . ')',
+					'context = ' . $db->quote('com_menus.item')
+				)
+			);
+
+		$db->setQuery($query);
+		$associationKey = $db->loadResult();
+
+		if (empty($associationKey))
+		{
+			if (!in_array($menuItem->id, $associations))
+			{
+				$associations[] = $menuItem->id;
+			}
+
+			$associations   = array_unique($associations);
+			$associationKey = md5(json_encode($associations));
+		}
+		else
+		{
+			$query
+				->clear()
+				->select('id')
+				->from('#__associations')
+				->where($db->quoteName('key') . ' = ' . $db->quote($associationKey));
+
+			$db->setQuery($query);
+			$alreadyInserted = $db->loadArray();
+			$associations    = array_diff($associations, $alreadyInserted);
+		}
+
+		foreach ($associations as $association)
+		{
+			$insertQuery->values($association . ',' . $db->quote('com_menus.item') . ',' . $db->quote($associationKey));
+			$insert = true;
+		}
+
+		if ($insert)
+		{
+			$db->setQuery($insertQuery);
+			$db->execute();
+		}
+	}
+
+	/**
+	 * Create menu structure
+	 *
+	 * @return void
+	 */
+	public static function createMenuStructure()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		self::initMenuStructureCreation();
+
+		$query
+			->clear()
+			->select(
+				array(
+					'm.*'
+				)
+			)
+			->from('#__menu_types AS mt')
+			->leftJoin('#__menu AS m ON mt.menutype = m.menutype')
+			->where(
+				array(
+					'NOT EXISTS(SELECT 1 FROM #__associations AS a WHERE a.id = m.id AND a.`key` = ' . $db->quote('com_menus.item') . ')',
+					'client_id = 0',
+					'level <> 0',
+					'published <> -2'
+				)
+			)
+			->order('level');
+
+		$db->setQuery($query);
+		$nonAssociatedMenuItems = $db->loadObjectList();
+		self::$menuAssociations = self::getMenuAssociations();
+
+		foreach ($nonAssociatedMenuItems as $key => $menuItem)
+		{
+			self::duplicateMenuItem($menuItem);
+		}
+
+		// Init modules
+		self::replicateModules();
+
+		// Fixing levels issue
+		self::fixLanguagesLevel();
 
 		// Once we finish restructuring menus, let's rebuild them
 		$menuTable = new JTableMenu($db);
@@ -3147,9 +3261,9 @@ class NenoHelper
 				->where('t.id = ' . $tableId)
 				->order('ordering ASC');
 			$db->setQuery($query);
-			$translationmethods = $db->loadObjectListMultiIndex('lang');
+			$translationMethods = $db->loadObjectListMultiIndex('lang');
 
-			NenoCache::setCacheData($cacheId, $translationmethods);
+			NenoCache::setCacheData($cacheId, $translationMethods);
 		}
 
 		return NenoCache::getCacheData($cacheId);
