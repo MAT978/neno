@@ -1101,9 +1101,6 @@ class NenoContentElementTranslation extends NenoContentElement
 		// Only execute this task when the translation is new and there are no records about how to find it.
 		if (parent::persist())
 		{
-			$db    = JFactory::getDbo();
-			$query = $db->getQuery(true);
-
 			if ($isNew && $this->contentType == self::DB_STRING)
 			{
 				$this->persistSourceData();
