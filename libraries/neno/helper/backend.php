@@ -642,7 +642,7 @@ class NenoHelperBackend
 	/**
 	 * Parse php info
 	 *
-	 * @param array $phpInfo Php ifno
+	 * @param array $phpInfo Php info
 	 *
 	 * @return array
 	 */
@@ -650,37 +650,15 @@ class NenoHelperBackend
 	{
 		if (preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
 		{
-			$directive = false;
-
 			foreach ($matches as $match)
 			{
-				if (!empty($match[2]) && $match[2] == 'Directive')
-				{
-					$directive = true;
-				}
-
 				if (mb_strlen($match[1]))
 				{
 					$phpInfo[ $match[1] ] = array();
 				}
 				elseif (isset($match[3]))
 				{
-					$keys1 = array_keys($phpInfo);
-
-					if ($directive)
-					{
-						$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
-							'Local Value'  => $match[3],
-							'Master Value' => $match[4]
-						) : $match[3];
-					}
-					else
-					{
-						$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
-							$match[3],
-							$match[4]
-						) : $match[3];
-					}
+					$phpInfo = self::parsePhpServerDirective($phpInfo, !empty($match[2]) && $match[2] == 'Directive', $match);
 				}
 				else
 				{
@@ -691,6 +669,37 @@ class NenoHelperBackend
 		}
 
 		return self::filterPhpServerInfo($phpInfo);
+	}
+
+	/**
+	 * Parse PHP server directive
+	 *
+	 * @param array  $phpInfo   PHP info
+	 * @param bool   $directive Whether or not this
+	 * @param string $match     Regular expression match
+	 *
+	 * @return array
+	 */
+	protected static function parsePhpServerDirective($phpInfo, $directive, $match)
+	{
+		$keys1 = array_keys($phpInfo);
+
+		if ($directive)
+		{
+			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+				'Local Value'  => $match[3],
+				'Master Value' => $match[4]
+			) : $match[3];
+		}
+		else
+		{
+			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+				$match[3],
+				$match[4]
+			) : $match[3];
+		}
+
+		return $phpInfo;
 	}
 
 	/**
