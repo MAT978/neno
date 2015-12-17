@@ -60,6 +60,177 @@ class NenoControllerInstallation extends JControllerAdmin
 	}
 
 	/**
+	 * Get data for 1st step
+	 *
+	 * @return stdClass
+	 */
+	protected function getDataForStep1()
+	{
+		$data                = new stdClass;
+		$languages           = NenoHelper::findLanguages(true);
+		$data->select_widget = JHtml::_('select.genericlist', $languages, 'source_language', null, 'iso', 'name', NenoSettings::get('source_language'));
+
+		return $data;
+	}
+
+	/**
+	 * Get data for 3rd step
+	 *
+	 * @return stdClass
+	 */
+	protected function getDataForStep3()
+	{
+		$data                       = new stdClass;
+		$language                   = JFactory::getLanguage();
+		$default                    = NenoSettings::get('source_language');
+		$knownLanguages             = $language->getKnownLanguages();
+		$languagesData              = array();
+		$defaultTranslationsMethods = NenoHelper::getDefaultTranslationMethods();
+		$db                         = JFactory::getDbo();
+		$query                      = $db->getQuery(true);
+		$query
+			->insert('#__neno_content_language_defaults')
+			->columns(
+				array(
+					'lang',
+					'translation_method_id',
+					'ordering'
+				)
+			);
+
+		$insert = false;
+
+		foreach ($knownLanguages as $key => $knownLanguage)
+		{
+			if ($knownLanguage['tag'] != $default)
+			{
+				$insert                                      = true;
+				$languagesData[ $key ]                       = $knownLanguage;
+				$languagesData[ $key ]['lang_code']          = $knownLanguage['tag'];
+				$languagesData[ $key ]['title']              = $knownLanguage['name'];
+				$languagesData[ $key ]['translationMethods'] = $defaultTranslationsMethods;
+				$languagesData[ $key ]['errors']             = NenoHelper::getLanguageErrors($languagesData[ $key ]);
+				$languagesData[ $key ]['placement']          = 'installation';
+				$languagesData[ $key ]['image']              = NenoHelper::getLanguageImage($knownLanguage['tag']);
+				$languagesData[ $key ]['published']          = NenoHelper::isLanguagePublished($knownLanguage['tag']);
+				$languagesData[ $key ]['comment']            = NenoHelper::getLanguageTranslatorComment($knownLanguage['tag']);
+
+				foreach ($defaultTranslationsMethods as $ordering => $defaultTranslationsMethod)
+				{
+					$query->values($db->quote($knownLanguage['tag']) . ',' . $defaultTranslationsMethod->id . ',' . ($ordering + 1));
+				}
+			}
+		}
+
+		if ($insert)
+		{
+			$db->setQuery($query);
+			$db->execute();
+		}
+
+		$data->languages = $languagesData;
+
+		return $data;
+	}
+
+	/**
+	 * Get data for 4th step
+	 *
+	 * @return stdClass
+	 */
+	protected function getDataForStep4()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db            = JFactory::getDbo();
+		$query         = $db->getQuery(true);
+		$data          = new stdClass;
+		$tablesIgnored = NenoHelper::getDoNotTranslateTables();
+
+		/* @var $config \Joomla\Registry\Registry */
+		$config = JFactory::getConfig();
+
+		$query
+			->select('DISTINCT TABLE_NAME')
+			->from('INFORMATION_SCHEMA.COLUMNS')
+			->where(
+				array(
+					'COLUMN_NAME = ' . $db->quote('language'),
+					'TABLE_SCHEMA = ' . $db->quote($config->get('db')),
+					'TABLE_NAME NOT LIKE ' . $db->quote('%neno%'),
+					'TABLE_NAME NOT LIKE ' . $db->quote('%\_\_%'),
+					'TABLE_NAME NOT LIKE ' . $db->quote('%menu'),
+				)
+			);
+
+		$db->setQuery($query);
+		$tables = $db->loadArray();
+
+		$tablesFound = array();
+
+		foreach ($tables as $table)
+		{
+			if (!in_array(str_replace($db->getPrefix(), '#__', $table), $tablesIgnored))
+			{
+				$sourceLanguage      = NenoSettings::get('source_language');
+				$sourceLanguageParts = explode('-', $sourceLanguage);
+				$query
+					->clear()
+					->select(
+						array(
+							'COUNT(*) AS counter',
+							'language',
+							$db->quote($table) . ' AS `table`'
+						)
+					)
+					->from($db->quoteName($table))
+					->where(
+						array(
+							'language <> ' . $db->quote('*'),
+							'language <> ' . $db->quote(''),
+							'language <> ' . $db->quote($sourceLanguage),
+							'language <> ' . $db->quote($sourceLanguageParts[0]),
+						)
+					)
+					->group('language');
+
+				$db->setQuery($query);
+				$recordsFound = $db->loadObjectList();
+
+				if (!empty($recordsFound))
+				{
+					$tablesFound = array_merge($tablesFound, $recordsFound);
+				}
+			}
+		}
+
+		$data->tablesFound = $tablesFound;
+
+		return $data;
+	}
+
+	/**
+	 * Get data for 5th step
+	 *
+	 * @return stdClass
+	 */
+	public function getDataForStep5()
+	{
+		$data   = new stdClass;
+		$groups = NenoHelper::getGroups();
+
+		/* @var $group NenoContentElementGroup */
+		foreach ($groups as $key => $group)
+		{
+			$group->getTables();
+			$group->getLanguageFiles();
+			$groups[ $key ] = $group->prepareDataForView();
+		}
+		$data->groups = $groups;
+
+		return $data;
+	}
+
+	/**
 	 * Get data for the installation step
 	 *
 	 * @param   int $step Step number
@@ -68,145 +239,14 @@ class NenoControllerInstallation extends JControllerAdmin
 	 */
 	protected function getDataForStep($step)
 	{
-		$data = new stdClass;
+		$methodName = 'getDataForStep' . $step;
 
-		switch ($step)
+		if (method_exists($this, $methodName))
 		{
-			case 1:
-				$languages           = NenoHelper::findLanguages(true);
-				$data->select_widget = JHtml::_('select.genericlist', $languages, 'source_language', null, 'iso', 'name', NenoSettings::get('source_language'));
-				break;
-			case 3:
-				$language                   = JFactory::getLanguage();
-				$default                    = NenoSettings::get('source_language');
-				$knownLanguages             = $language->getKnownLanguages();
-				$languagesData              = array();
-				$defaultTranslationsMethods = NenoHelper::getDefaultTranslationMethods();
-				$db                         = JFactory::getDbo();
-				$query                      = $db->getQuery(true);
-				$query
-					->insert('#__neno_content_language_defaults')
-					->columns(
-						array(
-							'lang',
-							'translation_method_id',
-							'ordering'
-						)
-					);
-
-				$insert = false;
-
-				foreach ($knownLanguages as $key => $knownLanguage)
-				{
-					if ($knownLanguage['tag'] != $default)
-					{
-						$insert                                      = true;
-						$languagesData[ $key ]                       = $knownLanguage;
-						$languagesData[ $key ]['lang_code']          = $knownLanguage['tag'];
-						$languagesData[ $key ]['title']              = $knownLanguage['name'];
-						$languagesData[ $key ]['translationMethods'] = $defaultTranslationsMethods;
-						$languagesData[ $key ]['errors']             = NenoHelper::getLanguageErrors($languagesData[ $key ]);
-						$languagesData[ $key ]['placement']          = 'installation';
-						$languagesData[ $key ]['image']              = NenoHelper::getLanguageImage($knownLanguage['tag']);
-						$languagesData[ $key ]['published']          = NenoHelper::isLanguagePublished($knownLanguage['tag']);
-						$languagesData[ $key ]['comment']            = NenoHelper::getLanguageTranslatorComment($knownLanguage['tag']);
-
-						foreach ($defaultTranslationsMethods as $ordering => $defaultTranslationsMethod)
-						{
-							$query->values($db->quote($knownLanguage['tag']) . ',' . $defaultTranslationsMethod->id . ',' . ($ordering + 1));
-						}
-					}
-				}
-
-				if ($insert)
-				{
-					$db->setQuery($query);
-					$db->execute();
-				}
-
-				$data->languages = $languagesData;
-
-				break;
-			case 4:
-				/* @var $db NenoDatabaseDriverMysqlx */
-				$db            = JFactory::getDbo();
-				$query         = $db->getQuery(true);
-				$tablesIgnored = NenoHelper::getDoNotTranslateTables();
-
-				/* @var $config \Joomla\Registry\Registry */
-				$config = JFactory::getConfig();
-
-				$query
-					->select('DISTINCT TABLE_NAME')
-					->from('INFORMATION_SCHEMA.COLUMNS')
-					->where(
-						array(
-							'COLUMN_NAME = ' . $db->quote('language'),
-							'TABLE_SCHEMA = ' . $db->quote($config->get('db')),
-							'TABLE_NAME NOT LIKE ' . $db->quote('%neno%'),
-							'TABLE_NAME NOT LIKE ' . $db->quote('%\_\_%'),
-							'TABLE_NAME NOT LIKE ' . $db->quote('%menu'),
-						)
-					);
-
-				$db->setQuery($query);
-				$tables = $db->loadArray();
-
-				$tablesFound = array();
-
-				foreach ($tables as $table)
-				{
-					if (!in_array(str_replace($db->getPrefix(), '#__', $table), $tablesIgnored))
-					{
-						$sourceLanguage      = NenoSettings::get('source_language');
-						$sourceLanguageParts = explode('-', $sourceLanguage);
-						$query
-							->clear()
-							->select(
-								array(
-									'COUNT(*) AS counter',
-									'language',
-									$db->quote($table) . ' AS `table`'
-								)
-							)
-							->from($db->quoteName($table))
-							->where(
-								array(
-									'language <> ' . $db->quote('*'),
-									'language <> ' . $db->quote(''),
-									'language <> ' . $db->quote($sourceLanguage),
-									'language <> ' . $db->quote($sourceLanguageParts[0]),
-								)
-							)
-							->group('language');
-
-						$db->setQuery($query);
-						$recordsFound = $db->loadObjectList();
-
-						if (!empty($recordsFound))
-						{
-							$tablesFound = array_merge($tablesFound, $recordsFound);
-						}
-					}
-				}
-
-				$data->tablesFound = $tablesFound;
-				break;
-			case 5:
-				$groups = NenoHelper::getGroups();
-
-				/* @var $group NenoContentElementGroup */
-				foreach ($groups as $key => $group)
-				{
-					$group->getTables();
-					$group->getLanguageFiles();
-					$groups[ $key ] = $group->prepareDataForView();
-				}
-				$data->groups = $groups;
-				break;
+			return $this->{$methodName}();
 		}
 
-		return $data;
+		return new stdClass;
 	}
 
 	/**
