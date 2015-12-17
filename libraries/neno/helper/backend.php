@@ -676,7 +676,7 @@ class NenoHelperBackend
 	 *
 	 * @param array  $phpInfo   PHP info
 	 * @param bool   $directive Whether or not this
-	 * @param string $match     Regular expression match
+	 * @param array $match     Regular expression match
 	 *
 	 * @return array
 	 */
