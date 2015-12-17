@@ -1106,69 +1106,10 @@ class NenoContentElementTranslation extends NenoContentElement
 
 			if ($isNew && $this->contentType == self::DB_STRING)
 			{
-				if (!empty($this->sourceElementData))
-				{
-					$query
-						->insert('#__neno_content_element_fields_x_translations')
-						->columns(
-							array(
-								'field_id',
-								'translation_id',
-								'value'
-							)
-						);
-
-					$inserted = array();
-
-					// Loop through the data
-					foreach ($this->sourceElementData as $sourceData)
-					{
-						/* @var $field NenoContentElementField */
-						$field      = $sourceData['field'];
-						$fieldValue = $sourceData['value'];
-
-						// Checks if this row has been inserted already
-						if (!in_array($field->getId() . '|' . $this->getId(), $inserted))
-						{
-							$query->values($field->getId() . ',' . $this->getId() . ',' . $db->quote($fieldValue));
-							$inserted[] = $field->getId() . '|' . $this->getId();
-						}
-
-					}
-
-					$db->setQuery($query);
-					$db->execute();
-				}
+				$this->persistSourceData();
 			}
 
-			$query
-				->clear()
-				->delete('#__neno_content_element_translation_x_translation_methods')
-				->where('translation_id = ' . $this->id);
-			$db->setQuery($query);
-			$db->execute();
-
-			if (!empty($this->translationMethods))
-			{
-				$query
-					->clear()
-					->insert('#__neno_content_element_translation_x_translation_methods')
-					->columns(
-						array(
-							'translation_id',
-							'translation_method_id',
-							'ordering'
-						)
-					);
-
-				foreach ($this->translationMethods as $key => $translationMethod)
-				{
-					$query->values($this->id . ',' . $translationMethod->id . ',' . ($key + 1));
-				}
-
-				$db->setQuery($query);
-				$db->execute();
-			}
+			$this->persistTranslationMethods();
 
 			$this->originalText = $this->loadOriginalText();
 
@@ -1186,6 +1127,88 @@ class NenoContentElementTranslation extends NenoContentElement
 		}
 
 		return false;
+	}
+
+	/**
+	 * Persist the data that connect source data with the translation
+	 *
+	 * @return void
+	 */
+	protected function persistSourceData()
+	{
+		if (!empty($this->sourceElementData))
+		{
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			$query
+				->insert('#__neno_content_element_fields_x_translations')
+				->columns(
+					array(
+						'field_id',
+						'translation_id',
+						'value'
+					)
+				);
+
+			$inserted = array();
+
+			// Loop through the data
+			foreach ($this->sourceElementData as $sourceData)
+			{
+				/* @var $field NenoContentElementField */
+				$field      = $sourceData['field'];
+				$fieldValue = $sourceData['value'];
+
+				// Checks if this row has been inserted already
+				if (!in_array($field->getId() . '|' . $this->getId(), $inserted))
+				{
+					$query->values($field->getId() . ',' . $this->getId() . ',' . $db->quote($fieldValue));
+					$inserted[] = $field->getId() . '|' . $this->getId();
+				}
+
+			}
+
+			$db->setQuery($query);
+			$db->execute();
+		}
+	}
+
+	/**
+	 * Persists translation methods
+	 *
+	 * @return void
+	 */
+	public function persistTranslationMethods()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query
+			->delete('#__neno_content_element_translation_x_translation_methods')
+			->where('translation_id = ' . $this->id);
+		$db->setQuery($query);
+		$db->execute();
+
+		if (!empty($this->translationMethods))
+		{
+			$query
+				->clear()
+				->insert('#__neno_content_element_translation_x_translation_methods')
+				->columns(
+					array(
+						'translation_id',
+						'translation_method_id',
+						'ordering'
+					)
+				);
+
+			foreach ($this->translationMethods as $key => $translationMethod)
+			{
+				$query->values($this->id . ',' . $translationMethod->id . ',' . ($key + 1));
+			}
+
+			$db->setQuery($query);
+			$db->execute();
+		}
 	}
 
 	/**
