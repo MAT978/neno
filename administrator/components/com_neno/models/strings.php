@@ -109,14 +109,11 @@ class NenoModelStrings extends JModelList
 	}
 
 	/**
-	 * Get and set current values of filters
+	 * Populate content element filters
 	 *
-	 * @param   string $ordering  Ordering field
-	 * @param   string $direction Direction field
-	 *
-	 * @return void
+	 * @throws Exception
 	 */
-	protected function populateState($ordering = null, $direction = null)
+	protected function populateContentElementFilters()
 	{
 		// Initialise variables.
 		$app = JFactory::getApplication();
@@ -127,13 +124,6 @@ class NenoModelStrings extends JModelList
 		{
 			$this->setState('filter.group_id', $groups);
 			$app->setUserState($this->context . '.filter.elements', array());
-		}
-
-		$search = $app->getUserStateFromRequest($this->context . '.filter.search', 'filter_search', '', 'raw');
-
-		if (!empty($search))
-		{
-			$this->setState('filter.search', $search);
 		}
 
 		// Element(s) filtering
@@ -147,11 +137,11 @@ class NenoModelStrings extends JModelList
 		$this->setState('filter.element', $app->getUserState($this->context . '.filter.elements'));
 
 		// Language file filtering
-		$elements = $app->getUserStateFromRequest($this->context . '.filter.files', 'file', array());
+		$files = $app->getUserStateFromRequest($this->context . '.filter.files', 'file', array());
 
-		if (!empty($elements))
+		if (!empty($files))
 		{
-			$app->setUserState($this->context . '.filter.files', $elements);
+			$app->setUserState($this->context . '.filter.files', $files);
 		}
 
 		$this->setState('filter.files', $app->getUserState($this->context . '.filter.files'));
@@ -162,6 +152,23 @@ class NenoModelStrings extends JModelList
 		if (!empty($fields))
 		{
 			$this->setState('filter.field', $fields);
+		}
+	}
+
+	/**
+	 * Populate other filters
+	 *
+	 * @throws Exception
+	 */
+	protected function populateOtherFilters()
+	{
+		// Initialise variables.
+		$app    = JFactory::getApplication();
+		$search = $app->getUserStateFromRequest($this->context . '.filter.search', 'filter_search', '', 'raw');
+
+		if (!empty($search))
+		{
+			$this->setState('filter.search', $search);
 		}
 
 		// Status filtering
@@ -195,6 +202,21 @@ class NenoModelStrings extends JModelList
 		}
 
 		$this->setState('filter.translator_type', $app->getUserState($this->context . '.filter.translator_type'));
+	}
+
+	/**
+	 * Get and set current values of filters
+	 *
+	 * @param   string $ordering  Ordering field
+	 * @param   string $direction Direction field
+	 *
+	 * @return void
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		$this->populateContentElementFilters();
+
+		$this->populateOtherFilters();
 
 		// List state information.
 		parent::populateState('a.id', 'asc');
