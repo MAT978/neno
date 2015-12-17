@@ -368,33 +368,21 @@ class NenoHelper
 	 */
 	public static function getExtensionName(array $extensionData)
 	{
-		$extensionName = $extensionData['element'];
+		$extensionName = preg_replace('/(com|tpl|plg|mod)_/', '', $extensionData['element']);
 
 		switch ($extensionData['type'])
 		{
 			case 'component':
-				if (!self::startsWith($extensionName, 'com_'))
-				{
-					$extensionName = 'com_' . $extensionName;
-				}
+				$extensionName = 'com_' . $extensionName;
 				break;
 			case 'plugin':
-				if (!self::startsWith($extensionName, 'plg_'))
-				{
-					$extensionName = 'plg_' . $extensionData['folder'] . '_' . $extensionName;
-				}
+				$extensionName = 'plg_' . $extensionData['folder'] . '_' . $extensionName;
 				break;
 			case 'module':
-				if (!self::startsWith($extensionName, 'mod_'))
-				{
-					$extensionName = 'mod_' . $extensionName;
-				}
+				$extensionName = 'mod_' . $extensionName;
 				break;
 			case 'template':
-				if (!self::startsWith($extensionName, 'tpl_'))
-				{
-					$extensionName = 'tpl_' . $extensionName;
-				}
+				$extensionName = 'tpl_' . $extensionName;
 				break;
 		}
 
