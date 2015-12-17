@@ -586,18 +586,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	}
 
 	/**
-	 * Persist a specific string
-	 *
-	 * @param array  $string
-	 * @param array  $languages
-	 * @param string $defaultLanguage
-	 * @param array  $commonData
-	 * @param array  $primaryKeyData
-	 * @param array  $translationMethods Translation method list
+	 * Persist progression counters
 	 *
 	 * @return void
 	 */
-	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
+	protected function persistProgressCounters()
 	{
 		$progressCounters = $this->getProgressCounters();
 		if (!NenoSettings::get('installation_completed'))
@@ -614,7 +607,24 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 				3
 			);
 		}
+	}
 
+	/**
+	 * Persist a specific string
+	 *
+	 * @param array  $string
+	 * @param array  $languages
+	 * @param string $defaultLanguage
+	 * @param array  $commonData
+	 * @param array  $primaryKeyData
+	 * @param array  $translationMethods Translation method list
+	 *
+	 * @return void
+	 */
+	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
+	{
+		$this->persistProgressCounters();
+		
 		if ($string['state'] == 1 || ($string['state'] == 0 && NenoSettings::get('copy_unpublished', 1)) || ($string['state'] == -2 && NenoSettings::get('copy_trashed', 0)))
 		{
 			foreach ($languages as $language)
