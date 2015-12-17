@@ -194,9 +194,9 @@ abstract class NenoObject
 	/**
 	 * This method creates an object for load method
 	 *
-	 * @param stdClass $object
-	 * @param bool     $loadExtraData LoadExtraData flag
-	 * @param bool     $loadParent    loadParent flag
+	 * @param array $object        Object data
+	 * @param bool  $loadExtraData LoadExtraData flag
+	 * @param bool  $loadParent    loadParent flag
 	 *
 	 * @return stdClass
 	 */
