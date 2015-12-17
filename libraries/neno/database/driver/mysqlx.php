@@ -427,60 +427,132 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	}
 
 	/**
+	 * Checks if the user is trying to insert something in the front-end in different language
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function isUserTryingToSaveInFrontendLanguageChanged()
+	{
+		$language = JFactory::getLanguage();
+		$app      = JFactory::getApplication();
+
+		return $this->getQueryType((string) $this->sql) === self::INSERT_QUERY
+		       && $language->getTag() !== NenoSettings::get('source_language')
+		       && $app->isSite() && !$this->isNenoSql((string) $this->sql);
+	}
+
+	/**
+	 * Checks whether or not
+	 *
+	 * @return bool
+	 */
+	protected function isAnAlterQuery()
+	{
+		// Get query type
+		$queryType = $this->getQueryType((string) $this->sql);
+
+		return ($queryType === self::INSERT_QUERY || $queryType === self::DELETE_QUERY || $queryType === self::UPDATE_QUERY || $queryType === self::REPLACE_QUERY)
+		       && $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery;
+	}
+
+	/**
+	 * Handle missing table issue. If the table does not exist, let's create it
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	protected function handleMissingTableIssue()
+	{
+		$tables = $this->extractTableNamesFromSqlQuery();
+
+		if (!empty($tables))
+		{
+			foreach ($tables as $tableName)
+			{
+				/* @var $table NenoContentElementTable */
+				$table = NenoContentElementTable::load(array( 'table_name' => $tableName ));
+
+				// If the table exists and it's translatable.
+				if (!empty($table) && $table->isTranslate())
+				{
+					$this->syncTable($tableName);
+				}
+			}
+
+			$this->execute();
+		}
+	}
+
+	/**
+	 * Handle alter query propagation
+	 *
+	 * @return void
+	 */
+	protected function handleAlterQueryPropagation()
+	{
+		$sql = $this->sql;
+
+		foreach ($this->languages as $language)
+		{
+			$newSql = $this->replaceTableNameStatements((string) $sql, $language->lang_code);
+
+			// Execute query if they are different.
+			if ($newSql != $sql)
+			{
+				$this->executeQuery($newSql, false);
+			}
+		}
+	}
+
+	/**
+	 * Handle Front-end saving for a different language
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	protected function handleFrontendSavingDifferentLanguage()
+	{
+		$language = JFactory::getLanguage();
+		$tables   = null;
+		preg_match('/insert into (\w+)/', $this->sql, $tables);
+
+		if (!empty($tables))
+		{
+			/* @var $table NenoContentElementTable */
+			$table = NenoContentElementTable::load(array( 'table_name' => $tables[1] ));
+
+			if (!empty($table) && $table->isTranslate())
+			{
+				$language->load('com_neno', JPATH_ADMINISTRATOR);
+				throw new Exception(JText::_('COM_NENO_CONTENT_IN_OTHER_LANGUAGES_ARE_NOT_ALLOWED'));
+			}
+		}
+	}
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @return bool|mixed
 	 */
 	public function execute()
 	{
-		$language = JFactory::getLanguage();
-		$app      = JFactory::getApplication();
-
-		// Check if the user is trying to insert something in the front-end in different language
-		if ($this->getQueryType((string) $this->sql) === self::INSERT_QUERY
-		    && $language->getTag() !== NenoSettings::get('source_language')
-		    && $app->isSite() && !$this->isNenoSql((string) $this->sql)
-		)
+		if ($this->isUserTryingToSaveInFrontendLanguageChanged())
 		{
-			$tables = null;
-			preg_match('/insert into (\w+)/', $this->sql, $tables);
-
-			if (!empty($tables))
-			{
-				/* @var $table NenoContentElementTable */
-				$table = NenoContentElementTable::load(array( 'table_name' => $tables[1] ));
-
-				if (!empty($table) && $table->isTranslate())
-				{
-					$language->load('com_neno', JPATH_ADMINISTRATOR);
-					throw new Exception(JText::_('COM_NENO_CONTENT_IN_OTHER_LANGUAGES_ARE_NOT_ALLOWED'));
-				}
-			}
+			$this->handleFrontendSavingDifferentLanguage();
 		}
 		else
 		{
 			try
 			{
-				// Get query type
-				$queryType = $this->getQueryType((string) $this->sql);
-
 				$result = parent::execute();
 
 				// If the query is creating/modifying/deleting a record, let's do the same on the shadow tables
-				if (($queryType === self::INSERT_QUERY || $queryType === self::DELETE_QUERY || $queryType === self::UPDATE_QUERY || $queryType === self::REPLACE_QUERY) && $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery)
+				if ($this->isAnAlterQuery())
 				{
-					$sql = $this->sql;
-
-					foreach ($this->languages as $language)
-					{
-						$newSql = $this->replaceTableNameStatements((string) $sql, $language->lang_code);
-
-						// Execute query if they are different.
-						if ($newSql != $sql)
-						{
-							$this->executeQuery($newSql, false);
-						}
-					}
+					$this->handleAlterQueryPropagation();
 				}
 
 				return $result;
@@ -489,24 +561,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				// If the table(s) doesn't exists, let's create them
 				if ($ex->getCode() == 1146)
 				{
-					$tables = $this->extractTableNamesFromSqlQuery();
-
-					if (!empty($tables))
-					{
-						foreach ($tables as $tableName)
-						{
-							/* @var $table NenoContentElementTable */
-							$table = NenoContentElementTable::load(array( 'table_name' => $tableName ));
-
-							// If the table exists and it's translatable.
-							if (!empty($table) && $table->isTranslate())
-							{
-								$this->syncTable($tableName);
-							}
-						}
-
-						$this->execute();
-					}
+					$this->handleMissingTableIssue();
 				}
 			}
 		}
