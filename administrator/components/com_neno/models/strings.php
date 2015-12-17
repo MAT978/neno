@@ -269,17 +269,17 @@ class NenoModelStrings extends JModelList
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
-			$queryWhereDb[] = 't.group_id IN (' . implode(', ', $groups) . ')';
+			$queryWhereDb[] = 't.group_id IN (' . implode(', ', $db->quote($groups)) . ')';
 		}
 
 		if (!empty($element))
 		{
-			$queryWhereDb[] = 't.id IN (' . implode(', ', $element) . ')';
+			$queryWhereDb[] = 't.id IN (' . implode(', ', $db->quote($element)) . ')';
 		}
 
 		if (!empty($field))
 		{
-			$queryWhereDb[] = 'f.id IN (' . implode(', ', $field) . ')';
+			$queryWhereDb[] = 'f.id IN (' . implode(', ', $db->quote($field)) . ')';
 		}
 
 		if (!empty($file) && empty($field) && empty($element))
@@ -295,7 +295,7 @@ class NenoModelStrings extends JModelList
 		if (!empty($method) && !in_array('none', $method))
 		{
 			$dbStrings
-				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $method) . '")')
+				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $db->quote($method)) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
 		}
 
@@ -367,7 +367,7 @@ class NenoModelStrings extends JModelList
 
 		if (!empty($groups) && !in_array('none', $groups))
 		{
-			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $groups) . ')');
+			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $db->quote($groups)) . ')');
 		}
 
 		if (empty($file) && !empty($element))
@@ -377,7 +377,7 @@ class NenoModelStrings extends JModelList
 
 		if (!empty($file))
 		{
-			$languageFileStrings->where('lf.id IN (' . implode(',', $file) . ')');
+			$languageFileStrings->where('lf.id IN (' . implode(',', $db->quote($file)) . ')');
 		}
 		elseif (!empty($field))
 		{
@@ -389,11 +389,6 @@ class NenoModelStrings extends JModelList
 			$languageFileStrings
 				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $method) . '")')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
-		}
-
-		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
-		{
-			$languageFileStrings->where('tr2.state IN (' . implode(', ', $status) . ')');
 		}
 
 		return $languageFileStrings;
