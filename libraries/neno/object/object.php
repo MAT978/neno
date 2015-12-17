@@ -157,32 +157,24 @@ abstract class NenoObject
 	/**
 	 * This method parses load results
 	 *
+	 * @param array $fields        fields
 	 * @param array $objects       Object list
 	 * @param bool  $loadExtraData Load extra data flag
 	 * @param bool  $loadParent    Load parent flag
 	 *
 	 * @return array|mixed
 	 */
-	protected static function parseLoadResult($objects, $loadExtraData, $loadParent)
+	protected static function parseLoadResult($fields, $objects, $loadExtraData, $loadParent)
 	{
 		$objectsData = array();
 
-		if (empty($pk['_select']))
+		if (empty($fields['_select']))
 		{
-			$className = get_called_class();
-
 			if (!empty($objects))
 			{
 				foreach ($objects as $object)
 				{
-					$objectData = new stdClass;
-
-					foreach ($object as $key => $value)
-					{
-						$objectData->{NenoHelper::convertDatabaseColumnNameToPropertyName($key)} = $value;
-					}
-
-					$objectsData[] = empty($pk['_select']) ? new $className($objectData, $loadExtraData, $loadParent) : $objectsData;
+					$objectsData[] = self::createObject($object, $loadExtraData, $loadParent);
 				}
 			}
 		}
@@ -197,6 +189,28 @@ abstract class NenoObject
 		}
 
 		return $objectsData;
+	}
+
+	/**
+	 * This method creates an object for load method
+	 *
+	 * @param stdClass $object
+	 * @param bool     $loadExtraData LoadExtraData flag
+	 * @param bool     $loadParent    loadParent flag
+	 *
+	 * @return stdClass
+	 */
+	protected static function createObject($object, $loadExtraData, $loadParent)
+	{
+		$className  = get_called_class();
+		$objectData = new stdClass;
+
+		foreach ($object as $key => $value)
+		{
+			$objectData->{NenoHelper::convertDatabaseColumnNameToPropertyName($key)} = $value;
+		}
+
+		return new $className($objectData, $loadExtraData, $loadParent);
 	}
 
 	/**
@@ -223,13 +237,13 @@ abstract class NenoObject
 			->from(self::getDbTable());
 
 		$query  = self::generateWhereClauses($query, $pk);
-		$query = self::generateOtherClauses($query, $pk);
+		$query  = self::generateOtherClauses($query, $pk);
 		$offset = empty($pk['_offset']) ? 0 : (int) $pk['_offset'];
 		$limit  = empty($pk['_limit']) ? 0 : (int) $pk['_limit'];
 
 		$db->setQuery($query, $offset, $limit);
 		$objects     = $db->loadAssocList();
-		$objectsData = self::parseLoadResult($objects, $loadExtraData, $loadParent);
+		$objectsData = self::parseLoadResult($pk, $objects, $loadExtraData, $loadParent);
 
 		return $objectsData;
 	}
