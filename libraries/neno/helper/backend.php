@@ -636,6 +636,18 @@ class NenoHelperBackend
 		$phpInfo['phpinfo']    = array();
 		phpinfo(11);
 
+		return self::parsePhpServerInfo($phpInfo);
+	}
+
+	/**
+	 * Parse php info
+	 *
+	 * @param array $phpInfo Php ifno
+	 *
+	 * @return array
+	 */
+	protected static function parsePhpServerInfo($phpInfo)
+	{
 		if (preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
 		{
 			$directive = false;
@@ -678,6 +690,18 @@ class NenoHelperBackend
 			}
 		}
 
+		return self::filterPhpServerInfo($phpInfo);
+	}
+
+	/**
+	 * Filter php info
+	 *
+	 * @param array $phpInfo
+	 *
+	 * @return array
+	 */
+	protected function filterPhpServerInfo($phpInfo)
+	{
 		if (!empty($phpInfo))
 		{
 			foreach ($phpInfo as $name => $section)
