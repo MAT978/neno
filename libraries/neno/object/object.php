@@ -143,9 +143,9 @@ abstract class NenoObject
 	protected static function generateOtherClauses($query, $fields)
 	{
 		// If order clauses have been set, let's process them
-		if (!empty($pk['_order']))
+		if (!empty($fields['_order']))
 		{
-			foreach ($pk['_order'] as $orderField => $orderDirection)
+			foreach ($fields['_order'] as $orderField => $orderDirection)
 			{
 				$query->order($orderField . ' ' . $orderDirection);
 			}
