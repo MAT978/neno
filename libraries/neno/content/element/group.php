@@ -380,13 +380,13 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	}
 
 	/**
-	 * Persist translation method data
+	 * Get translation methods for group based on its tables
 	 *
 	 * @return void
 	 */
-	protected function persistTranslationMethodData()
+	protected function getTranslationMethodBasedOnTables()
 	{
-		// check whether or not this group should have translation methods (For unknown groups we set them as do not translate)
+		// Check whether or not this group should have translation methods (For unknown groups we set them as do not translate)
 		if (!empty($this->tables) && is_array($this->tables))
 		{
 			$fileFound = false;
@@ -416,6 +416,16 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				}
 			}
 		}
+	}
+
+	/**
+	 * Persist translation method data
+	 *
+	 * @return void
+	 */
+	protected function persistTranslationMethodData()
+	{
+		$this->getTranslationMethodBasedOnTables();
 
 		if (!empty($this->assignedTranslationMethods))
 		{
