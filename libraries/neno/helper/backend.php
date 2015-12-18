@@ -674,8 +674,8 @@ class NenoHelperBackend
 	/**
 	 * Parse PHP server directive
 	 *
-	 * @param array  $phpInfo   PHP info
-	 * @param bool   $directive Whether or not this
+	 * @param array $phpInfo   PHP info
+	 * @param bool  $directive Whether or not this
 	 * @param array $match     Regular expression match
 	 *
 	 * @return array
@@ -737,22 +737,53 @@ class NenoHelperBackend
 	/**
 	 * Read file from the end to the beginning
 	 *
-	 * @param   string $filepath File path
+	 * @param   string $filePath File path
 	 * @param   int    $lines    Lines
 	 * @param   bool   $adaptive Adaptive flag
 	 *
 	 * @return bool|string
 	 */
-	public static function tailCustom($filepath, $lines = 1, $adaptive = true)
+	public static function tailCustom($filePath, $lines = 1, $adaptive = true)
 	{
 		// Open file
-		$f = @fopen($filepath, "rb");
+		$f = @fopen($filePath, "rb");
 
 		if ($f === false)
 		{
 			return false;
 		}
 
+		// Init parameters
+		list($buffer, $lines) = self::initReadFileParameters($f, $adaptive, $lines);
+
+		// Start reading
+		list($output, $lines) = self::readFile($f, $lines, $buffer);
+
+		// While we have too many lines
+		// (Because of buffer size we might have read too many)
+		while ($lines++ < 0)
+		{
+			// Find first newline and remove all text before that
+			$output = substr($output, mb_strpos($output, "\n") + 1);
+		}
+
+		// Close file and return
+		fclose($f);
+
+		return trim($output);
+	}
+
+	/**
+	 * Init parameters for file reading
+	 *
+	 * @param resource $f        File resource
+	 * @param bool     $adaptive Whether or not the buffer needs to be adaptive
+	 * @param int      $lines    Lines amount to be fetched
+	 *
+	 * @return array
+	 */
+	protected static function initReadFileParameters($f, $adaptive, $lines)
+	{
 		// Sets buffer size
 		if (!$adaptive)
 		{
@@ -773,6 +804,11 @@ class NenoHelperBackend
 			$lines--;
 		}
 
+		return array( $buffer, $lines );
+	}
+
+	protected static function readFile($f, $lines, $buffer)
+	{
 		// Start reading
 		$output = '';
 
@@ -795,18 +831,7 @@ class NenoHelperBackend
 			$lines -= substr_count($chunk, "\n");
 		}
 
-		// While we have too many lines
-		// (Because of buffer size we might have read too many)
-		while ($lines++ < 0)
-		{
-			// Find first newline and remove all text before that
-			$output = substr($output, mb_strpos($output, "\n") + 1);
-		}
-
-		// Close file and return
-		fclose($f);
-
-		return trim($output);
+		return array( $output, $lines );
 	}
 
 	/**
