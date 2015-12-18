@@ -392,16 +392,11 @@ class NenoModelStrings extends JModelList
 			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $db->quote($groups)) . ')');
 		}
 
-		if (empty($file) && !empty($element))
-		{
-			$languageFileStrings->where('lf.id = 0');
-		}
-
 		if (!empty($file))
 		{
 			$languageFileStrings->where('lf.id IN (' . implode(',', $db->quote($file)) . ')');
 		}
-		elseif (!empty($field))
+		elseif (!empty($field) || (empty($file) && !empty($element)))
 		{
 			$languageFileStrings->where('lf.id = 0');
 		}
