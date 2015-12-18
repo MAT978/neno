@@ -597,9 +597,8 @@ class NenoControllerInstallation extends JControllerAdmin
 	 */
 	protected function getGroupElement()
 	{
-		$db      = JFactory::getDbo();
-		$query   = $db->getQuery(true);
-		$element = null;
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
 
 		// This means to get a group that haven't been discovered yet
 		$extensions = $db->quote(NenoHelper::whichExtensionsShouldBeTranslated());
