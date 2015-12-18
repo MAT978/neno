@@ -271,7 +271,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function checkTranslatableStatusFromContentElementFile()
 	{
-		$filePath = JPATH_NENO . '/contentelements/' . str_replace('#__', '', $this->getTable()->getTableName()) . '_contentelements.xml';
+		$filePath = JPATH_NENO_CONTENT_FILES . str_replace('#__', '', $this->getTable()->getTableName()) . '_contentelements.xml';
 
 		// If the file exists, let's check what is there
 		if (file_exists($filePath))
