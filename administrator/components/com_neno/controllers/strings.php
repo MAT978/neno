@@ -231,7 +231,7 @@ class NenoControllerStrings extends JControllerAdmin
 
 			/* @var $model NenoModelStrings */
 			$model                 = $this->getModel();
-			$displayData['tables'] = NenoHelper::convertNenoObjectListToJObjectList($tables);
+			$displayData['tables'] = NenoHelper::convertNenoObjectListToJobjectList($tables);
 
 			//Remove fields marked as Don't translate
 			foreach ($displayData['tables'] as $table)
@@ -244,7 +244,7 @@ class NenoControllerStrings extends JControllerAdmin
 					}
 				}
 			}
-			$displayData['files']  = NenoHelper::convertNenoObjectListToJObjectList($files);
+			$displayData['files']  = NenoHelper::convertNenoObjectListToJobjectList($files);
 			$displayData['state']  = $model->getState();
 			$tablesHTML            = JLayoutHelper::render('multiselecttables', $displayData, JPATH_NENO_LAYOUTS);
 			echo $tablesHTML;

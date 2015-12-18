@@ -258,25 +258,38 @@ class NenoHelperBackend
 
 				// Get all the columns a table contains
 				$fields = $db->getTableColumns($table->getTableName());
-
-				foreach ($fields as $fieldName => $fieldType)
-				{
-					$fieldData = array(
-						'fieldName' => $fieldName,
-						'fieldType' => $fieldType,
-						'translate' => NenoContentElementField::isTranslatableType($fieldType),
-						'table'     => $table
-					);
-
-					$field = new NenoContentElementField($fieldData);
-					$table->addField($field);
-				}
-
+				$table  = static::createFieldInstances($fields, $table);
 				$doNotTranslateGroup->addTable($table);
 			}
 
 			$doNotTranslateGroup->persist();
 		}
+	}
+
+	/**
+	 * Create NenoContentElementField instances based on a data array
+	 *
+	 * @param array                   $fields Fields data to instantiate
+	 * @param NenoContentElementTable $table  Table where the fields are
+	 *
+	 * @return mixed
+	 */
+	public static function createFieldInstances($fields, $table)
+	{
+		foreach ($fields as $fieldName => $fieldType)
+		{
+			$fieldData = array(
+				'fieldName' => $fieldName,
+				'fieldType' => $fieldType,
+				'translate' => NenoContentElementField::isTranslatableType($fieldType),
+				'table'     => $table
+			);
+
+			$field = new NenoContentElementField($fieldData);
+			$table->addField($field);
+		}
+
+		return $table;
 	}
 
 	/**
@@ -413,20 +426,7 @@ class NenoHelperBackend
 
 					// Get all the columns a table contains
 					$fields = $db->getTableColumns($table->getTableName());
-
-					foreach ($fields as $fieldName => $fieldType)
-					{
-						$fieldData = array(
-							'fieldName' => $fieldName,
-							'fieldType' => $fieldType,
-							'translate' => NenoContentElementField::isTranslatableType($fieldType),
-							'table'     => $table
-						);
-
-						$field = new NenoContentElementField($fieldData);
-						$table->addField($field);
-					}
-
+					$table  = static::createFieldInstances($fields, $table);
 					$otherGroup->addTable($table);
 					$tablesAdded = true;
 				}
@@ -446,20 +446,6 @@ class NenoHelperBackend
 		}
 
 		return $otherGroup;
-	}
-
-	/**
-	 * Read content element file(s) and create the content element hierarchy needed.
-	 *
-	 * @param   string $extensionName       Extension name
-	 * @param   array  $contentElementFiles Content element files
-	 *
-	 * @return void
-	 */
-	public static function parseContentElementFile($extensionName, $contentElementFiles)
-	{
-		// Create a group for this extension.
-		NenoContentElementGroup::parseContentElementFiles($extensionName, $contentElementFiles);
 	}
 
 	/**
@@ -496,7 +482,7 @@ class NenoHelperBackend
 	 *
 	 * @return string
 	 */
-	public static function renderTranslationMethodsAsCSV($methods = array())
+	public static function renderTranslationMethodsAsCsv($methods = array())
 	{
 		if (!empty($methods))
 		{
@@ -606,7 +592,7 @@ class NenoHelperBackend
 					echo " ###\r    ";
 				}
 
-				echo self::printServerInformation($name, $key) . "\r    ";
+				echo self::printServerInformation($name) . "\r    ";
 			}
 		}
 		else
@@ -650,39 +636,29 @@ class NenoHelperBackend
 		$phpInfo['phpinfo']    = array();
 		phpinfo(11);
 
+		return self::parsePhpServerInfo($phpInfo);
+	}
+
+	/**
+	 * Parse php info
+	 *
+	 * @param array $phpInfo Php info
+	 *
+	 * @return array
+	 */
+	protected static function parsePhpServerInfo($phpInfo)
+	{
 		if (preg_match_all('#(?:<h2>(?:<a name=".*?">)?(.*?)(?:</a>)?</h2>)|(?:<tr(?: class=".*?")?><t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>(?:<t[hd](?: class=".*?")?>(.*?)\s*</t[hd]>)?)?</tr>)#s', ob_get_clean(), $matches, PREG_SET_ORDER))
 		{
-			$directive = false;
-
 			foreach ($matches as $match)
 			{
-				if (!empty($match[2]) && $match[2] == 'Directive')
-				{
-					$directive = true;
-				}
-
 				if (mb_strlen($match[1]))
 				{
 					$phpInfo[ $match[1] ] = array();
 				}
 				elseif (isset($match[3]))
 				{
-					$keys1 = array_keys($phpInfo);
-
-					if ($directive)
-					{
-						$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
-							'Local Value'  => $match[3],
-							'Master Value' => $match[4]
-						) : $match[3];
-					}
-					else
-					{
-						$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
-							$match[3],
-							$match[4]
-						) : $match[3];
-					}
+					$phpInfo = self::parsePhpServerDirective($phpInfo, !empty($match[2]) && $match[2] == 'Directive', $match);
 				}
 				else
 				{
@@ -692,6 +668,49 @@ class NenoHelperBackend
 			}
 		}
 
+		return self::filterPhpServerInfo($phpInfo);
+	}
+
+	/**
+	 * Parse PHP server directive
+	 *
+	 * @param array $phpInfo   PHP info
+	 * @param bool  $directive Whether or not this
+	 * @param array $match     Regular expression match
+	 *
+	 * @return array
+	 */
+	protected static function parsePhpServerDirective($phpInfo, $directive, $match)
+	{
+		$keys1 = array_keys($phpInfo);
+
+		if ($directive)
+		{
+			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+				'Local Value'  => $match[3],
+				'Master Value' => $match[4]
+			) : $match[3];
+		}
+		else
+		{
+			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+				$match[3],
+				$match[4]
+			) : $match[3];
+		}
+
+		return $phpInfo;
+	}
+
+	/**
+	 * Filter php info
+	 *
+	 * @param array $phpInfo
+	 *
+	 * @return array
+	 */
+	protected function filterPhpServerInfo($phpInfo)
+	{
 		if (!empty($phpInfo))
 		{
 			foreach ($phpInfo as $name => $section)
@@ -718,22 +737,53 @@ class NenoHelperBackend
 	/**
 	 * Read file from the end to the beginning
 	 *
-	 * @param   string $filepath File path
+	 * @param   string $filePath File path
 	 * @param   int    $lines    Lines
 	 * @param   bool   $adaptive Adaptive flag
 	 *
 	 * @return bool|string
 	 */
-	public static function tailCustom($filepath, $lines = 1, $adaptive = true)
+	public static function tailCustom($filePath, $lines = 1, $adaptive = true)
 	{
 		// Open file
-		$f = @fopen($filepath, "rb");
+		$f = @fopen($filePath, "rb");
 
 		if ($f === false)
 		{
 			return false;
 		}
 
+		// Init parameters
+		list($buffer, $lines) = self::initReadFileParameters($f, $adaptive, $lines);
+
+		// Start reading
+		list($output, $lines) = self::readFile($f, $lines, $buffer);
+
+		// While we have too many lines
+		// (Because of buffer size we might have read too many)
+		while ($lines++ < 0)
+		{
+			// Find first newline and remove all text before that
+			$output = substr($output, mb_strpos($output, "\n") + 1);
+		}
+
+		// Close file and return
+		fclose($f);
+
+		return trim($output);
+	}
+
+	/**
+	 * Init parameters for file reading
+	 *
+	 * @param resource $f        File resource
+	 * @param bool     $adaptive Whether or not the buffer needs to be adaptive
+	 * @param int      $lines    Lines amount to be fetched
+	 *
+	 * @return array
+	 */
+	protected static function initReadFileParameters($f, $adaptive, $lines)
+	{
 		// Sets buffer size
 		if (!$adaptive)
 		{
@@ -754,6 +804,11 @@ class NenoHelperBackend
 			$lines--;
 		}
 
+		return array( $buffer, $lines );
+	}
+
+	protected static function readFile($f, $lines, $buffer)
+	{
 		// Start reading
 		$output = '';
 
@@ -776,18 +831,7 @@ class NenoHelperBackend
 			$lines -= substr_count($chunk, "\n");
 		}
 
-		// While we have too many lines
-		// (Because of buffer size we might have read too many)
-		while ($lines++ < 0)
-		{
-			// Find first newline and remove all text before that
-			$output = substr($output, mb_strpos($output, "\n") + 1);
-		}
-
-		// Close file and return
-		fclose($f);
-
-		return trim($output);
+		return array( $output, $lines );
 	}
 
 	/**
@@ -1079,5 +1123,23 @@ class NenoHelperBackend
 		);
 
 		return isset($contextSupported[ $context ]) ? $contextSupported[ $context ] : false;
+	}
+
+	/**
+	 * Get groups data for a view
+	 *
+	 * @return array
+	 */
+	public static function getGroupDataForView()
+	{
+		$groups = NenoHelper::getGroups(false, true);
+
+		/* @var $group NenoContentElementGroup */
+		foreach ($groups as $key => $group)
+		{
+			$groups[ $key ] = $group->prepareDataForView();
+		}
+
+		return $groups;
 	}
 }

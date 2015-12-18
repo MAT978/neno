@@ -49,9 +49,10 @@ $items = $displayData->languages;
 		jQuery.ajax({
 			url    : 'index.php?option=com_neno&task=showInstallLanguagesModal&placement=installation',
 			success: function (html) {
-				jQuery('#languages-modal .modal-body').empty().append(html);
-				jQuery('#languages-modal .modal-header h3').html("<?php echo JText::_('COM_NENO_INSTALLATION_TARGET_LANGUAGES_LANGUAGE_MODAL_TITLE'); ?>");
-				jQuery('#languages-modal').modal('show');
+				var languagesModal = jQuery('#languages-modal');
+				languagesModal.find('.modal-body').empty().append(html);
+				languagesModal.find('.modal-header h3').html("<?php echo JText::_('COM_NENO_INSTALLATION_TARGET_LANGUAGES_LANGUAGE_MODAL_TITLE', true); ?>");
+				languagesModal.modal('show');
 			}
 		});
 	});

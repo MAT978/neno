@@ -26,18 +26,21 @@ class NenoTaskWorkMonitor extends NenoTaskWorker
 	public function run($taskData)
 	{
 		$tasksNeedToBeCleanUp = NenoTask::load(
-			array (
+			array(
 				'_field'     => 'numberOfAttemps',
 				'_condition' => '>',
 				'_value'     => 3
 			)
 		);
 
-		/* @var $taskNeedToBeCleanUp NenoTask */
-		foreach ($tasksNeedToBeCleanUp as $taskNeedToBeCleanUp)
+		if (!empty($tasksNeedToBeCleanUp))
 		{
-			NenoLog::add($taskNeedToBeCleanUp->getTask() . ' task has been deleted because reaches the maximum number of attempts allowed');
-			$taskNeedToBeCleanUp->remove();
+			/* @var $taskNeedToBeCleanUp NenoTask */
+			foreach ($tasksNeedToBeCleanUp as $taskNeedToBeCleanUp)
+			{
+				NenoLog::add($taskNeedToBeCleanUp->getTask() . ' task has been deleted because reaches the maximum number of attempts allowed');
+				$taskNeedToBeCleanUp->remove();
+			}
 		}
 
 		return false;

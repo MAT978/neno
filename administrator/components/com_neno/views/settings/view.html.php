@@ -84,6 +84,6 @@ class NenoViewSettings extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTCAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 	}
 }

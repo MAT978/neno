@@ -113,14 +113,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				if ($filter['operator'] == 'IN')
-				{
-					$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' (' . $db->quote($filter['value']) . ')');
-				}
-				else
-				{
-					$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
-				}
+				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 		}
 
@@ -178,9 +171,10 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			}
 			else
 			{
-				$fieldsInfo = self::getElementsByParentId(NenoContentElementField::getDbTable(), 'table_id', $this->getId(), true);
+				$fieldsInfo      = self::getElementsByParentId(NenoContentElementField::getDbTable(), 'table_id', $this->getId(), true);
+				$fieldsInfoCount = count($fieldsInfo);
 
-				for ($i = 0; $i < count($fieldsInfo); $i++)
+				for ($i = 0; $i < $fieldsInfoCount; $i++)
 				{
 					$fieldInfo        = $fieldsInfo[ $i ];
 					$fieldInfo->table = $this;
@@ -235,13 +229,6 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	{
 		if ($this->wordCount === null)
 		{
-			$this->wordCount               = new stdClass;
-			$this->wordCount->total        = 0;
-			$this->wordCount->untranslated = 0;
-			$this->wordCount->translated   = 0;
-			$this->wordCount->queued       = 0;
-			$this->wordCount->changed      = 0;
-
 			$db              = JFactory::getDbo();
 			$query           = $db->getQuery(true);
 			$workingLanguage = NenoHelper::getWorkingLanguage();
@@ -271,26 +258,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			$db->setQuery($query);
 			$statistics = $db->loadAssocList('state');
 
-			// Assign the statistics
-			foreach ($statistics as $state => $data)
-			{
-				switch ($state)
-				{
-					case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-						$this->wordCount->untranslated = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-						$this->wordCount->queued = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-						$this->wordCount->changed = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::TRANSLATED_STATE:
-						$this->wordCount->translated = (int) $data['counter'];
-						break;
-				}
-			}
-
+			$this->wordCount        = $this->generateWordCountObjectByStatistics($statistics);
 			$this->wordCount->total = $this->wordCount->untranslated + $this->wordCount->queued + $this->wordCount->changed + $this->wordCount->translated;
 		}
 
@@ -571,28 +539,31 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				}
 			}
 
-			/* @var $field NenoContentElementField */
-			foreach ($this->fields as $field)
+			if (!empty($this->fields))
 			{
-				$field
-					->setTable($this)
-					->setTranslate($field->isTranslatable() && $this->isTranslate())
-					->persist();
-
-				if ($field->getFieldName() === 'language' && $this->isTranslate())
+				/* @var $field NenoContentElementField */
+				foreach ($this->fields as $field)
 				{
-					$languages       = NenoHelper::getTargetLanguages();
-					$defaultLanguage = NenoSettings::get('source_language');
+					$field
+						->setTable($this)
+						->setTranslate($field->isTranslatable() && $this->isTranslate())
+						->persist();
 
-					foreach ($languages as $language)
+					if ($field->getFieldName() === 'language' && $this->isTranslate())
 					{
-						if ($language->lang_code != $defaultLanguage)
-						{
-							$db->deleteContentElementsFromSourceTableToShadowTables($this->tableName, $language->lang_code);
-						}
-					}
+						$languages       = NenoHelper::getTargetLanguages();
+						$defaultLanguage = NenoSettings::get('source_language');
 
-					$db->setContentForAllLanguagesToSourceLanguage($this->tableName, $defaultLanguage);
+						foreach ($languages as $language)
+						{
+							if ($language->lang_code != $defaultLanguage)
+							{
+								$db->deleteContentElementsFromSourceTableToShadowTables($this->tableName, $language->lang_code);
+							}
+						}
+
+						$db->setContentForAllLanguagesToSourceLanguage($this->tableName, $defaultLanguage);
+					}
 				}
 			}
 		}
@@ -867,7 +838,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		{
 			/* @var $translation NenoContentElementTranslation */
 			$translation = NenoContentElementTranslation::load($translationId, false, true);
-			$sqlQuery    = $translation->generateSQLStatement();
+			$sqlQuery    = $translation->generateSqlStatement();
 
 			$sqlQuery
 				->clear('select')
@@ -875,7 +846,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
+				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 
 			$db->setQuery($query);
@@ -922,7 +893,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	 *
 	 * @param int $limit
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getRandomContentFromTable($limit = 3)
 	{
@@ -931,10 +902,13 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 		$this->getFields();
 
-		/* @var $field NenoContentElementField */
-		foreach ($this->fields as $field)
+		if (!empty($this->fields))
 		{
-			$query->select($db->quoteName($field->getFieldName()));
+			/* @var $field NenoContentElementField */
+			foreach ($this->fields as $field)
+			{
+				$query->select($db->quoteName($field->getFieldName()));
+			}
 		}
 
 		$query

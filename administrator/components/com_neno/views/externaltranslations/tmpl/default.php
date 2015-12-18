@@ -73,13 +73,13 @@ if (!empty($this->extraSidebar))
 		jQuery(document).ready(function () {
 			jQuery('.translate_automatically_setting').off('click').on('click', function () {
 				jQuery.ajax({
-					type      : "POST",
-					url       : 'index.php?option=com_neno&task=externaltranslations.setAutomaticTranslationSetting',
-					data      : {
+					type   : "POST",
+					url    : 'index.php?option=com_neno&task=externaltranslations.setAutomaticTranslationSetting',
+					data   : {
 						setting: jQuery(this).data('setting'),
 						value  : +jQuery(this).is(':checked')
 					},
-					success   : function (data) {
+					success: function (data) {
 						if (data != 'ok') {
 							alert("There was an error saving setting");
 						}
@@ -90,13 +90,13 @@ if (!empty($this->extraSidebar))
 			jQuery('.order-button').off('click').on('click', function () {
 				var button = jQuery(this);
 				jQuery.ajax({
-					type      : "POST",
-					url       : 'index.php?option=com_neno&task=externaltranslations.createJob',
-					data      : {
+					type   : "POST",
+					url    : 'index.php?option=com_neno&task=externaltranslations.createJob',
+					data   : {
 						type    : jQuery(this).data('type'),
 						language: jQuery(this).data('language')
 					},
-					success   : function (data) {
+					success: function (data) {
 						if (data != 'ok') {
 							alert("There was an error saving setting");
 						}
@@ -337,7 +337,7 @@ if (!empty($this->extraSidebar))
 					},
 					function (response) {
 						if (response == 'ok') {
-							jQuery('.add-comment-to-translator-button').html('<span class="icon-pencil"></span> <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT'); ?>');
+							jQuery('.add-comment-to-translator-button').html('<span class="icon-pencil"></span> <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT', true); ?>');
 						}
 
 						jQuery('#addCommentForTranslators').modal('toggle');

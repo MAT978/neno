@@ -53,7 +53,7 @@ $document->addStyleSheet(JUri::root() . '/media/neno/js/codemirror/codemirror.cs
 		JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH = <?php echo json_encode(JText::_('COM_NENO_EDITOR_NOTICE_TAG_MISMATCH')); ?>;
 		JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH_CONFIRM = <?php echo json_encode(JText::_('COM_NENO_EDITOR_NOTICE_TAG_MISMATCH_CONFIRM')); ?>;
 		JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION_CONFIRM = <?php echo json_encode(JText::_('COM_NENO_EDITOR_SET_DEFAULT_ACTION_CONFIRM')); ?>;
-		JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION = {}
+		JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION = {};
 		JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION.copy = <?php echo json_encode(JText::_('COM_NENO_EDITOR_SET_DEFAULT_ACTION_1')); ?>;
 		JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION.translate = <?php echo json_encode(JText::_('COM_NENO_EDITOR_SET_DEFAULT_ACTION_2')); ?>;
 
@@ -88,10 +88,10 @@ $document->addStyleSheet(JUri::root() . '/media/neno/js/codemirror/codemirror.cs
 
 <?php
 // If we are loading related strings then add '_ALL' to the JText of the buttons
-$_all = '';
+$all = '';
 if (NenoSettings::get('load_related_content'))
 {
-	$_all = '_ALL';
+	$all = '_ALL';
 }
 ?>
 <div id="j-main-container" class="span10">
@@ -102,13 +102,13 @@ if (NenoSettings::get('load_related_content'))
 				<div class="pull-right right-buttons">
 					<button id="copy-btn" class="btn btn-big" type="button">
 						<span class="icon-copy big-icon"></span>
-						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_BUTTON' . $_all); ?></span>
+						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_BUTTON' . $all); ?></span>
 						<span class="small-text">Ctrl + <span class="arrow">&rArr;</span></span>
 					</button>
 					<button id="translate-btn" class="btn btn-big" type="button">
 						<span class="icon-comments-2 big-icon"></span>
                         <span
-	                        class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_AND_TRANSLATE_BUTTON' . $_all); ?></span>
+	                        class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_AND_TRANSLATE_BUTTON' . $all); ?></span>
 						<span class="small-text">Ctrl + Shift + <span class="arrow">&rArr;</span></span>
 					</button>
 					<button id="skip-button" class="btn btn-big" type="button"
@@ -120,13 +120,13 @@ if (NenoSettings::get('load_related_content'))
 					<button id="draft-button" class="btn btn-big" type="button"
 						data-id="<?php echo empty($translation) ? '' : $translation->id; ?>">
 						<span class="icon-box-add big-icon"></span>
-						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_SAVE_AS_DRAFT_BUTTON' . $_all); ?></span>
+						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_SAVE_AS_DRAFT_BUTTON' . $all); ?></span>
 						<span class="small-text">Ctrl + S</span>
 					</button>
 					<button id="save-next-button" class="btn btn-big btn-success" type="button"
 						data-id="<?php echo empty($translation) ? '' : $translation->id; ?>">
 						<span class="icon-checkmark big-icon"></span>
-						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_SAVE_AND_NEXT_BUTTON' . $_all); ?></span>
+						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_SAVE_AND_NEXT_BUTTON' . $all); ?></span>
 						<span class="small-text">Ctrl + Enter</span>
 					</button>
 				</div>

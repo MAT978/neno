@@ -128,7 +128,7 @@ class NenoControllerDashboard extends JControllerAdmin {
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
 
-            if ($model->getIsSwitcherPublished(false)) {
+            if ($model->isSwitcherPublished(false)) {
                 $query
                         ->select('*')
                         ->from('#__modules')

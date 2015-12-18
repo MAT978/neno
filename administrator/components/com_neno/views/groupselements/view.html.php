@@ -54,7 +54,7 @@ class NenoViewGroupsElements extends JViewLegacy
 	public function display($tpl = null)
 	{
 		$this->state = $this->get('State');
-		$this->items = NenoHelper::convertNenoObjectListToJObjectList($this->get('Items'));
+		$this->items = NenoHelper::convertNenoObjectListToJobjectList($this->get('Items'));
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -89,7 +89,7 @@ class NenoViewGroupsElements extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTCAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 
 		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('groupselements');
 	}

@@ -43,17 +43,17 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 		jQuery(".radio").off('change').on('change', function () {
 			jQuery.ajax({
-				url       : 'index.php?option=com_neno&task=dashboard.toggleLanguage&language=' + jQuery(this).data('language')
+				url: 'index.php?option=com_neno&task=dashboard.toggleLanguage&language=' + jQuery(this).data('language')
 			});
 		});
 
 		jQuery(".remove-language-button").off('click').on('click', function () {
-			var result = confirm("<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_1') ?>\n\n<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_2'); ?>");
+			var result = confirm("<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_1', true) ?>\n\n<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_2', true); ?>");
 
 			if (result) {
 				jQuery(this).closest('.language-wrapper').slideUp();
 				jQuery.ajax({
-					url       : 'index.php?option=com_neno&task=removeLanguage&language=' + jQuery(this).data('language')
+					url: 'index.php?option=com_neno&task=removeLanguage&language=' + jQuery(this).data('language')
 				});
 			}
 
@@ -63,7 +63,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 		jQuery('.not-ready').off('click').on('click', function (e) {
 			e.preventDefault();
-			alert('<?php echo JText::_('COM_NENO_LANGUAGE_IS_NOT_READY_YET_MESSAGE'); ?>');
+			alert('<?php echo JText::_('COM_NENO_LANGUAGE_IS_NOT_READY_YET_MESSAGE', true); ?>');
 		});
 
 		jQuery('.save-translator-comment').off('click').on('click', function () {
@@ -79,7 +79,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 				function (response) {
 
 					if (response == 'ok') {
-						var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT'); ?>';
+						var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT', true); ?>';
 						text = text.replace('%s', language);
 						jQuery(".add-comment-to-translator-button[data-language='" + language + "']").html('<span class="icon-pencil"></span> ' + text);
 					}
@@ -153,11 +153,11 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 <script>
 	jQuery('#add-languages-button').click(function () {
 		jQuery.ajax({
-			url       : 'index.php?option=com_neno&task=showInstallLanguagesModal&placement=dashboard',
-			success   : function (html) {
+			url    : 'index.php?option=com_neno&task=showInstallLanguagesModal&placement=dashboard',
+			success: function (html) {
 				var modal = jQuery('#languages-modal');
 				modal.find('.modal-body').empty().append(html);
-				modal.find('.modal-header h3').html("<?php echo JText::_('COM_NENO_INSTALLATION_TARGET_LANGUAGES_LANGUAGE_MODAL_TITLE'); ?>");
+				modal.find('.modal-header h3').html("<?php echo JText::_('COM_NENO_INSTALLATION_TARGET_LANGUAGES_LANGUAGE_MODAL_TITLE', true); ?>");
 				modal.modal('show');
 			}
 		});

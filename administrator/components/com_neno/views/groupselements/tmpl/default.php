@@ -117,8 +117,8 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 	jQuery(document).ready(function () {
 		statusChanged = false;
-		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING'); ?>';
-		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN'); ?>';
+		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING', true); ?>';
+		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN', true); ?>';
 		//Bind
 		bindEvents();
 
@@ -140,7 +140,10 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		jQuery('.check-toggle-translate-radio').off('change').on('change', changeFieldTranslateState);
 
 		//Attach the translate state toggler
-		jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTableTranslateState);
+		jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
+
+		//Attach the translate state toggler
+		jQuery('.check-toggle-translate-file-radio').off('change').on('change', changeTranslateState);
 
 		//Bind modal clicks
 		jQuery('.modalgroupform').off('click').on('click', showModalGroupForm);
@@ -317,7 +320,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 			showModalGroupForm(true);
 		}
 		else if (task === 'groupselements.refreshWordCount') {
-			if (confirm('<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_REFRESH_WORD_COUNT_CONFIRMATION_MESSAGE'); ?>')) {
+			if (confirm('<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_REFRESH_WORD_COUNT_CONFIRMATION_MESSAGE', true); ?>')) {
 				originalJoomla.apply(this, arguments);
 			}
 		}
@@ -409,7 +412,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 								<?php if (empty($group->assigned_translation_methods)): ?>
 									<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_ADD_TRANSLATION_METHOD'); ?>
 								<?php else: ?>
-									<?php echo NenoHelperBackend::renderTranslationMethodsAsCSV($group->assigned_translation_methods); ?>
+									<?php echo NenoHelperBackend::renderTranslationMethodsAsCsv($group->assigned_translation_methods); ?>
 								<?php endif; ?>
 							</a>
 						</td>

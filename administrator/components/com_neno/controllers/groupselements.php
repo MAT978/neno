@@ -38,66 +38,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	}
 
 	/**
-	 * Read content files
-	 *
-	 * @return void
-	 *
-	 * @throws Exception
-	 */
-	public function readContentElementFile()
-	{
-		NenoLog::log('Method readContentElementFile of NenoControllerGroupsElements called', 3);
-
-		jimport('joomla.filesystem.file');
-
-		NenoLog::log('Trying to move content element files', 3);
-
-		$input       = JFactory::getApplication()->input;
-		$fileData    = $input->files->get('content_element');
-		$destFile    = JFactory::getConfig()->get('tmp_path') . '/' . $fileData['name'];
-		$extractPath = JFactory::getConfig()->get('tmp_path') . '/' . JFile::stripExt($fileData['name']);
-
-		// If the file has been moved successfully, let's work with it.
-		if (JFile::move($fileData['tmp_name'], $destFile) === true)
-		{
-			NenoLog::log('Content element files moved successfully', 2);
-
-			// If the file is a zip file, let's extract it
-			if ($fileData['type'] == 'application/zip')
-			{
-				NenoLog::log('Extracting zip content element files', 3);
-
-				$adapter = JArchive::getAdapter('zip');
-				$adapter->extract($destFile, $extractPath);
-				$contentElementFiles = JFolder::files($extractPath);
-			}
-			else
-			{
-				$contentElementFiles = array( $destFile );
-			}
-
-			// Add to each content file the path of the extraction location.
-			NenoHelper::concatenateStringToStringArray($extractPath . '/', $contentElementFiles);
-
-			NenoLog::log('Parsing element files for readContentElementFile', 3);
-
-			// Parse element file(s)
-			NenoHelperBackend::parseContentElementFile(JFile::stripExt($fileData['name']), $contentElementFiles);
-
-			NenoLog::log('Cleaning temporal folder for readContentElementFile', 3);
-
-			// Clean temporal folder
-			NenoHelperBackend::cleanFolder(JFactory::getConfig()->get('tmp_path'));
-		}
-
-		NenoLog::log('Redirecting to groupselements view', 3);
-
-		$this
-			->setRedirect('index.php?option=com_neno&view=groupselements')
-			->redirect();
-	}
-
-	/**
 	 * Enable/Disable a database table to be translate
 	 *
 	 * @return void
@@ -323,8 +263,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$files                 = $group->getLanguageFiles();
 		$displayData           = array();
 		$displayData['group']  = $group->prepareDataForView();
-		$displayData['tables'] = NenoHelper::convertNenoObjectListToJObjectList($tables);
-		$displayData['files']  = NenoHelper::convertNenoObjectListToJObjectList($files);
+		$displayData['tables'] = NenoHelper::convertNenoObjectListToJobjectList($tables);
+		$displayData['files']  = NenoHelper::convertNenoObjectListToJobjectList($files);
 		$tablesHTML            = JLayoutHelper::render('rowelementtable', $displayData, JPATH_NENO_LAYOUTS);
 
 		echo $tablesHTML;
@@ -510,62 +450,19 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function moveTranslationsToTarget()
 	{
-		$input = $this->input;
+		$this->executeMethodOnTranslationListPassedByInput('moveTranslationToTarget');
+	}
 
-		// Refresh content for groups
-		$groups          = $input->get('groups', array(), 'ARRAY');
-		$tables          = $input->get('tables', array(), 'ARRAY');
-		$files           = $input->get('files', array(), 'ARRAY');
-		$workingLanguage = NenoHelper::getWorkingLanguage();
-
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translations AS tr')
-			->innerJoin('#__neno_content_element_fields AS f ON tr.content_id = f.id')
-			->innerJoin('#__neno_content_element_tables AS t ON t.id = f.table_id')
-			->where(
-				array(
-					'tr.state = ' . $db->quote(NenoContentElementTranslation::TRANSLATED_STATE),
-					'tr.language = ' . $db->quote($workingLanguage)
-				)
-			);
-
-		if (!empty($groups))
-		{
-			$query
-				->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
-				->where('g.id IN (' . implode(',', $db->quote($groups)) . ')');
-		}
-		elseif (!empty($tables) || !empty($files))
-		{
-			$where = array();
-
-			if (!empty($tables))
-			{
-				$where[] = '(t.id IN (' . implode(',', $db->quote($tables)) . ') AND tr.content_type = ' . $db->quote(NenoContentElementTranslation::DB_STRING) . ')';
-			}
-
-			if (!empty($files))
-			{
-				$where[] = '(t.id IN (' . implode(',', $db->quote($tables)) . ') AND tr.content_type = ' . $db->quote(NenoContentElementTranslation::LANG_STRING) . ')';
-			}
-
-			$query->where('(' . implode(' OR ', $where) . ')');
-		}
-
-		$db->setQuery($query);
-		$translationIds = $db->loadArray();
+	protected function executeMethodOnTranslationListPassedByInput($method)
+	{
+		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
 
 		foreach ($translationIds as $translationId)
 		{
 			/* @var $translation NenoContentElementTranslation */
 			$translation = NenoContentElementTranslation::load($translationId, false, true);
 
-			$translation->moveTranslationToTarget();
+			$translation->{$method}();
 		}
 
 		JFactory::getApplication()->redirect('index.php?option=com_neno&view=groupselements');
@@ -680,6 +577,16 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 	public function refreshWordCount()
 	{
+		$this->executeMethodOnTranslationListPassedByInput('persist');
+	}
+
+	/**
+	 * Get translation ids based on input parameters
+	 *
+	 * @return array
+	 */
+	protected function getTranslationIdsListBasedOnInputParameters()
+	{
 		$input = $this->input;
 
 		// Refresh content for groups
@@ -730,14 +637,45 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$db->setQuery($query);
 		$translationIds = $db->loadArray();
 
-		foreach ($translationIds as $translationId)
-		{
-			/* @var $translation NenoContentElementTranslation */
-			$translation = NenoContentElementTranslation::load($translationId, false, true);
+		return $translationIds;
+	}
 
-			$translation->persist();
+	/**
+	 * Toggle content element language file translate status
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function toggleContentElementLanguageFile()
+	{
+		$input = JFactory::getApplication()->input;
+
+		$languageFile    = $input->getInt('fileId');
+		$translateStatus = $input->getInt('translateStatus');
+
+		/* @var $languageFile NenoContentElementLanguageFile */
+		$languageFile = NenoContentElementLanguageFile::load($languageFile);
+
+		// If the table exists, let's work with it.
+		if ($languageFile !== false)
+		{
+			$languageFile->setTranslate($translateStatus);
+
+			if ($languageFile->persist() === false)
+			{
+				$languageStrings = $languageFile->getLanguageStrings(false);
+
+				/* @var $languageString NenoContentElementLanguageString */
+				foreach ($languageStrings as $languageString)
+				{
+					$languageString
+						->setTranslate($translateStatus)
+						->persist();
+				}
+			}
 		}
 
-		JFactory::getApplication()->redirect('index.php?option=com_neno&view=groupselements');
+		JFactory::getApplication()->close();
 	}
 }

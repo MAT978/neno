@@ -40,25 +40,25 @@ class JFormFieldTimeUpdated extends JFormField
 		// Initialize variables.
 		$html = array();
 
-		$old_time_updated = $this->value;
+		$oldTimeUpdated = $this->value;
 		$hidden           = (boolean) $this->element['hidden'];
 
 		if ($hidden == null || !$hidden)
 		{
-			if (!strtotime($old_time_updated))
+			if (!strtotime($oldTimeUpdated))
 			{
 				$html[] = '-';
 			}
 			else
 			{
-				$jdate       = new JDate($old_time_updated);
-				$pretty_date = $jdate->format(JText::_('DATE_FORMAT_LC2'));
-				$html[]      = "<div>" . $pretty_date . "</div>";
+				$jdate       = new JDate($oldTimeUpdated);
+				$prettyDate = $jdate->format(JText::_('DATE_FORMAT_LC2'));
+				$html[]      = "<div>" . $prettyDate . "</div>";
 			}
 		}
 
-		$time_updated = date("Y-m-d H:i:s");
-		$html[]       = '<input type="hidden" name="' . $this->name . '" value="' . $time_updated . '" />';
+		$timeUpdated = date("Y-m-d H:i:s");
+		$html[]       = '<input type="hidden" name="' . $this->name . '" value="' . $timeUpdated . '" />';
 
 		return implode($html);
 	}

@@ -32,8 +32,8 @@ abstract class NenoContentElement extends NenoObject
 		$parentColumnName,
 		$parentId,
 		$transformProperties = false,
-		$extraWhereStatements = array ())
-	{
+		$extraWhereStatements = array()
+	){
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
@@ -56,18 +56,19 @@ abstract class NenoContentElement extends NenoObject
 
 		if ($transformProperties)
 		{
-			for ($i = 0; $i < count($elements); $i++)
+			$elementsCount = count($elements);
+			for ($i = 0; $i < $elementsCount; $i++)
 			{
 				$data = new stdClass;
 
-				$elementArray = get_object_vars($elements[$i]);
+				$elementArray = get_object_vars($elements[ $i ]);
 
 				foreach ($elementArray as $property => $value)
 				{
 					$data->{NenoHelper::convertDatabaseColumnNameToPropertyName($property)} = $value;
 				}
 
-				$elements[$i] = $data;
+				$elements[ $i ] = $data;
 			}
 		}
 
@@ -137,5 +138,43 @@ abstract class NenoContentElement extends NenoObject
 		return $this;
 	}
 
+	/**
+	 * Generate word count object based on the element statistics
+	 *
+	 * @param array $statistics Element statistics
+	 *
+	 * @return stdClass
+	 */
+	protected function generateWordCountObjectByStatistics($statistics)
+	{
+		$wordCount               = new stdClass;
+		$wordCount->total        = 0;
+		$wordCount->untranslated = 0;
+		$wordCount->translated   = 0;
+		$wordCount->queued       = 0;
+		$wordCount->changed      = 0;
+
+		// Assign the statistics
+		foreach ($statistics as $state => $data)
+		{
+			switch ($state)
+			{
+				case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
+					$wordCount->untranslated = (int) $data['counter'];
+					break;
+				case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
+					$wordCount->queued = (int) $data['counter'];
+					break;
+				case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
+					$wordCount->changed = (int) $data['counter'];
+					break;
+				case NenoContentElementTranslation::TRANSLATED_STATE:
+					$wordCount->translated = (int) $data['counter'];
+					break;
+			}
+		}
+
+		return $wordCount;
+	}
 
 }

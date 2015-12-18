@@ -26,7 +26,7 @@ class NenoHelperApi
 	 *
 	 * @return int
 	 */
-	public static function getTCAvailable()
+	public static function getTcAvailable()
 	{
 		list($status, $userData) = self::makeApiCall('user');
 

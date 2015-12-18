@@ -264,9 +264,9 @@ class NenoControllerEditor extends NenoControllerStrings
 	 */
 	public function consolidateTranslations()
 	{
-		$input    = $this->input;
-		$json_ids = $input->post->get('ids', '', 'RAW');
-		$ids      = json_decode($json_ids);
+		$input   = $this->input;
+		$jsonIds = $input->post->get('ids', '', 'RAW');
+		$ids     = json_decode($jsonIds);
 
 		if (!empty($ids))
 		{

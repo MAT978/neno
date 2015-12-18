@@ -90,9 +90,9 @@ class NenoHelperData
 
 			$l = $db->loadAssoc();
 			arsort($l);
-			$main_field = key($l);
+			$mainField = key($l);
 
-			if ($main_field != $fieldName)
+			if ($mainField != $fieldName)
 			{
 				return $string;
 			}

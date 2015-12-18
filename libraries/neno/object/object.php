@@ -20,7 +20,7 @@ abstract class NenoObject
 	/**
 	 * @var string
 	 */
-	private static $databaseTableNames = array ();
+	private static $databaseTableNames = array();
 
 	/**
 	 * @var mixed
@@ -96,31 +96,19 @@ abstract class NenoObject
 	}
 
 	/**
-	 * Load element from the database
+	 * Generate WHERE clauses for load method
 	 *
-	 * @param   mixed   $pk            Could be the ID of the element or an array of clauses
-	 * @param   boolean $loadExtraData Load extra data once the object has been created
-	 * @param   boolean $loadParent    If the parent should be loaded
+	 * @param JDatabaseQuery $query Database query object
+	 * @param array          $fields
 	 *
-	 * @return stdClass|array
+	 * @return JDatabaseQuery
 	 */
-	public static function load($pk, $loadExtraData = true, $loadParent = false)
+	protected static function generateWhereClauses($query, $fields)
 	{
-		if (!is_array($pk))
+		$db = JFactory::getDbo();
+		foreach ($fields as $field => $value)
 		{
-			$pk = array ('id' => $pk);
-		}
-
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		$query
-			->select(empty($pk['_select']) ? '*' : $pk['_select'])
-			->from(self::getDbTable());
-
-		foreach ($pk as $field => $value)
-		{
-			if (!in_array($field, array ('_order', '_limit', '_offset')))
+			if (!in_array($field, array( '_order', '_limit', '_offset' )))
 			{
 				if (is_array($value))
 				{
@@ -141,38 +129,52 @@ abstract class NenoObject
 			}
 		}
 
+		return $query;
+	}
+
+	/**
+	 * Generate other clauses for load method
+	 *
+	 * @param JDatabaseQuery $query Database query object
+	 * @param array          $fields
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected static function generateOtherClauses($query, $fields)
+	{
 		// If order clauses have been set, let's process them
-		if (!empty($pk['_order']))
+		if (!empty($fields['_order']))
 		{
-			foreach ($pk['_order'] as $orderField => $orderDirection)
+			foreach ($fields['_order'] as $orderField => $orderDirection)
 			{
 				$query->order($orderField . ' ' . $orderDirection);
 			}
 		}
 
-		$offset = empty($pk['_offset']) ? 0 : (int) $pk['_offset'];
-		$limit  = empty($pk['_limit']) ? 0 : (int) $pk['_limit'];
+		return $query;
+	}
 
-		$db->setQuery($query, $offset, $limit);
-		$objects     = $db->loadAssocList();
-		$objectsData = array ();
+	/**
+	 * This method parses load results
+	 *
+	 * @param array $fields        fields
+	 * @param array $objects       Object list
+	 * @param bool  $loadExtraData Load extra data flag
+	 * @param bool  $loadParent    Load parent flag
+	 *
+	 * @return array|mixed
+	 */
+	protected static function parseLoadResult($fields, $objects, $loadExtraData, $loadParent)
+	{
+		$objectsData = array();
 
-		if (empty($pk['_select']))
+		if (empty($fields['_select']))
 		{
-			$className = get_called_class();
-
 			if (!empty($objects))
 			{
 				foreach ($objects as $object)
 				{
-					$objectData = new stdClass;
-
-					foreach ($object as $key => $value)
-					{
-						$objectData->{NenoHelper::convertDatabaseColumnNameToPropertyName($key)} = $value;
-					}
-
-					$objectsData[] = empty($pk['_select']) ? new $className($objectData, $loadExtraData, $loadParent) : $objectsData;
+					$objectsData[] = self::createObject($object, $loadExtraData, $loadParent);
 				}
 			}
 		}
@@ -190,6 +192,63 @@ abstract class NenoObject
 	}
 
 	/**
+	 * This method creates an object for load method
+	 *
+	 * @param array $object        Object data
+	 * @param bool  $loadExtraData LoadExtraData flag
+	 * @param bool  $loadParent    loadParent flag
+	 *
+	 * @return stdClass
+	 */
+	protected static function createObject($object, $loadExtraData, $loadParent)
+	{
+		$className  = get_called_class();
+		$objectData = new stdClass;
+
+		foreach ($object as $key => $value)
+		{
+			$objectData->{NenoHelper::convertDatabaseColumnNameToPropertyName($key)} = $value;
+		}
+
+		return new $className($objectData, $loadExtraData, $loadParent);
+	}
+
+	/**
+	 * Load element from the database
+	 *
+	 * @param   mixed   $pk            Could be the ID of the element or an array of clauses
+	 * @param   boolean $loadExtraData Load extra data once the object has been created
+	 * @param   boolean $loadParent    If the parent should be loaded
+	 *
+	 * @return stdClass|array
+	 */
+	public static function load($pk, $loadExtraData = true, $loadParent = false)
+	{
+		if (!is_array($pk))
+		{
+			$pk = array( 'id' => $pk );
+		}
+
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select(empty($pk['_select']) ? '*' : $pk['_select'])
+			->from(self::getDbTable());
+
+		$query  = self::generateWhereClauses($query, $pk);
+		$query  = self::generateOtherClauses($query, $pk);
+		$offset = empty($pk['_offset']) ? 0 : (int) $pk['_offset'];
+		$limit  = empty($pk['_limit']) ? 0 : (int) $pk['_limit'];
+
+		$db->setQuery($query, $offset, $limit);
+		$objects     = $db->loadAssocList();
+		$objectsData = self::parseLoadResult($pk, $objects, $loadExtraData, $loadParent);
+
+		return $objectsData;
+	}
+
+	/**
 	 * Get the name of the database to persist the object
 	 *
 	 * @return string
@@ -198,14 +257,14 @@ abstract class NenoObject
 	{
 		$className = get_called_class();
 
-		if (empty(self::$databaseTableNames[$className]))
+		if (empty(self::$databaseTableNames[ $className ]))
 		{
 			$classNameComponents = NenoHelper::splitCamelCaseString($className);
-			$classNameComponents[count($classNameComponents) - 1] .= 's';
-			self::$databaseTableNames[$className] = '#__' . implode('_', $classNameComponents);
+			$classNameComponents[ count($classNameComponents) - 1 ] .= 's';
+			self::$databaseTableNames[ $className ] = '#__' . implode('_', $classNameComponents);
 		}
 
-		return self::$databaseTableNames[$className];
+		return self::$databaseTableNames[ $className ];
 	}
 
 	/**
@@ -288,17 +347,17 @@ abstract class NenoObject
 				}
 				elseif (is_array($this->{$property}))
 				{
-					$dataArray = array ();
+					$dataArray = array();
 
 					foreach ($this->{$property} as $key => $value)
 					{
 						if ($recursive && $value instanceof NenoObject)
 						{
-							$dataArray[$key] = $value->toObject($allFields, $recursive, $convertToDatabase);
+							$dataArray[ $key ] = $value->toObject($allFields, $recursive, $convertToDatabase);
 						}
 						elseif (!$value instanceof NenoObject)
 						{
-							$dataArray[$key] = $value;
+							$dataArray[ $key ] = $value;
 						}
 					}
 
@@ -327,7 +386,7 @@ abstract class NenoObject
 	 */
 	public function getProperties($allFields = false)
 	{
-		$classReflection  = $this->getClassReflectionObject();
+		$classReflection = $this->getClassReflectionObject();
 
 		if (!$allFields)
 		{
@@ -344,7 +403,7 @@ abstract class NenoObject
 			$classReflection->getProperties(ReflectionProperty::IS_STATIC)
 		);
 
-		$propertyNames = array ();
+		$propertyNames = array();
 
 		/* @var $property ReflectionProperty */
 		foreach ($properties as $property)

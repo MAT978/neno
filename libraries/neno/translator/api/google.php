@@ -37,7 +37,7 @@ class NenoTranslatorApiGoogle extends NenoTranslatorApi
 		$url = 'https://www.googleapis.com/language/translate/v2';
         
         //Chunk the text if need be
-        $chunks = NenoHelper::chunkHTMLString($text, 4900);
+        $chunks = NenoHelper::chunkHtmlString($text, 4900);
         $translatedChunks = array();        
         
         foreach ($chunks as $chunk)

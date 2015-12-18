@@ -76,7 +76,7 @@ class NenoHelperLicense
 	 *
 	 * @return boolean
 	 */
-	private static function checkDomainMatch($domain)
+	protected static function checkDomainMatch($domain)
 	{
 		if (mb_strpos(JUri::root(), $domain) === false
 			&& mb_strpos(JUri::root(), 'localhost') === false

@@ -93,7 +93,7 @@ class NenoViewEditor extends JViewLegacy
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 		$this->defaultAction = self::getDefaultTranslateAction();
-		$this->getGroupData();
+		$this->groups        = NenoHelperBackend::getGroupDataForView();
 		$this->getStatuses();
 		$this->getTranslationMethods();
 
@@ -119,24 +119,6 @@ class NenoViewEditor extends JViewLegacy
 	protected function getDefaultTranslateAction()
 	{
 		return NenoHelperBackend::getDefaultTranslateAction();
-	}
-
-	/**
-	 * Load group data
-	 *
-	 * @return void
-	 */
-	protected function getGroupData()
-	{
-		$groups = NenoHelper::getGroups(false, true);
-
-		/* @var $group NenoContentElementGroup */
-		foreach ($groups as $key => $group)
-		{
-			$groups[$key] = $group->prepareDataForView();
-		}
-
-		$this->groups = $groups;
 	}
 
 	/**
@@ -173,30 +155,10 @@ class NenoViewEditor extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTCAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 
 		// Set sidebar action - New in 3.0
 		JHtmlSidebar::setAction('index.php?option=com_neno&view=editor');
-	}
-
-	/**
-	 * Get an array of fields to sort by
-	 *
-	 * @return array
-	 */
-	protected function getSortFields()
-	{
-		return array (
-			'a.id'           => JText::_('JGRID_HEADING_ID'),
-			'a.string'       => JText::_('COM_NENO_SOURCES_STRING'),
-			'a.constant'     => JText::_('COM_NENO_SOURCES_CONSTANT'),
-			'a.lang'         => JText::_('COM_NENO_SOURCES_LANG'),
-			'a.extension'    => JText::_('COM_NENO_SOURCES_EXTENSION'),
-			'a.time_added'   => JText::_('COM_NENO_SOURCES_TIME_ADDED'),
-			'a.time_changed' => JText::_('COM_NENO_SOURCES_TIME_CHANGED'),
-			'a.time_deleted' => JText::_('COM_NENO_SOURCES_TIME_DELETED'),
-			'a.version'      => JText::_('COM_NENO_SOURCES_VERSION'),
-		);
 	}
 
 	/**

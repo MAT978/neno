@@ -27,6 +27,7 @@ class com_NenoInstallerScript
 	 */
 	public function postflight($type, $parent)
 	{
+		$app              = JFactory::getApplication();
 		$installationPath = $parent->getParent()->getPath('source');
 
 		jimport('joomla.filesystem.folder');
@@ -38,7 +39,12 @@ class com_NenoInstallerScript
 		}
 
 		// Moving Layouts
-		JFolder::move($installationPath . '/layouts', JPATH_ROOT . '/layouts/libraries/neno');
+		$layoutsError = JFolder::move($installationPath . '/layouts', JPATH_ROOT . '/layouts/libraries/neno');
+
+		if ($layoutsError !== true)
+		{
+			$app->enqueueMessage('Error installing layouts: ' . $layoutsError);
+		}
 
 		// If the media folder exists, let's delete them first
 		if (JFolder::exists(JPATH_ROOT . '/media/neno'))
@@ -47,7 +53,12 @@ class com_NenoInstallerScript
 		}
 
 		// Moving media files
-		JFolder::move($installationPath . '/media', JPATH_ROOT . '/media/neno');
+		$mediaError = JFolder::move($installationPath . '/media', JPATH_ROOT . '/media/neno');
+
+		if ($mediaError !== true)
+		{
+			$app->enqueueMessage('Error installing layouts: ' . $mediaError);
+		}
 
 		return true;
 	}

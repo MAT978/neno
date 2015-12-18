@@ -38,7 +38,7 @@ class NenoTranslatorApiBing extends NenoTranslatorApi
 		$url = 'http://api.microsofttranslator.com/V2/Http.svc/Translate';
 
 		//Chunk the text if need be
-		$chunks           = NenoHelper::chunkHTMLString($text, 4900);
+		$chunks           = NenoHelper::chunkHtmlString($text, 4900);
 		$translatedChunks = array();
 
 		foreach ($chunks as $chunk)

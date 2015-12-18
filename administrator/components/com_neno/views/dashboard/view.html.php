@@ -81,7 +81,7 @@ class NenoViewDashboard extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTCAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 
 		JToolbarHelper::custom('fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
 

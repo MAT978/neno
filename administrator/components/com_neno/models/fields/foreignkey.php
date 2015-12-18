@@ -86,7 +86,7 @@ class JFormFieldForeignKey extends JFormField
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
 
-		$input_options = 'class="' . $this->getAttribute('class') . '"';
+		$inputOptions = 'class="' . $this->getAttribute('class') . '"';
 
 		// Depends of the type of input, the field will show a type or another
 		switch ($this->inputType)
@@ -120,14 +120,14 @@ class JFormFieldForeignKey extends JFormField
 				// If the select is multiple
 				if ($this->multiple)
 				{
-					$input_options .= 'multiple="multiple"';
+					$inputOptions .= 'multiple="multiple"';
 				}
 				else
 				{
 					array_unshift($options, JHtml::_('select.option', '', ''));
 				}
 
-				$html = JHtml::_('select.genericlist', $options, $this->name, $input_options, 'value', 'text', $value, $this->id);
+				$html = JHtml::_('select.genericlist', $options, $this->name, $inputOptions, 'value', 'text', $value, $this->id);
 				break;
 		}
 
@@ -137,16 +137,16 @@ class JFormFieldForeignKey extends JFormField
 	/**
 	 * Wrapper method for getting attributes from the form element
 	 *
-	 * @param   string $attr_name Attribute name
-	 * @param   mixed  $default   Optional value to return if attribute not found
+	 * @param   string $attrName Attribute name
+	 * @param   mixed  $default  Optional value to return if attribute not found
 	 *
 	 * @return mixed The value of the attribute if it exists, null otherwise
 	 */
-	public function getAttribute($attr_name, $default = null)
+	public function getAttribute($attrName, $default = null)
 	{
-		if (!empty($this->element[$attr_name]))
+		if (!empty($this->element[$attrName]))
 		{
-			return $this->element[$attr_name];
+			return $this->element[$attrName];
 		}
 		else
 		{

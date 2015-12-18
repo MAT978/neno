@@ -52,7 +52,7 @@ class NenoTranslatorApiYandex extends NenoTranslatorApi
 		$apiKey = NenoSettings::get('translator_api_key');
 
         //Chunk the text if need be
-        $chunks = NenoHelper::chunkHTMLString($text, 9900);
+        $chunks = NenoHelper::chunkHtmlString($text, 9900);
         $translatedChunks = array();               
         
         foreach ($chunks as $chunk)

@@ -118,14 +118,14 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 		{
 			$tableCounter = NenoContentElementTable::load(
 				array(
-					'_select'  => array('COUNT(*) as counter'),
+					'_select'  => array( 'COUNT(*) as counter' ),
 					'group_id' => $this->getId()
 				)
 			);
 
 			$languageFileCounter = NenoContentElementLanguageFile::load(
 				array(
-					'_select'  => array('COUNT(*) as counter'),
+					'_select'  => array( 'COUNT(*) as counter' ),
 					'group_id' => $this->getId()
 				)
 			);
@@ -175,13 +175,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	{
 		if ($this->wordCount === null)
 		{
-			$this->wordCount               = new stdClass;
-			$this->wordCount->total        = 0;
-			$this->wordCount->untranslated = 0;
-			$this->wordCount->translated   = 0;
-			$this->wordCount->queued       = 0;
-			$this->wordCount->changed      = 0;
-
 			$db              = JFactory::getDbo();
 			$query           = $db->getQuery(true);
 			$workingLanguage = NenoHelper::getWorkingLanguage();
@@ -206,25 +199,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			$db->setQuery($query);
 			$statistics = $db->loadAssocList('state');
 
-			// Assign the statistics
-			foreach ($statistics as $state => $data)
-			{
-				switch ($state)
-				{
-					case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-						$this->wordCount->untranslated = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-						$this->wordCount->queued = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-						$this->wordCount->changed = (int) $data['counter'];
-						break;
-					case NenoContentElementTranslation::TRANSLATED_STATE:
-						$this->wordCount->translated = (int) $data['counter'];
-						break;
-				}
-			}
+			$this->wordCount = $this->generateWordCountObjectByStatistics($statistics);
 
 			$query
 				->clear()
@@ -291,89 +266,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	}
 
 	/**
-	 * Parse a content element file.
-	 *
-	 * @param   string $groupName           Group name
-	 * @param   array  $contentElementFiles Content element file path
-	 *
-	 * @return bool True on success
-	 *
-	 * @throws Exception
-	 */
-	public static function parseContentElementFiles($groupName, $contentElementFiles)
-	{
-		// Create an array of group data
-		$groupData = array(
-			'groupName' => $groupName
-		);
-
-		$group = new NenoContentElementGroup($groupData);
-
-		foreach ($contentElementFiles as $contentElementFile)
-		{
-			$xmlDoc = new DOMDocument;
-
-			if ($xmlDoc->load($contentElementFile) === false)
-			{
-				throw new Exception(JText::_('Error reading content element file'));
-			}
-
-			$tables = $xmlDoc->getElementsByTagName('table');
-
-			/* @var $tableData DOMElement */
-			foreach ($tables as $tableData)
-			{
-				$tableName = $tableData->getAttribute('name');
-
-				// If the table hasn't been added yet, let's add it
-				if (!NenoHelper::isTableAlreadyDiscovered($tableName))
-				{
-					$table = new NenoContentElementTable(
-						array(
-							'tableName' => $tableName,
-							'translate' => 0
-						)
-					);
-
-					$fields = $tableData->getElementsByTagName('field');
-
-					/* @var $fieldData DOMElement */
-					foreach ($fields as $fieldData)
-					{
-						$field = new NenoContentElementField(
-							array(
-								'fieldName' => $fieldData->getAttribute('name'),
-								'translate' => intval($fieldData->getAttribute('translate')),
-								'table'     => $table
-							)
-						);
-
-						$table->addField($field);
-
-						// If the field has this attribute, it means this is the primary key field of the table
-						if ($fieldData->hasAttribute('referenceid'))
-						{
-							$table->setPrimaryKey($field->getFieldName());
-						}
-					}
-
-					$group->addTable($table);
-				}
-			}
-		}
-
-		$tables = $group->getTables();
-
-		// Checking if the group has tables
-		if (!empty($tables))
-		{
-			$group->persist();
-		}
-
-		return true;
-	}
-
-	/**
 	 * Add a table to the list
 	 *
 	 * @param   NenoContentElementTable $table Table
@@ -406,24 +298,24 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			}
 			else
 			{
-				$this->tables = NenoContentElementTable::load(array('group_id' => $this->getId()), $loadExtraData);
+				$this->tables = NenoContentElementTable::load(array( 'group_id' => $this->getId() ), $loadExtraData);
 
 				// If there's only one table
 				if ($this->tables instanceof NenoContentElementTable)
 				{
-					$this->tables = array($this->tables);
+					$this->tables = array( $this->tables );
 				}
 
 				/* @var $table NenoContentElementTable */
 				foreach ($this->tables as $key => $table)
 				{
-					if ($avoidDoNotTranslate && !$this->tables[$key]->isTranslate())
+					if ($avoidDoNotTranslate && !$this->tables[ $key ]->isTranslate())
 					{
-						unset ($this->tables[$key]);
+						unset ($this->tables[ $key ]);
 						continue;
 					}
 
-					$this->tables[$key]->setGroup($this);
+					$this->tables[ $key ]->setGroup($this);
 				}
 			}
 		}
@@ -447,6 +339,148 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	}
 
 	/**
+	 * Persist extension data
+	 *
+	 * @return void
+	 */
+	protected function persistExtensionData()
+	{
+		if (!empty($this->extensions))
+		{
+			$db          = JFactory::getDbo();
+			$deleteQuery = $db->getQuery(true);
+
+			$deleteQuery
+				->delete('#__neno_content_element_groups_x_extensions')
+				->where('group_id = ' . $this->getId());
+
+			$db->setQuery($deleteQuery);
+			$db->execute();
+
+			$insertQuery = $db->getQuery(true);
+
+			$insertQuery
+				->clear()
+				->insert('#__neno_content_element_groups_x_extensions')
+				->columns(
+					array(
+						'extension_id',
+						'group_id'
+					)
+				);
+
+			foreach ($this->extensions as $extension)
+			{
+				$insertQuery->values((int) $extension . ',' . $this->getId());
+			}
+
+			$db->setQuery($insertQuery);
+			$db->execute();
+		}
+	}
+
+	/**
+	 * Get translation methods for group based on its tables
+	 *
+	 * @return void
+	 */
+	protected function getTranslationMethodBasedOnTables()
+	{
+		// Check whether or not this group should have translation methods (For unknown groups we set them as do not translate)
+		if (!empty($this->tables) && is_array($this->tables))
+		{
+			$fileFound = false;
+			/* @var $table NenoContentElementTable */
+			foreach ($this->tables as $table)
+			{
+				if (file_exists($table->getContentElementFilename()))
+				{
+					$fileFound = true;
+					break;
+				}
+			}
+
+			// if it has no file, let's assign manual translation.
+			if (!$fileFound)
+			{
+				$this->assignedTranslationMethods = array();
+				$languages                        = NenoHelper::getLanguages(false);
+
+				foreach ($languages as $language)
+				{
+					$translationMethod                        = new stdClass;
+					$translationMethod->lang                  = $language->lang_code;
+					$translationMethod->translation_method_id = 1;
+					$translationMethod->lang                  = 1;
+					$this->assignedTranslationMethods[]       = $translationMethod;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Persist translation method data
+	 *
+	 * @return void
+	 */
+	protected function persistTranslationMethodData()
+	{
+		$this->getTranslationMethodBasedOnTables();
+
+		if (!empty($this->assignedTranslationMethods))
+		{
+			$db          = JFactory::getDbo();
+			$deleteQuery = $db->getQuery(true);
+			$insertQuery = $db->getQuery(true);
+			$insert      = false;
+
+			$insertQuery
+				->insert('#__neno_content_element_groups_x_translation_methods')
+				->columns(
+					array(
+						'group_id',
+						'lang',
+						'translation_method_id',
+						'ordering'
+					)
+				);
+
+			foreach ($this->assignedTranslationMethods as $translationMethod)
+			{
+				if (!empty($translationMethod->lang))
+				{
+					$deleteQuery
+						->clear()
+						->delete('#__neno_content_element_groups_x_translation_methods')
+						->where(
+							array(
+								'group_id = ' . $this->id,
+								'lang = ' . $db->quote($translationMethod->lang)
+							)
+						);
+
+					$db->setQuery($deleteQuery);
+					$db->execute();
+
+					if (!empty($translationMethod))
+					{
+						$insert = true;
+						$insertQuery->values(
+							$this->id . ',' . $db->quote($translationMethod->lang) . ', ' . $db->quote($translationMethod->translation_method_id) . ', ' . $db->quote($translationMethod->ordering)
+						);
+					}
+				}
+			}
+
+			if ($insert)
+			{
+				$db->setQuery($insertQuery);
+				$db->execute();
+			}
+		}
+	}
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @return boolean
@@ -461,120 +495,11 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 		{
 			NenoLog::log('Group data added or modified successfully', 2);
 
-			if (!empty($this->extensions))
+			$this->persistExtensionData();
+
+			if ($isNew)
 			{
-				$db          = JFactory::getDbo();
-				$deleteQuery = $db->getQuery(true);
-
-				$deleteQuery
-					->delete('#__neno_content_element_groups_x_extensions')
-					->where('group_id = ' . $this->getId());
-
-				$db->setQuery($deleteQuery);
-				$db->execute();
-
-				$insertQuery = $db->getQuery(true);
-
-				$insertQuery
-					->clear()
-					->insert('#__neno_content_element_groups_x_extensions')
-					->columns(
-						array(
-							'extension_id',
-							'group_id'
-						)
-					);
-
-				foreach ($this->extensions as $extension)
-				{
-					$insertQuery->values((int) $extension . ',' . $this->getId());
-				}
-
-				$db->setQuery($insertQuery);
-				$db->execute();
-			}
-
-			// check whether or not this group should have translation methods (For unknown groups we set them as do not translate)
-			if ($isNew && !empty($this->tables) && is_array($this->tables))
-			{
-				$fileFound = false;
-				/* @var $table NenoContentElementTable */
-				foreach ($this->tables as $table)
-				{
-					if (file_exists($table->getContentElementFilename()))
-					{
-						$fileFound = true;
-						break;
-					}
-				}
-
-				// if it has no file, let's assign manual translation.
-				if (!$fileFound)
-				{
-					$this->assignedTranslationMethods = array();
-					$languages                        = NenoHelper::getLanguages(false);
-
-					foreach ($languages as $language)
-					{
-						$translationMethod                        = new stdClass;
-						$translationMethod->lang                  = $language->lang_code;
-						$translationMethod->translation_method_id = 1;
-						$translationMethod->lang                  = 1;
-						$this->assignedTranslationMethods[]       = $translationMethod;
-					}
-				}
-			}
-
-			if (!empty($this->assignedTranslationMethods))
-			{
-				$db          = JFactory::getDbo();
-				$deleteQuery = $db->getQuery(true);
-				$insertQuery = $db->getQuery(true);
-				$insert      = false;
-
-				$insertQuery
-					->insert('#__neno_content_element_groups_x_translation_methods')
-					->columns(
-						array(
-							'group_id',
-							'lang',
-							'translation_method_id',
-							'ordering'
-						)
-					);
-
-				foreach ($this->assignedTranslationMethods as $translationMethod)
-				{
-					if (!empty($translationMethod->lang))
-					{
-						$deleteQuery
-							->clear()
-							->delete('#__neno_content_element_groups_x_translation_methods')
-							->where(
-								array(
-									'group_id = ' . $this->id,
-									'lang = ' . $db->quote($translationMethod->lang)
-								)
-							);
-
-						$db->setQuery($deleteQuery);
-						$db->execute();
-
-						if (!empty($translationMethod))
-						{
-							$insert = true;
-							$insertQuery->values(
-								$this->id . ',' . $db->quote($translationMethod->lang) . ', ' . $db->quote($translationMethod->translation_method_id) . ', ' . $db->quote($translationMethod->ordering)
-							);
-						}
-					}
-				}
-
-				if ($insert)
-				{
-					$db->setQuery($insertQuery);
-					$db->execute();
-				}
+				$this->persistTranslationMethodData();
 			}
 
 			if (!empty($this->languageFiles))
@@ -647,7 +572,8 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	 */
 	public function refresh($language = null)
 	{
-		$tables = NenoHelper::getComponentTables($this);
+		$tables        = NenoHelper::getComponentTables($this);
+		$languageFiles = array();
 
 		if (!$this->isOtherGroup())
 		{
@@ -675,7 +601,20 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			$this->persist();
 		}
 
-		// Once the structure is saved, let's go through the translations.
+		$this->saveDatabaseTranslations($tables, $language);
+		$this->saveLanguageFileTranslations($languageFiles, $language);
+	}
+
+	/**
+	 * Save database translations for a particular language
+	 *
+	 * @param array  $tables   Database Tables
+	 * @param string $language Language tag
+	 *
+	 * @return void
+	 */
+	protected function saveDatabaseTranslations($tables, $language)
+	{
 		if (!empty($tables))
 		{
 			/* @var $table NenoContentElementTable */
@@ -693,7 +632,18 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				}
 			}
 		}
+	}
 
+	/**
+	 * Save language file translations for a particular language
+	 *
+	 * @param array  $languageFiles Language files
+	 * @param string $language      Language tag
+	 *
+	 * @return void
+	 */
+	protected function saveLanguageFileTranslations($languageFiles, $language)
+	{
 		if (!empty($languageFiles))
 		{
 			/* @var $languageFile NenoContentElementLanguageFile */
@@ -768,7 +718,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 
 		foreach ($tables as $key => $table)
 		{
-			$tables[$key] = str_replace($db->getPrefix(), '#__', $table);
+			$tables[ $key ] = str_replace($db->getPrefix(), '#__', $table);
 		}
 
 		$query = $db->getQuery(true);
@@ -791,7 +741,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			/* @var $table NenoContentElementTable */
 			$table = NenoContentElementTable::load($tableId);
 
-			if (!empty($table) && $table->remove())
+			if (!empty($table) && $table->remove() && empty($this->tables))
 			{
 				/* @var $tableObject NenoContentElementTable */
 				foreach ($this->tables as $key => $tableObject)
@@ -799,7 +749,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 					if ($tableObject->getId() == $tableId)
 					{
 						$reArrangeTables = true;
-						unset($this->tables[$key]);
+						unset($this->tables[ $key ]);
 					}
 				}
 			}
@@ -896,11 +846,11 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	{
 		if ($this->languageFiles === null)
 		{
-			$this->languageFiles = NenoContentElementLanguageFile::load(array('group_id' => $this->getId()));
+			$this->languageFiles = NenoContentElementLanguageFile::load(array( 'group_id' => $this->getId() ));
 
 			if (!is_array($this->languageFiles))
 			{
-				$this->languageFiles = array($this->languageFiles);
+				$this->languageFiles = array( $this->languageFiles );
 			}
 		}
 
@@ -970,39 +920,11 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	 */
 	public function generateContentForLanguage($languageTag)
 	{
-		$tables = $this->getTables();
-
-		if (!empty($tables))
-		{
-			/* @var $table NenoContentElementTable */
-			foreach ($tables as $table)
-			{
-				$fields = $table->getFields(false, true);
-
-				/* @var $field NenoContentElementField */
-				foreach ($fields as $field)
-				{
-					$field->persistTranslations(null, $languageTag);
-				}
-			}
-		}
-
 		$languageFiles = $this->getLanguageFiles();
+		$tables        = $this->getTables();
 
-		if (!empty($languageFiles))
-		{
-			/* @var $languageFile NenoContentElementLanguageFile */
-			foreach ($languageFiles as $languageFile)
-			{
-				$languageStrings = $languageFile->getLanguageStrings();
-
-				/* @var $languageString NenoContentElementLanguageString */
-				foreach ($languageStrings as $languageString)
-				{
-					$languageString->persistTranslations($languageTag);
-				}
-			}
-		}
+		$this->saveDatabaseTranslations($tables, $languageTag);
+		$this->saveLanguageFileTranslations($languageFiles, $languageTag);
 
 		// Assign default methods
 		$db    = JFactory::getDbo();

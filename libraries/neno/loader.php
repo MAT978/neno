@@ -31,8 +31,6 @@ class NenoLoader
 	/**
 	 * Adding Neno and external libraries to the Class Loader
 	 *
-	 * @param   bool $includeJs Include Javascript common file
-	 *
 	 * @return void
 	 *
 	 * @since 1.0

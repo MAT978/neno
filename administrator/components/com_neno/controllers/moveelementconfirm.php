@@ -96,11 +96,11 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 
 		/* @var $view NenoViewMoveElementConfirm */
 		$view         = $this->getView('MoveElementConfirm', 'html');
-		$view->groups = NenoHelper::convertNenoObjectListToJObjectList(NenoHelper::getGroups());
+		$view->groups = NenoHelper::convertNenoObjectListToJobjectList(NenoHelper::getGroups());
         
 		// Assign data from the model
-		$view->tables = NenoHelper::convertNenoObjectListToJObjectList($tables);
-		$view->files  = NenoHelper::convertNenoObjectListToJObjectList($files);
+		$view->tables = NenoHelper::convertNenoObjectListToJobjectList($tables);
+		$view->files  = NenoHelper::convertNenoObjectListToJobjectList($files);
 
 		// Display the view
 		$view->display();
@@ -143,10 +143,10 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		// Move tables
 		if (count($tables) > 0)
 		{
-			foreach ($tables as $table_id)
+			foreach ($tables as $tableId)
 			{
 				/* @var $table NenoContentElementTable */
-				$table = NenoContentElementTable::load($table_id, true, true);
+				$table = NenoContentElementTable::load($tableId, true, true);
 				$table->setGroup($group);
 				$table->persist();
 			}
@@ -158,10 +158,10 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		// Move files
 		if (count($files) > 0)
 		{
-			foreach ($files as $file_id)
+			foreach ($files as $fileId)
 			{
 				/* @var $file NenoContentElementLanguageFile */
-				$file = NenoContentElementLanguageFile::load($file_id);
+				$file = NenoContentElementLanguageFile::load($fileId);
 				$file->setGroup($group);
 				$file->persist();
 			}

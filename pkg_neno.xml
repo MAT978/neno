@@ -11,6 +11,7 @@
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <packagename>neno</packagename>
     <scriptfile>script.php</scriptfile>
+    <description>Neno for Joomla</description>
     <files folder="packages">
         <file type="component" id="com_neno">com_neno.zip</file>
         <file type="plugin" id="neno" group="system">plg_system_neno.zip</file>

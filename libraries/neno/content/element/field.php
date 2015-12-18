@@ -86,12 +86,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @param   mixed $data              Field data
-	 * @param   bool  $loadExtraData     Load extra data flag
-	 * @param   bool  $loadParent        Load parent flag
-	 * @param   bool  $fetchTranslations If the translation have to be loaded
+	 * @param   mixed $data          Field data
+	 * @param   bool  $loadExtraData Load extra data flag
+	 * @param   bool  $loadParent    Load parent flag
 	 */
-	public function __construct($data, $loadExtraData = true, $loadParent = false, $fetchTranslations = false)
+	public function __construct($data, $loadExtraData = true, $loadParent = false)
 	{
 		parent::__construct($data);
 
@@ -126,13 +125,6 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 			if ($cacheData === null)
 			{
-				$this->wordCount               = new stdClass;
-				$this->wordCount->total        = 0;
-				$this->wordCount->untranslated = 0;
-				$this->wordCount->translated   = 0;
-				$this->wordCount->queued       = 0;
-				$this->wordCount->changed      = 0;
-
 				$db              = JFactory::getDbo();
 				$query           = $db->getQuery(true);
 				$workingLanguage = NenoHelper::getWorkingLanguage();
@@ -157,26 +149,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 				$db->setQuery($query);
 				$statistics = $db->loadAssocList('state');
 
-				// Assign the statistics
-				foreach ($statistics as $state => $data)
-				{
-					switch ($state)
-					{
-						case NenoContentElementTranslation::NOT_TRANSLATED_STATE:
-							$this->wordCount->untranslated = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE:
-							$this->wordCount->queued = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::SOURCE_CHANGED_STATE:
-							$this->wordCount->changed = (int) $data['counter'];
-							break;
-						case NenoContentElementTranslation::TRANSLATED_STATE:
-							$this->wordCount->translated = (int) $data['counter'];
-							break;
-					}
-				}
-
+				$this->wordCount        = $this->generateWordCountObjectByStatistics($statistics);
 				$this->wordCount->total = $this->wordCount->untranslated + $this->wordCount->queued + $this->wordCount->changed + $this->wordCount->translated;
 
 				$cacheData = $this->wordCount;
@@ -518,6 +491,153 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	}
 
 	/**
+	 * Persist a specific string
+	 *
+	 * @param array  $string
+	 * @param string $language
+	 * @param array  $commonData
+	 * @param array  $primaryKeyData
+	 * @param array  $translationMethods Translation method list
+	 *
+	 * @return void
+	 */
+	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods)
+	{
+		$commonData['language'] = $language;
+		$commonData['string']   = $string['string'];
+
+		// If the string is empty or is a number, let's mark as translated.
+		if (empty($string['string']) || is_numeric($string['string']))
+		{
+			$commonData['state'] = NenoContentElementTranslation::TRANSLATED_STATE;
+		}
+		else
+		{
+			$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
+		}
+
+		$translation     = new NenoContentElementTranslation($commonData);
+		$sourceData      = array();
+		$fieldBreakpoint = array();
+
+		foreach ($primaryKeyData as $primaryKey)
+		{
+			$field     = self::getFieldByTableAndFieldName($this->getTable(), $primaryKey);
+			$fieldData = array(
+				'field' => $field,
+				'value' => $string[ $primaryKey ]
+			);
+
+			$sourceData[]                   = $fieldData;
+			$fieldBreakpoint[ $primaryKey ] = $string[ $primaryKey ];
+		}
+
+		// Save breakpoint into the database
+		NenoSettings::set('field_breakpoint', json_encode($fieldBreakpoint));
+
+		$translation->setSourceElementData($sourceData);
+
+		// If the translation does not exists already, let's add it
+		if ($translation->existsAlready())
+		{
+			$translation = NenoContentElementTranslation::getTranslationBySourceElementData($sourceData, $language, $this->getId());
+			$translation->setElement($this);
+
+			if ($translation->refresh())
+			{
+				$translation->persist();
+			}
+		}
+
+		$translation = $this->persistTranslationMethodForTranslation($translation, $language, $translationMethods);
+
+		$this->translations[] = $translation;
+	}
+
+	/**
+	 * Persist translation methods for a translation
+	 *
+	 * @param NenoContentElementTranslation $translation        Translation
+	 * @param string                        $language           Language
+	 * @param array                         $translationMethods Translation method list
+	 *
+	 * @return NenoContentElementTranslation
+	 */
+	protected function persistTranslationMethodForTranslation($translation, $language, $translationMethods)
+	{
+		$currentTranslationMethods = $translation->getTranslationMethods();
+
+		if (empty($currentTranslationMethods[ $language ]))
+		{
+			if (!empty($translationMethods[ $language ]))
+			{
+				$translationMethodsTr = $translationMethods[ $language ];
+
+				foreach ($translationMethodsTr as $translationMethodTr)
+				{
+					$translation->addTranslationMethod($translationMethodTr->translation_method_id);
+				}
+			}
+		}
+
+		$translation->persist();
+
+		return $translation;
+	}
+
+	/**
+	 * Persist progression counters
+	 *
+	 * @return void
+	 */
+	protected function persistProgressCounters()
+	{
+		$progressCounters = $this->getProgressCounters();
+		if (!NenoSettings::get('installation_completed'))
+		{
+			NenoHelper::setSetupState(
+				JText::sprintf(
+					'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD_PROGRESS',
+					$this->getTable()->getGroup()->getGroupName(),
+					$this->getTable()->getTableName(),
+					$this->getFieldName(),
+					$progressCounters['processed'],
+					$progressCounters['total']
+				),
+				3
+			);
+		}
+	}
+
+	/**
+	 * Persist a specific string
+	 *
+	 * @param array  $string
+	 * @param array  $languages
+	 * @param string $defaultLanguage
+	 * @param array  $commonData
+	 * @param array  $primaryKeyData
+	 * @param array  $translationMethods Translation method list
+	 *
+	 * @return void
+	 */
+	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
+	{
+		$this->persistProgressCounters();
+		
+		if ($string['state'] == 1 || ($string['state'] == 0 && NenoSettings::get('copy_unpublished', 1)) || ($string['state'] == -2 && NenoSettings::get('copy_trashed', 0)))
+		{
+			foreach ($languages as $language)
+			{
+				if ($defaultLanguage !== $language->lang_code)
+				{
+					$this->persistStringForLanguage($string, $language->lang_code, $commonData, $primaryKeyData, $translationMethods);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Persist all the translations
 	 *
 	 * @param   array|null  $recordId Record id to just load that row
@@ -553,101 +673,13 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$this->translations = array();
 			$strings            = $this->getStrings($recordId);
 			$primaryKeyData     = $this->getTable()->getPrimaryKey();
-
-			$translationmethods = NenoHelper::getTranslationMethodsByTableId($this->table->getId());
+			$translationMethods = NenoHelper::getTranslationMethodsByTableId($this->table->getId());
 
 			if (!empty($strings))
 			{
 				foreach ($strings as $string)
 				{
-					$progressCounters = $this->getProgressCounters();
-					if (!NenoSettings::get('installation_completed'))
-					{
-						NenoHelper::setSetupState(
-							JText::sprintf(
-								'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD_PROGRESS',
-								$this->getTable()->getGroup()->getGroupName(),
-								$this->getTable()->getTableName(),
-								$this->getFieldName(),
-								$progressCounters['processed'],
-								$progressCounters['total']
-							),
-							3
-						);
-					}
-
-					if ($string['state'] == 1 || ($string['state'] == 0 && NenoSettings::get('copy_unpublished', 1)) || ($string['state'] == -2 && NenoSettings::get('copy_trashed', 0)))
-					{
-						foreach ($languages as $language)
-						{
-							if ($defaultLanguage !== $language->lang_code)
-							{
-								$commonData['language'] = $language->lang_code;
-								$commonData['string']   = $string['string'];
-
-								// If the string is empty or is a number, let's mark as translated.
-								if (empty($string['string']) || is_numeric($string['string']))
-								{
-									$commonData['state'] = NenoContentElementTranslation::TRANSLATED_STATE;
-								}
-								else
-								{
-									$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
-								}
-
-								$translation     = new NenoContentElementTranslation($commonData);
-								$sourceData      = array();
-								$fieldBreakpoint = array();
-
-								foreach ($primaryKeyData as $primaryKey)
-								{
-									$field     = self::getFieldByTableAndFieldName($this->getTable(), $primaryKey);
-									$fieldData = array(
-										'field' => $field,
-										'value' => $string[ $primaryKey ]
-									);
-
-									$sourceData[]                   = $fieldData;
-									$fieldBreakpoint[ $primaryKey ] = $string[ $primaryKey ];
-								}
-
-								// Save breakpoint into the database
-								NenoSettings::set('field_breakpoint', json_encode($fieldBreakpoint));
-
-								$translation->setSourceElementData($sourceData);
-
-								// If the translation does not exists already, let's add it
-								if ($translation->existsAlready())
-								{
-									$translation = NenoContentElementTranslation::getTranslationBySourceElementData($sourceData, $language->lang_code, $this->getId());
-									$translation->setElement($this);
-
-									if ($translation->refresh())
-									{
-										$translation->persist();
-									}
-								}
-
-								$translationMethods = $translation->getTranslationMethods();
-
-								if (empty($translationMethods[ $language->lang_code ]))
-								{
-									if (!empty($translationmethods[ $language->lang_code ]))
-									{
-										$translationMethodsTr = $translationmethods[ $language->lang_code ];
-
-										foreach ($translationMethodsTr as $translationMethodTr)
-										{
-											$translation->addTranslationMethod($translationMethodTr->translation_method_id);
-										}
-									}
-								}
-
-								$translation->persist();
-								$this->translations[] = $translation;
-							}
-						}
-					}
+					$this->persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods);
 				}
 
 				NenoSettings::set('field_breakpoint', null);
@@ -655,7 +687,8 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		}
 		else
 		{
-			for ($i = 0; $i < count($this->translations); $i++)
+			$translationsCount = count($this->translations);
+			for ($i = 0; $i < $translationsCount; $i++)
 			{
 				$translation = $this->translations[ $i ];
 				/* @var $translation NenoContentElementTranslation */
@@ -668,6 +701,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		return true;
 	}
 
+	/**
+	 * Get installation progress counters
+	 *
+	 * @return array
+	 */
 	public function getProgressCounters()
 	{
 		$db                = JFactory::getDbo();
@@ -700,6 +738,22 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		else
 		{
 			$subqueryProcessed = 0;
+		}
+
+		// If there's no filter applied, let's applied the ones for the tables
+		if ($this->getTable()->isTranslate() == 2)
+		{
+			$filters = $this->getTable()->getTableFilters();
+
+			foreach ($filters as $filter)
+			{
+				if ($subqueryProcessed !== 0)
+				{
+					$subqueryProcessed->where(NenoHelper::getWhereClauseForTableFilters($filter));
+				}
+
+				$subqueryTotal->where(NenoHelper::getWhereClauseForTableFilters($filter));
+			}
 		}
 
 		$query
@@ -781,14 +835,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 				foreach ($filters as $filter)
 				{
-					if ($filter['operator'] == 'IN')
-					{
-						$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' (' . $db->quote($filter['value']) . ')');
-					}
-					else
-					{
-						$query->where($db->quoteName($filter['field']) . ' ' . $filter['operator'] . ' ' . $db->quote($filter['value']));
-					}
+					$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
 				}
 			}
 
