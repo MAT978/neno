@@ -497,14 +497,115 @@ class NenoController extends JControllerLegacy
 		JFactory::getApplication()->close();
 	}
 
+	/**
+	 * Save external translators comment for a particular language
+	 *
+	 * @param string $language Language
+	 * @param string $comment  Translator comment
+	 *
+	 * @return bool
+	 */
+	protected function saveExternalTranslatorsCommentForLanguage($language, $comment)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query
+			->select('*')
+			->from('#__neno_language_external_translators_comments')
+			->where('language = ' . $db->quote($language));
+		$db->setQuery($query);
+
+		$languageComment = $db->loadObject();
+
+		if (empty($languageComment))
+		{
+			$languageComment           = new stdClass;
+			$languageComment->language = $language;
+		}
+
+		$languageComment->comment = $comment;
+
+		if (empty($languageComment->id))
+		{
+			$db->insertObject('#__neno_language_external_translators_comments', $languageComment, 'id');
+		}
+		else
+		{
+			$db->updateObject('#__neno_language_external_translators_comments', $languageComment, 'id');
+		}
+
+		return true;
+	}
+
+	/**
+	 * Save translators comment for a particular string
+	 *
+	 * @param int    $translationId   Translation id
+	 * @param bool   $allTranslations Saving the same comment for all the translation for the same source element
+	 * @param int    $contentId       Source element id
+	 * @param string $comment         Translator comment
+	 *
+	 * @return bool
+	 */
+	protected function saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		/* @var $translation NenoContentElementTranslation */
+		$translation = NenoContentElementTranslation::load($translationId, false, true);
+
+		$result = $translation
+			->setComment($comment)
+			->persist();
+
+		if ($allTranslations)
+		{
+			if (!empty($contentId))
+			{
+				$query
+					->update('#__neno_content_element_translations')
+					->set('comment = ' . $db->quote($comment))
+					->where(
+						array(
+							'content_id = ' . $db->quote($contentId),
+							'content_type = ' . $db->quote($translation->getContentType()),
+							'language = ' . $db->quote($translation->getLanguage())
+						)
+					);
+
+				$db->setQuery($query);
+				$db->execute();
+
+				$query->clear();
+
+				if ($translation->getContentType() == NenoContentElementTranslation::DB_STRING)
+				{
+					$query->update('#__neno_content_element_fields');
+				}
+				else
+				{
+					$query->update('#__neno_content_element_language_strings');
+				}
+
+				// Saving this comment for the future
+				$query
+					->set('comment = ' . $db->quote($comment))
+					->where('id = ' . $db->quote($contentId));
+
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+
+		return $result;
+	}
+
 	public function saveExternalTranslatorsComment()
 	{
 		$input     = $this->input;
 		$placement = $input->post->getString('placement');
 		$comment   = $input->post->getHtml('comment', '');
 		$result    = false;
-		$db        = JFactory::getDbo();
-		$query     = $db->getQuery(true);
 
 		switch ($placement)
 		{
@@ -514,86 +615,13 @@ class NenoController extends JControllerLegacy
 				break;
 			case 'language':
 				$language = $input->post->getString('language');
-
-				$query
-					->select('*')
-					->from('#__neno_language_external_translators_comments')
-					->where('language = ' . $db->quote($language));
-				$db->setQuery($query);
-
-				$languageComment = $db->loadObject();
-
-				if (empty($languageComment))
-				{
-					$languageComment           = new stdClass;
-					$languageComment->language = $language;
-				}
-
-				$languageComment->comment = $comment;
-
-				if (empty($languageComment->id))
-				{
-					$db->insertObject('#__neno_language_external_translators_comments', $languageComment, 'id');
-				}
-				else
-				{
-					$db->updateObject('#__neno_language_external_translators_comments', $languageComment, 'id');
-				}
-
-				$result = true;
+				$result   = $this->saveExternalTranslatorsCommentForLanguage($language, $comment);
 				break;
 			case 'string':
-				$translationId = $input->post->getInt('stringId');
-
-				/* @var $translation NenoContentElementTranslation */
-				$translation = NenoContentElementTranslation::load($translationId, false, true);
-
-				$result = $translation
-					->setComment($comment)
-					->persist();
-
+				$translationId   = $input->post->getInt('stringId');
 				$allTranslations = $input->post->getBool('alltranslations', false);
-
-				if ($allTranslations)
-				{
-					$contentId = $input->post->getInt('contentId');
-
-					if (!empty($contentId))
-					{
-						$query
-							->update('#__neno_content_element_translations')
-							->set('comment = ' . $db->quote($comment))
-							->where(
-								array(
-									'content_id = ' . $db->quote($contentId),
-									'content_type = ' . $db->quote($translation->getContentType()),
-									'language = ' . $db->quote($translation->getLanguage())
-								)
-							);
-
-						$db->setQuery($query);
-						$db->execute();
-
-						$query->clear();
-
-						if ($translation->getContentType() == NenoContentElementTranslation::DB_STRING)
-						{
-							$query->update('#__neno_content_element_fields');
-						}
-						else
-						{
-							$query->update('#__neno_content_element_language_strings');
-						}
-
-						// Saving this comment for the future
-						$query
-							->set('comment = ' . $db->quote($comment))
-							->where('id = ' . $db->quote($contentId));
-
-						$db->setQuery($query);
-						$db->execute();
-					}
-				}
+				$contentId       = $input->post->getInt('contentId');
+				$result          = $this->saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment);
 
 				break;
 		}
