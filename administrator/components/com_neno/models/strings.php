@@ -317,7 +317,7 @@ class NenoModelStrings extends JModelList
 		if (!empty($method) && !in_array('none', $method))
 		{
 			$dbStrings
-				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $db->quote($method)) . '")')
+				->where('tr_x_tm1.translation_method_id IN (' . implode(', ', $db->quote($method)) . ')')
 				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
 		}
 
@@ -365,6 +365,8 @@ class NenoModelStrings extends JModelList
 				)
 			)
 			->order('tr2.id');
+
+		return $languageFileStrings;
 	}
 
 	/**
@@ -445,14 +447,14 @@ class NenoModelStrings extends JModelList
 		// Hide empty strings if the user wants to do that
 		if (NenoSettings::get('hide_empty_strings', true))
 		{
-			$languageFileStrings->where('a.original_text <> ' . $db->quote(''));
+			$query->where('a.original_text <> ' . $db->quote(''));
 		}
 
 		list(, , , , , $status) = $this->getFilterByElements();
 
 		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
 		{
-			$dbStrings->where('a.state IN (' . implode(', ', $status) . ')');
+			$query->where('a.state IN (' . implode(', ', $status) . ')');
 		}
 
 		return $query;

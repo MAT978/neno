@@ -185,20 +185,22 @@ function initCodemirror() {
 		var translation_id = getTranslationId(jQuery(this));
 		var modeLeft = 'htmlmixed';
 		var modeRight = 'htmlmixed';
+		var originalTextarea = jQuery('#original-content-' + translation_id);
+		var editorTextarea = jQuery('#translated-content-' + translation_id);
 
 		// If the string is JSON, let's specify the specific mode for JSON
-		if (isJSON(jQuery('#original-content-' + translation_id).val())) {
+		if (isJSON(originalTextarea.val())) {
 			modeLeft = 'application/ld+json';
 
-			jQuery('#original-content-' + translation_id).val(prettyJSON(jQuery('#original-content-' + translation_id).val()));
+			originalTextarea.val(prettyJSON(originalTextarea.val()));
 		}
 
-        // If the string is JSON, let's specify the specific mode for JSON
-        if (isJSON(jQuery('#translated-content-' + translation_id).val())) {
-            modeRight = 'application/ld+json';
+		// If the string is JSON, let's specify the specific mode for JSON
+		if (isJSON(editorTextarea.val())) {
+			modeRight = 'application/ld+json';
 
-            jQuery('#translated-content-' + translation_id).val(prettyJSON(jQuery('#translated-content-' + translation_id).val()));
-        }
+			editorTextarea.val(prettyJSON(editorTextarea.val()));
+		}
 
 		var editor = {};
 		editor.translation_id = translation_id;
@@ -212,16 +214,17 @@ function initCodemirror() {
 			mode          : modeRight,
 			lineWrapping  : true,
 			viewportMargin: 200,
-			matchTags     : {bothTags: true}
+			matchTags     : {bothTags: true},
+			readOnly      : typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false
 		});
 
 		if (modeLeft != 'application/ld+json') {
 			formatEditor(editor.left);
 		}
 
-        if (modeRight != 'application/ld+json') {
-            formatEditor(editor.right);
-        }
+		if (modeRight != 'application/ld+json') {
+			formatEditor(editor.right);
+		}
 
 		editors[translation_id] = editor;
 
@@ -234,7 +237,13 @@ function initCodemirror() {
 		}
 
 	});
+}
 
+function toggleSavingButtons(state) {
+	jQuery('#copy-btn').attr('disabled', !state);
+	jQuery('#translate-btn').attr('disabled', !state);
+	jQuery('#draft-button').attr('disabled', !state);
+	jQuery('#save-next-button').attr('disabled', !state);
 }
 
 function isJSON(string) {
@@ -312,20 +321,20 @@ function addExtensions() {
 
 // Keeps left editor in same scroll position as right one
 function mirrorscroll(cm) {
-    
-    var translation_id = getTranslationId(jQuery(cm.getTextArea()));
-    
-    // If the left mirror has been hovered then disable mirror scroll for that element
-    // We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
-    jQuery('.main-translation-div[data-translation-id="'+translation_id+'"] .lefteditor-wrapper .CodeMirror').on('mouseover', function(){
-        editors[translation_id].left.disableMirrorScroll = true;
-    });
-    
-    // Set the left scroll to be the same as the right
-    if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
-        var scrollinfo = cm.getScrollInfo();
-        editors[translation_id].left.scrollTo(null, scrollinfo.top);
-    }
+
+	var translation_id = getTranslationId(jQuery(cm.getTextArea()));
+
+	// If the left mirror has been hovered then disable mirror scroll for that element
+	// We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
+	jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .lefteditor-wrapper .CodeMirror').on('mouseover', function () {
+		editors[translation_id].left.disableMirrorScroll = true;
+	});
+
+	// Set the left scroll to be the same as the right
+	if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
+		var scrollinfo = cm.getScrollInfo();
+		editors[translation_id].left.scrollTo(null, scrollinfo.top);
+	}
 
 }
 
@@ -394,10 +403,10 @@ function loadNextTranslation() {
 	var afterNextString = nextString.next('div').next('div');
 	if (nextString.length && !nextString.hasClass('no-results')) {
 		loadTranslation(nextString.data('id'));
-        if (!afterNextString.length) {
-            loadStrings();
-        }
-    }
+		if (!afterNextString.length) {
+			loadStrings();
+		}
+	}
 }
 
 /**
@@ -847,7 +856,7 @@ function hasEditorContentChanged() {
 
 // Bind click event in order to load translations
 function bindStringsTranslationsLoading() {
-    jQuery('.string').unbind('click').bind('click', function () {
-        loadTranslation(jQuery(this).data('id'));
-    });
+	jQuery('.string').unbind('click').bind('click', function () {
+		loadTranslation(jQuery(this).data('id'));
+	});
 }

@@ -141,6 +141,16 @@ class NenoContentElementTranslation extends NenoContentElement
 	protected $comment;
 
 	/**
+	 * @var int
+	 */
+	protected $checkedOut;
+
+	/**
+	 * @var DateTime
+	 */
+	protected $checkedOutTime;
+
+	/**
 	 * @var array
 	 */
 	public $related;
@@ -1471,5 +1481,121 @@ class NenoContentElementTranslation extends NenoContentElement
 		}
 
 		return $query;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getCheckedOutTime()
+	{
+		return $this->checkedOutTime;
+	}
+
+	/**
+	 * @param DateTime $checkedOutTime
+	 *
+	 * @return NenoContentElementTranslation
+	 */
+	public function setCheckedOutTime($checkedOutTime)
+	{
+		$this->checkedOutTime = $checkedOutTime;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCheckedOut()
+	{
+		return $this->checkedOut;
+	}
+
+	/**
+	 * @param int $checkedOut
+	 *
+	 * @return NenoContentElementTranslation
+	 */
+	public function setCheckedOut($checkedOut)
+	{
+		$this->checkedOut = $checkedOut;
+
+		return $this;
+	}
+
+	/**
+	 * Make this translation available
+	 *
+	 * @return $this
+	 */
+	public function checkIn()
+	{
+		$this->checkedOut     = 0;
+		$this->checkedOutTime = '0000-00-00 00:00:00';
+
+		// Save this values into the database
+		$this->persist();
+
+		return $this;
+	}
+
+	/**
+	 * Block this translation for further edition for other users
+	 *
+	 * @return $this
+	 */
+	public function checkOut()
+	{
+		// Only checked out this element if it hasn't been checked out before
+		if ($this->checkedOut == 0)
+		{
+			$this->checkedOut     = JFactory::getUser()->id;
+			$this->checkedOutTime = new DateTime;
+
+			$this->persist();
+		}
+
+		return $this;
+	}
+
+	/**
+	 * This method checks in all the translation blocked by a user.
+	 *
+	 * @param null|JUser $user
+	 *
+	 * @return void
+	 */
+	public static function checkInTranslations($user = null)
+	{
+		if ($user === null)
+		{
+			$user = JFactory::getUser();
+		}
+
+		$translations = NenoContentElementTranslation::load(array( 'checked_out' => $user->id ));
+
+		if (!is_array($translations))
+		{
+			$translations = array( $translations );
+		}
+
+		if (!empty($translations))
+		{
+			/* @var $translation NenoContentElementTranslation */
+			foreach ($translations as $translation)
+			{
+				$translation->checkIn();
+			}
+		}
+	}
+
+	/**
+	 * Checks whether or not a translation can be saved
+	 *
+	 * @return bool
+	 */
+	public function canBeSaved()
+	{
+		return $this->checkedOut == 0 || $this->checkedOut == JFactory::getUser();
 	}
 }

@@ -153,6 +153,13 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		JFactory::getApplication()->close();
 	}
 
+	/**
+	 * Load table filter layout
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
 	public function getTableFilterModalLayout()
 	{
 		$app     = JFactory::getApplication();
@@ -368,6 +375,13 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$app->close();
 	}
 
+	/**
+	 * Scan for content task
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
 	public function scanForContent()
 	{
 		$input = $this->input;
