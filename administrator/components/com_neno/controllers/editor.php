@@ -76,6 +76,12 @@ class NenoControllerEditor extends NenoControllerStrings
 		{
 			$translation = NenoContentElementTranslation::getTranslation($translationId, true);
 
+			// Check in translation first
+			NenoContentElementTranslation::checkInTranslations();
+
+			// Check out current translation
+			$translation->checkOut();
+
 			echo JLayoutHelper::render('editor', $translation->prepareDataForView(true), JPATH_NENO_LAYOUTS);
 
 			//Show related
@@ -172,7 +178,15 @@ class NenoControllerEditor extends NenoControllerStrings
 			$translation->setTimeCompleted(new DateTime);
 		}
 
-		$result = $translation->persist();
+		// Check if the translation can be saved
+		if ($translation->canBeSaved())
+		{
+			$result = $translation->persist();
+		}
+		else
+		{
+			$result = false;
+		}
 
 		return $result;
 	}
@@ -220,9 +234,12 @@ class NenoControllerEditor extends NenoControllerStrings
 					if ($counter != 0)
 					{
 						$message['translation_id'] = $string->translation_id;
-						$message['message']        = '<div><input type="checkbox" class="consolidate-checkbox" value="' . $string->translation_id . '" checked="checked"> '
-						                             . JText::sprintf('COM_NENO_EDITOR_CONSOLIDATE_MESSAGE', $counter, NenoHelper::html2text($originalText, 200), NenoHelper::html2text($string->text, 200))
-						                             . '</div>';
+						$message['message']        = JLayoutHelper::render('consolidatelayout', array(
+							'translationId' => $string->translation_id,
+							'counter'       => $counter,
+							'originalText'  => $originalText,
+							'text'          => $string->text
+						), JPATH_NENO_LAYOUTS);
 						$message['counter']        = $counter;
 					}
 
