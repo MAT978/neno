@@ -1588,4 +1588,14 @@ class NenoContentElementTranslation extends NenoContentElement
 			}
 		}
 	}
+
+	/**
+	 * Checks whether or not a translation can be saved
+	 *
+	 * @return bool
+	 */
+	public function canBeSaved()
+	{
+		return $this->checkedOut == 0 || $this->checkedOut == JFactory::getUser();
+	}
 }
