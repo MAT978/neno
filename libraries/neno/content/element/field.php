@@ -271,14 +271,12 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function checkTranslatableStatusFromContentElementFile()
 	{
-		$filePath = JPATH_NENO_CONTENT_FILES . str_replace('#__', '', $this->getTable()->getTableName()) . '_contentelements.xml';
+		$filePath = NenoHelperFile::getContentElementFilePathBasedOnTableName($this->getTable()->getTableName());
 
 		// If the file exists, let's check what is there
 		if (file_exists($filePath))
 		{
-			$xml             = simplexml_load_file($filePath);
-			$translate       = $xml->xpath('/neno/reference/table/field[@name=\'' . $this->fieldName . '\']/@translate');
-			$this->translate = $translate[0]['translate'] == 1;
+			$this->translate = NenoHelper::getFieldAttributeFromContentElementFile($filePath, $this->fieldName, 'translate') == 1;
 		}
 	}
 
@@ -624,7 +622,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
 	{
 		$this->persistProgressCounters();
-		
+
 		if ($string['state'] == 1 || ($string['state'] == 0 && NenoSettings::get('copy_unpublished', 1)) || ($string['state'] == -2 && NenoSettings::get('copy_trashed', 0)))
 		{
 			foreach ($languages as $language)

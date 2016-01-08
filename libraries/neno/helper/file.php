@@ -162,4 +162,16 @@ class NenoHelperFile
 
 		return false;
 	}
+
+	/**
+	 * Gets content element file path based on table name
+	 *
+	 * @param string $tableName Table name
+	 *
+	 * @return string
+	 */
+	public static function getContentElementFilePathBasedOnTableName($tableName)
+	{
+		return JPATH_NENO_CONTENT_FILES . str_replace('#__', '', $tableName) . '_contentelements.xml';
+	}
 }

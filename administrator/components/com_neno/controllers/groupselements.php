@@ -167,15 +167,24 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				->select(
 					array(
 						'id AS value',
-						'field_name AS text'
+						'field_name AS text',
+						'table_name'
 					)
 				)
-				->from('#__neno_content_element_fields')
+				->from('#__neno_content_element_fields AS f')
+				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
 				->where('table_id = ' . (int) $tableId)
 				->order('id ASC');
 
 			$db->setQuery($query);
 			$fields = $db->loadObjectList();
+
+			foreach ($fields as $key => $field)
+			{
+				$contentElementFilePath = NenoHelperFile::getContentElementFilePathBasedOnTableName($field->table_name);
+				$filterField            = NenoHelper::getFieldAttributeFromContentElementFile($contentElementFilePath, $field->text, 'filter');
+				$extraAttributes        = $this->getFilterAttributesBasedOnFilterType($contentElementFilePath, $field->text, $filterField);
+			}
 
 			$displayData                  = new stdClass;
 			$displayData->fields          = $fields;
@@ -202,6 +211,20 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		}
 
 		$app->close();
+	}
+
+	protected static function getFilterAttributesBasedOnFilterType($contentElementFilePath, $fieldName, $filterType)
+	{
+		$attributes = array();
+		switch ($filterType)
+		{
+			case 'sql':
+				$attributes['query'] = NenoHelper::getFieldAttributeFromContentElementFile($contentElementFilePath, $fieldName, 'query');
+
+				break;
+		}
+
+		return $attributes;
 	}
 
 	/**
@@ -453,8 +476,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$this->executeMethodOnTranslationListPassedByInput('moveTranslationToTarget');
 	}
 
-	protected function executeMethodOnTranslationListPassedByInput($method)
-	{
+	protected function executeMethodOnTranslationListPassedByInput(
+		$method
+	){
 		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
 
 		foreach ($translationIds as $translationId)
