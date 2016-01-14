@@ -66,7 +66,7 @@ class NenoDatabaseQueryMysqlx extends CommonQuery
 	public function updateJoin($tableDestination, $tableSource)
 	{
 		$this->type   = 'update';
-		$this->insert = new JDatabaseQueryElement('UPDATE ' . $tableDestination . ' JOIN', $tableSource);
+		$this->update = new JDatabaseQueryElement('UPDATE ' . $tableDestination . ' JOIN', $tableSource);
 
 		return $this;
 	}
