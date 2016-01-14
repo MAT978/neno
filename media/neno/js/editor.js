@@ -239,11 +239,11 @@ function initCodemirror() {
 	});
 }
 
-function toggleSavingButtons(state) {
-	jQuery('#copy-btn').attr('disabled', !state);
-	jQuery('#translate-btn').attr('disabled', !state);
-	jQuery('#draft-button').attr('disabled', !state);
-	jQuery('#save-next-button').attr('disabled', !state);
+function toggleSavingButtons(disabled) {
+	jQuery('#copy-btn').attr('disabled', disabled ? true : false);
+	jQuery('#translate-btn').attr('disabled', disabled  ? true : false);
+	jQuery('#draft-button').attr('disabled', disabled  ? true : false);
+	jQuery('#save-next-button').attr('disabled', disabled  ? true : false);
 }
 
 function isJSON(string) {

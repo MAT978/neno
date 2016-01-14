@@ -33,7 +33,7 @@ $isLockedUp = $translation->checked_out != $user->id;
 <?php endif; ?>
 
 <script>
-	toggleSavingButtons(<?php echo !$isLockedUp; ?>);
+	toggleSavingButtons(<?php echo $isLockedUp; ?>);
 </script>
 
 <div class="main-translation-div" data-translation-id="<?php echo $translation->id; ?>" data-content-id="<?php echo $translation->content_id; ?>">

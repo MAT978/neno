@@ -93,8 +93,12 @@ class NenoControllerEditor extends NenoControllerStrings
 
 				if ($loadRelatedContent)
 				{
+					/* @var $related NenoContentElementTranslation */
 					foreach ($translation->related as $related)
 					{
+						// Check out current translation
+						$related->checkOut();
+
 						echo JLayoutHelper::render('editor', $related->prepareDataForView(true), JPATH_NENO_LAYOUTS);
 					}
 				}
