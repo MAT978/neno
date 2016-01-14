@@ -719,11 +719,40 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db = JFactory::getDbo();
 
-		$fieldNames = array_keys($db->getTableColumns($this->tableName));
+		$fieldsData = $db->getTableColumns($this->tableName);
+		$fieldNames = array_keys($fieldsData);
 
 		$query = $db->getQuery(true);
 
+		// Check if any fields have been added
 		$query
+			->select('field_name')
+			->from('#__neno_content_element_fields')
+			->where('table_id = ' . (int) $this->id);
+
+		$db->setQuery($query);
+		$existingFieldsDiscovered = $db->loadColumn();
+
+		$fieldsNotDiscovered = array_diff($fieldNames, $existingFieldsDiscovered);
+
+		if (!empty($fieldsNotDiscovered))
+		{
+			foreach ($fieldsNotDiscovered as $fieldNotDiscovered)
+			{
+				$field = NenoHelperBackend::createFieldInstance($fieldNotDiscovered, $fieldsData[ $fieldNotDiscovered ], $this);
+
+				// If this field has been saved on the database correctly, let's persist its content
+				if ($field->persist())
+				{
+					$field->persistTranslations();
+				}
+			}
+
+		}
+
+		// Check if any fields have been removed
+		$query
+			->clear()
 			->select('id')
 			->from('#__neno_content_element_fields')
 			->where(

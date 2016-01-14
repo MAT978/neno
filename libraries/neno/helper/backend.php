@@ -278,18 +278,34 @@ class NenoHelperBackend
 	{
 		foreach ($fields as $fieldName => $fieldType)
 		{
-			$fieldData = array(
-				'fieldName' => $fieldName,
-				'fieldType' => $fieldType,
-				'translate' => NenoContentElementField::isTranslatableType($fieldType),
-				'table'     => $table
-			);
-
-			$field = new NenoContentElementField($fieldData);
+			$field = self::createFieldInstance($fieldName, $fieldType, $table);
 			$table->addField($field);
 		}
 
 		return $table;
+	}
+
+	/**
+	 * This method creates an instance of NenoContentElementField class based on field name and type
+	 *
+	 * @param string                  $fieldName Field name
+	 * @param string                  $fieldType Field type
+	 * @param NenoContentElementTable $table     Table
+	 *
+	 * @return NenoContentElementField
+	 */
+	public static function createFieldInstance($fieldName, $fieldType, $table)
+	{
+		$fieldData = array(
+			'fieldName' => $fieldName,
+			'fieldType' => $fieldType,
+			'translate' => NenoContentElementField::isTranslatableType($fieldType),
+			'table'     => $table
+		);
+
+		$field = new NenoContentElementField($fieldData);
+
+		return $field;
 	}
 
 	/**
