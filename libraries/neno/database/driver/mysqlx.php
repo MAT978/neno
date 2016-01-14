@@ -124,7 +124,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @param   bool $new If the query should be new
 	 *
-	 * @return NenoDatabaseQueryMysqli|JDatabaseQuery
+	 * @return NenoDatabaseQueryMysqlx|JDatabaseQuery
 	 */
 	public function getQuery($new = false)
 	{
@@ -1002,7 +1002,10 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				{
 					foreach ($diff['add'] as $field)
 					{
-						$this->addColumn($shadowTableName, $field->Field, $this->generateColumnType($field));
+						if ($this->addColumn($shadowTableName, $field->Field, $this->generateColumnType($field)))
+						{
+							$this->copyColumnContent($tableName, $shadowTableName, $field->Field);
+						}
 					}
 				}
 
@@ -1092,12 +1095,55 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @return bool
 	 */
-	public function addColumn($tableName, $columnName, $columnType)
+	protected function addColumn($tableName, $columnName, $columnType)
 	{
 		$sql = JText::sprintf('ALTER TABLE %s ADD %s %s', $this->quoteName($tableName), $this->quoteName($columnName), $columnType);
 		$this->setQuery($sql);
 
 		return $this->execute() !== false;
+	}
+
+	/**
+	 * This method copy a particular column content from a table to another.
+	 *
+	 * @param string $sourceTable      Source table name
+	 * @param string $destinationTable Destination table name
+	 * @param string $columnName       Column name
+	 *
+	 * @return bool
+	 */
+	protected function copyColumnContent($sourceTable, $destinationTable, $columnName)
+	{
+		$query = $this->getQuery(true);
+		$query
+			->updateJoin($this->quoteName($destinationTable), $this->quoteName($sourceTable))
+			->set(
+				$this->generateTableColumnName($destinationTable, $columnName) . ' = ' . $this->generateTableColumnName($sourceTable, $columnName)
+			);
+
+		$primaryKeyFields = $this->getPrimaryKey($sourceTable);
+
+		foreach ($primaryKeyFields as $primaryKeyField)
+		{
+			$query->where($this->generateTableColumnName($destinationTable, $primaryKeyField) . ' = ' . $this->generateTableColumnName($sourceTable, $primaryKeyField));
+		}
+
+		$this->setQuery($query);
+
+		return $this->execute() !== false;
+	}
+
+	/**
+	 * This method creates the concatenation between table name and column name
+	 *
+	 * @param string $tableName  Table name
+	 * @param string $columnName Column name
+	 *
+	 * @return string
+	 */
+	protected function generateTableColumnName($tableName, $columnName)
+	{
+		return $this->quoteName($tableName) . '.' . $this->quoteName($columnName);
 	}
 
 	/**

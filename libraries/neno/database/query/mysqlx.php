@@ -45,12 +45,28 @@ class NenoDatabaseQueryMysqlx extends CommonQuery
 	 *
 	 * @param   string $table Table name
 	 *
-	 * @return NenoDatabaseQueryMysqli
+	 * @return NenoDatabaseQueryMysqlx
 	 */
 	public function replace($table)
 	{
 		$this->type   = 'insert';
 		$this->insert = new JDatabaseQueryElement('REPLACE INTO', $table);
+
+		return $this;
+	}
+
+	/**
+	 * Create Update join statement
+	 *
+	 * @param string $tableDestination Destination table
+	 * @param string $tableSource      Source table
+	 *
+	 * @return $this
+	 */
+	public function updateJoin($tableDestination, $tableSource)
+	{
+		$this->type   = 'update';
+		$this->insert = new JDatabaseQueryElement('UPDATE ' . $tableDestination . ' JOIN', $tableSource);
 
 		return $this;
 	}
