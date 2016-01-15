@@ -1263,63 +1263,66 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	public function moveTranslationToTarget()
 	{
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		// If the translation comes from database content, let's load it
-		if ($this->contentType == self::DB_STRING)
+		if ($this->element instanceof NenoContentElement)
 		{
-			// Ensure data integrity
-			$this->string = NenoHelperData::ensureDataIntegrity($this->element->id, $this->string, $this->language);
-			$query        = $this->generateSqlStatement('update', $this->string, true, $this->language);
+			/* @var $db NenoDatabaseDriverMysqlx */
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
 
-			$db->setQuery($query);
-			$db->execute();
-
-			return true;
-		}
-		else
-		{
-			$query
-				->select(
-					array(
-						'REPLACE(lf.filename, lf.language, ' . $db->quote($this->language) . ') AS filename',
-						'lf.filename as originalFilename',
-						'ls.constant'
-					)
-				)
-				->from('#__neno_content_element_translations AS tr')
-				->innerJoin('#__neno_content_element_language_strings AS ls ON ls.id = tr.content_id')
-				->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
-				->where('tr.id = ' . (int) $this->id);
-
-			$db->setQuery($query);
-			$translationData = $db->loadAssoc();
-
-			$existingStrings = array();
-
-			if (!empty($translationData))
+			// If the translation comes from database content, let's load it
+			if ($this->contentType == self::DB_STRING)
 			{
-				$filePath = JPATH_ROOT . "/language/" . $this->language . '/' . $translationData['filename'];
+				// Ensure data integrity
+				$this->string = NenoHelperData::ensureDataIntegrity($this->element->id, $this->string, $this->language);
+				$query        = $this->generateSqlStatement('update', $this->string, true, $this->language);
 
-				if (file_exists($filePath))
-				{
-					$existingStrings = NenoHelperFile::readLanguageFile($filePath);
-				}
-				else
-				{
-					$defaultLanguage = NenoSettings::get('source_language');
+				$db->setQuery($query);
+				$db->execute();
 
-					if (file_exists(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']))
+				return true;
+			}
+			else
+			{
+				$query
+					->select(
+						array(
+							'REPLACE(lf.filename, lf.language, ' . $db->quote($this->language) . ') AS filename',
+							'lf.filename as originalFilename',
+							'ls.constant'
+						)
+					)
+					->from('#__neno_content_element_translations AS tr')
+					->innerJoin('#__neno_content_element_language_strings AS ls ON ls.id = tr.content_id')
+					->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
+					->where('tr.id = ' . (int) $this->id);
+
+				$db->setQuery($query);
+				$translationData = $db->loadAssoc();
+
+				$existingStrings = array();
+
+				if (!empty($translationData))
+				{
+					$filePath = JPATH_ROOT . "/language/" . $this->language . '/' . $translationData['filename'];
+
+					if (file_exists($filePath))
 					{
-						$existingStrings = NenoHelperFile::readLanguageFile(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']);
+						$existingStrings = NenoHelperFile::readLanguageFile($filePath);
 					}
+					else
+					{
+						$defaultLanguage = NenoSettings::get('source_language');
+
+						if (file_exists(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']))
+						{
+							$existingStrings = NenoHelperFile::readLanguageFile(JPATH_ROOT . "/language/$defaultLanguage/" . $translationData['originalFilename']);
+						}
+					}
+
+					$existingStrings[ $translationData['constant'] ] = $this->string;
+
+					NenoHelperFile::saveIniFile($filePath, $existingStrings);
 				}
-
-				$existingStrings[ $translationData['constant'] ] = $this->string;
-
-				NenoHelperFile::saveIniFile($filePath, $existingStrings);
 			}
 		}
 
