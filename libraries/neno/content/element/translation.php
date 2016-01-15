@@ -1572,7 +1572,7 @@ class NenoContentElementTranslation extends NenoContentElement
 			$user = JFactory::getUser();
 		}
 
-		$translations = NenoContentElementTranslation::load(array( 'checked_out' => $user->id ));
+		$translations = NenoContentElementTranslation::load(array( 'checked_out' => $user->id ), true, true);
 
 		if (!is_array($translations))
 		{
