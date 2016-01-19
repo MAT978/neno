@@ -1599,6 +1599,6 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	public function canBeSaved()
 	{
-		return $this->checkedOut == 0 || $this->checkedOut == JFactory::getUser();
+		return $this->checkedOut == 0 || $this->checkedOut == JFactory::getUser()->id;
 	}
 }
