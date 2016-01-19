@@ -948,4 +948,58 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 		return $db->loadObjectList();
 	}
+
+	/**
+	 * This method will consolidate translations method the translations.
+	 *
+	 * @return void
+	 */
+	public function consolidateTranslateMethodsForTranslations()
+	{
+		$db               = JFactory::getDbo();
+		$translationQuery = $db->getQuery(true);
+		$workingLanguage  = NenoHelper::getWorkingLanguage();
+
+		$translationQuery
+			->select('tr.id')
+			->from('#__neno_content_element_translations as tr')
+			->innerJoin('#__neno_content_element_fields as f ON f.id = tr.content_id')
+			->where(
+				array(
+					'f.table_id = ' . $db->quote($this->id),
+					'tr.content_type = ' . $db->quote(NenoContentElementTranslation::DB_STRING),
+					'tr.language = ' . $db->quote($workingLanguage)
+				)
+			);
+
+		$deleteQuery = $db->getQuery(true);
+
+		$deleteQuery
+			->clear()
+			->delete('#__neno_content_element_translation_x_translation_methods')
+			->where('translation_id IN (' . (string) $translationQuery . ')');
+
+		$db->setQuery($deleteQuery);
+
+		// If everything has been executed properly, let's insert new translation methods
+		if ($db->execute() !== false)
+		{
+			$translationQuery
+				->select(
+					array(
+						'gtm.translation_method_id',
+						'gtm.ordering'
+					)
+				)
+				->innerJoin('#__neno_content_element_tables as t ON t.id = f.table_id')
+				->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
+				->leftJoin('#__neno_content_element_groups_x_translation_methods AS gtm ON gtm.group_id = g.id')
+				->where('gtm.lang = ' . $db->quote($workingLanguage));
+
+			$insertQuery = 'INSERT INTO #__neno_content_element_translation_x_translation_methods (translation_id, translation_method_id, ordering) ' . (string) $translationQuery;
+
+			$db->setQuery($insertQuery);
+			$db->execute();
+		}
+	}
 }
