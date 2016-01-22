@@ -611,42 +611,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translations AS tr')
-			->innerJoin('#__neno_content_element_fields AS f ON tr.content_id = f.id')
-			->innerJoin('#__neno_content_element_tables AS t ON t.id = f.table_id')
-			->where(
-				array(
-					'tr.state = ' . $db->quote(NenoContentElementTranslation::TRANSLATED_STATE),
-					'tr.language = ' . $db->quote($workingLanguage)
-				)
-			);
-
-		if (!empty($groups))
-		{
-			$query
-				->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
-				->where('g.id IN (' . implode(',', $db->quote($groups)) . ')');
-		}
-		elseif (!empty($tables) || !empty($files))
-		{
-			$where = array();
-
-			if (!empty($tables))
-			{
-				$where[] = '(t.id IN (' . implode(',', $db->quote($tables)) . ') AND tr.content_type = ' . $db->quote(NenoContentElementTranslation::DB_STRING) . ')';
-			}
-
-			if (!empty($files))
-			{
-				$where[] = '(t.id IN (' . implode(',', $db->quote($tables)) . ') AND tr.content_type = ' . $db->quote(NenoContentElementTranslation::LANG_STRING) . ')';
-			}
-
-			$query->where('(' . implode(' OR ', $where) . ')');
-		}
+		$query = NenoContentElementTranslation::buildTranslationQuery($workingLanguage, $groups, $tables, null, $files);
 
 		$db->setQuery($query);
 		$translationIds = $db->loadArray();
