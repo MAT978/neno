@@ -1549,8 +1549,8 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	public function checkOut()
 	{
-		// Only checked out this element if it hasn't been checked out before
-		if ($this->checkedOut == 0)
+		// Only checked out this element if it hasn't been checked out before or 8 hours have been passed since it was blocked.
+		if ($this->checkedOut == 0 || NenoHelperBackend::dateDiffHours($this->checkedOutTime, new DateTime) >= 8)
 		{
 			$this->checkedOut     = JFactory::getUser()->id;
 			$this->checkedOutTime = new DateTime;

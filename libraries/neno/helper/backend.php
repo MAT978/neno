@@ -1158,4 +1158,41 @@ class NenoHelperBackend
 
 		return $groups;
 	}
+
+	/**
+	 * Calculate the number of hours between two dates
+	 *
+	 * @param string|DateTime $datetimeOne Datetime one
+	 * @param string|DateTime $datetimeTwo Datetime one
+	 *
+	 * @return int
+	 */
+	public static function dateDiffHours($datetimeOne, $datetimeTwo)
+	{
+		if (!($datetimeOne instanceof DateTime))
+		{
+			$datetimeOne = static::convertString2Datetime($datetimeOne);
+		}
+
+		if (!($datetimeTwo instanceof DateTime))
+		{
+			$datetimeTwo = static::convertString2Datetime($datetimeOne);
+		}
+
+		$dateDiff = date_diff($datetimeOne, $datetimeTwo, true);
+
+		return $dateDiff->h + ($dateDiff->d * 24) + ($dateDiff->m * 30 * 24) + ($dateDiff->y * 12 * 30 * 24);
+	}
+
+	/**
+	 * Convert a date on string format into a Datetime object
+	 *
+	 * @param string $stringDateTime Date
+	 *
+	 * @return DateTime
+	 */
+	protected static function convertString2Datetime($stringDateTime)
+	{
+		return new DateTime($stringDateTime);
+	}
 }
