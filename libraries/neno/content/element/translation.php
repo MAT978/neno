@@ -1810,7 +1810,7 @@ class NenoContentElementTranslation extends NenoContentElement
 			$languageFileStrings->where('lf.id = 0');
 		}
 
-		if (!empty($method) && !in_array('none', $translationMethods))
+		if (!empty($translationMethods) && !in_array('none', $translationMethods))
 		{
 			$languageFileStrings
 				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $translationMethods) . '")')
