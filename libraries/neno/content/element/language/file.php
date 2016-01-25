@@ -238,7 +238,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 			}
 			else
 			{
-				$this->languageStrings = NenoContentElementLanguageString::load(array( 'languagefile_id' => $this->id ));
+				$this->languageStrings = NenoContentElementLanguageString::load(array( 'languagefile_id' => $this->id ), true, true);
 			}
 
 		}
