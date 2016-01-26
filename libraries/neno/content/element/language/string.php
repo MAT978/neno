@@ -356,6 +356,11 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	 */
 	public function persistTranslations($language = null)
 	{
+		if ($this->isNew())
+		{
+			$this->persist();
+		}
+
 		if ($this->getLanguageFile()->isTranslate())
 		{
 			// If it doesn't have translations
