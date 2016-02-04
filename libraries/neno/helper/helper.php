@@ -661,6 +661,13 @@ class NenoHelper
 			}
 		}
 
+		// If there's no results, let's get the tables that already belongs to this group
+		if (empty($result))
+		{
+			$result = NenoContentElementTable::load(array( 'group_id' => $group->getId() ));
+		}
+
+
 		return $result;
 	}
 
