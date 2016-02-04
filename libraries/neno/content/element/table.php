@@ -855,7 +855,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			->where(
 				array(
 					't.content_type = ' . $db->quote('db_string'),
-					'EXISTS (SELECT 1 FROM #__neno_content_element_fields AS f ON t.content_id = f.id WHERE f.table_id = ' . (int) $this->id . ')'
+					'EXISTS (SELECT 1 FROM #__neno_content_element_fields AS f WHERE t.content_id = f.id AND f.table_id = ' . (int) $this->id . ')'
 				)
 			);
 
@@ -875,10 +875,10 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
+				$sqlQuery->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 
-			$db->setQuery($query);
+			$db->setQuery($sqlQuery);
 			$result = $db->loadResult();
 
 			// If the translation does not meet this requirements, let's delete it
