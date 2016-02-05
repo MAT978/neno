@@ -236,6 +236,7 @@ function initCodemirror() {
 			editor.right.setSize(null, 350);
 		}
 
+		editor.right.markClean();
 	});
 }
 
@@ -845,6 +846,7 @@ function hasEditorContentChanged() {
 		return false;
 	}
 	jQuery.each(editors, function (translation_id, editor) {
+
 		if (editor.right.isClean() === false) {
 			contentHasChanged = true;
 			return false;
