@@ -460,7 +460,7 @@ function showConsolidationModal(messages) {
 					jQuery('#consolidate-modal').modal('hide');
 
 					// And show the confirmation modal
-					jQuery('#consolidate-confirm-modal').modal('show');
+					jQuery('#consolidate-confirm-modal').modal('show', {keyboard: true});
 
 					jQuery('#consolidate-confirm-modal').on('shown.bs.modal', function () {
 						jQuery('#consolidate-button-close').focus();
@@ -472,7 +472,7 @@ function showConsolidationModal(messages) {
 	});
 
 	// Show the modal and focus button
-	jQuery('#consolidate-modal').modal('show');
+	jQuery('#consolidate-modal').modal('show', {keyboard: true});
 	jQuery('#consolidate-modal').on('shown.bs.modal', function () {
 		jQuery('#consolidate-button').focus();
 	});
