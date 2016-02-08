@@ -3749,6 +3749,6 @@ class NenoHelper
 	 */
 	public static function convertEuroToTranslationCredit($euroPrice)
 	{
-		return number_format(ceil($euroPrice * 0.0005), 2, ',', '.');
+		return number_format(ceil($euroPrice / 0.0005), 2, ',', '.');
 	}
 }

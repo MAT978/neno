@@ -107,6 +107,24 @@ if (!empty($this->extraSidebar))
 				});
 			});
 
+			jQuery('.quote-button').off('click').on('click', function () {
+				var button = jQuery(this);
+				jQuery.ajax({
+					type   : "POST",
+					url    : 'index.php?option=com_neno&task=externaltranslations.getQuote',
+					data   : {
+						target_language : button.data('language'),
+						translation_type: button.data('type'),
+						words           : button.data('words')
+					},
+					success: function (data) {
+						var jsonData = JSON.parse(data);
+						jQuery('#' + button.data('type') + '-' + button.data('language') + '-tc').text(jsonData.tc);
+						jQuery('#' + button.data('type') + '-' + button.data('language') + '-eur').text(jsonData.price);
+					}
+				});
+			});
+
 			if (window.location.search.toLowerCase().indexOf("open=comment") >= 0) {
 				jQuery('#addCommentForTranslators').modal('show');
 			}
@@ -154,15 +172,26 @@ if (!empty($this->extraSidebar))
 									</div>
 									<div class="span3">
 										<?php $machinePriceTc = number_format(ceil($item->words * 0.0005), 2, ',', '.'); ?>
-										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?> <?php echo $machinePriceTc; ?>
-										TC (€ <?php echo $machinePriceTc; ?>)
+										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?>
+										<span id="machine-<?php echo $item->language; ?>-tc"><?php echo $machinePriceTc; ?></span>
+										TC (€
+										<span id="machine-<?php echo $item->language; ?>-eur"><?php echo $machinePriceTc; ?></span>)
 									</div>
 									<div class="span3">
-										<button type="button" class="btn order-button"
-											data-type="<?php echo $item->translation_method_id; ?>"
-											data-language="<?php echo $item->language; ?>">
-											<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_ORDER_NOW'); ?>
-										</button>
+										<div class="btn-group">
+											<button type="button" class="btn order-button"
+												data-type="<?php echo $item->translation_method_id; ?>"
+												data-language="<?php echo $item->language; ?>">
+												<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_ORDER_NOW'); ?>
+											</button>
+											<button type="button" class="btn quote-button"
+												data-type="<?php echo $item->translation_method_id; ?>"
+												data-language="<?php echo $item->language; ?>"
+												data-words="<?php echo $item->words; ?>"
+											>
+												<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_GET_QUOTE'); ?>
+											</button>
+										</div>
 									</div>
 								</div>
 								<?php unset($this->items[ $key ]); ?>
@@ -226,16 +255,26 @@ if (!empty($this->extraSidebar))
 									<div class="span3">
 										<?php $proPriceTc = $item->words * 200; ?>
 										<?php $proPriceEur = number_format(ceil($item->words * 200 * 0.0005), 2, ',', '.'); ?>
-										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?> <?php echo $proPriceTc; ?>
-										TC (€ <?php echo $proPriceEur; ?>)
+										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?>
+										<span id="professional-<?php echo $item->language; ?>-tc"><?php echo $proPriceTc; ?></span>
+										TC (€
+										<span id="professional-<?php echo $item->language; ?>-eur"><?php echo $proPriceEur; ?></span>)
 									</div>
 									<div class="span3">
-										<button type="button" class="btn order-button"
-											data-type="<?php echo $item->translation_method_id; ?>"
-											data-language="<?php echo $item->language; ?>"
-										>
-											<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_ORDER_NOW'); ?>
-										</button>
+										<div class="btn-group">
+											<button type="button" class="btn order-button"
+												data-type="<?php echo $item->translation_method_id; ?>"
+												data-language="<?php echo $item->language; ?>">
+												<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_ORDER_NOW'); ?>
+											</button>
+											<button type="button" class="btn quote-button"
+												data-type="professional"
+												data-language="<?php echo $item->language; ?>"
+												data-words="<?php echo $item->words; ?>"
+											>
+												<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_GET_QUOTE'); ?>
+											</button>
+										</div>
 									</div>
 								</div>
 							<?php endif; ?>

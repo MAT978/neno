@@ -105,7 +105,7 @@ class NenoHelperApi
 	}
 
 	/**
-	 * Instanciate http client using Singleton approach
+	 * Instantiate http client using Singleton approach
 	 *
 	 * @return void
 	 */
@@ -160,6 +160,6 @@ class NenoHelperApi
 
 		list(, $response) = NenoHelperApi::makeApiCall('quote', 'POST', $data);
 
-		return NenoHelper::convertEuroToTranslationCredit($response['response']);
+		return array( NenoHelper::convertEuroToTranslationCredit($response['response']), $response['response'] );
 	}
 }
