@@ -667,7 +667,6 @@ class NenoHelper
 			$result = NenoContentElementTable::load(array( 'group_id' => $group->getId() ));
 		}
 
-
 		return $result;
 	}
 
@@ -3739,5 +3738,17 @@ class NenoHelper
 		}
 
 		return $whereClause;
+	}
+
+	/**
+	 * Converts euro price in translation credits
+	 *
+	 * @param float $euroPrice Euro price
+	 *
+	 * @return float
+	 */
+	public static function convertEuroToTranslationCredit($euroPrice)
+	{
+		return number_format(ceil($euroPrice * 0.0005), 2, ',', '.');
 	}
 }

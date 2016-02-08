@@ -153,8 +153,7 @@ if (!empty($this->extraSidebar))
 										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_WORDS', $item->words); ?>
 									</div>
 									<div class="span3">
-										<?php $machinePriceTc = $item->words; ?>
-										<?php $machinePriceTc = number_format(ceil($machinePriceTc * 0.0005), 2, ',', '.'); ?>
+										<?php $machinePriceTc = number_format(ceil($item->words * 0.0005), 2, ',', '.'); ?>
 										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?> <?php echo $machinePriceTc; ?>
 										TC (€ <?php echo $machinePriceTc; ?>)
 									</div>
@@ -226,7 +225,7 @@ if (!empty($this->extraSidebar))
 									</div>
 									<div class="span3">
 										<?php $proPriceTc = $item->words * 200; ?>
-										<?php $proPriceEur = number_format(ceil($proPriceTc * 0.0005), 2, ',', '.'); ?>
+										<?php $proPriceEur = number_format(ceil($item->words * 200 * 0.0005), 2, ',', '.'); ?>
 										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?> <?php echo $proPriceTc; ?>
 										TC (€ <?php echo $proPriceEur; ?>)
 									</div>
