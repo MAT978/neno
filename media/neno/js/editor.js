@@ -242,9 +242,9 @@ function initCodemirror() {
 
 function toggleSavingButtons(disabled) {
 	jQuery('#copy-btn').attr('disabled', disabled ? true : false);
-	jQuery('#translate-btn').attr('disabled', disabled  ? true : false);
-	jQuery('#draft-button').attr('disabled', disabled  ? true : false);
-	jQuery('#save-next-button').attr('disabled', disabled  ? true : false);
+	jQuery('#translate-btn').attr('disabled', disabled ? true : false);
+	jQuery('#draft-button').attr('disabled', disabled ? true : false);
+	jQuery('#save-next-button').attr('disabled', disabled ? true : false);
 }
 
 function isJSON(string) {
@@ -333,8 +333,8 @@ function mirrorscroll(cm) {
 
 	// Set the left scroll to be the same as the right
 	if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
-		var scrollinfo = cm.getScrollInfo();
-		editors[translation_id].left.scrollTo(null, scrollinfo.top);
+		var scrollInfo = cm.getScrollInfo();
+		editors[translation_id].left.scrollTo(null, scrollInfo.top);
 	}
 
 }
@@ -357,6 +357,7 @@ function saveAllTranslationsAndNext() {
 	jQuery.each(editors, function (translation_id, editor) {
 		var string = {};
 		string.translation_id = translation_id;
+		formatEditor(editor.right);
 		string.text = editor.right.getValue();
 		strings.push(string);
 	});
@@ -417,7 +418,7 @@ function loadNextTranslation() {
  */
 function updateEditorStringStatus(translation_id, new_status) {
 
-	jQuery('#elements-wrapper .string[data-id="' + translation_id + '"] .status')
+	jQuery('#elements-wrapper').find('.string[data-id="' + translation_id + '"] .status')
 		.removeClass('translated queued changed not-translated')
 		.addClass(new_status);
 
@@ -438,6 +439,8 @@ function showConsolidationModal(messages) {
 	// Add the message to the modal
 	jQuery('#consolidate-dynamic-content').html(modal_html);
 
+	var consolidateModal = jQuery('#consolidate-modal');
+
 	// Bind the click to save the modal
 	jQuery('#consolidate-button').off('click').on('click', function () {
 
@@ -457,12 +460,14 @@ function showConsolidationModal(messages) {
 				success: function () {
 
 					// When consolidated, hide the main modal
-					jQuery('#consolidate-modal').modal('hide');
+					consolidateModal.modal('hide');
+
+					var consolidateConfirmModal = jQuery('#consolidate-confirm-modal');
 
 					// And show the confirmation modal
-					jQuery('#consolidate-confirm-modal').modal('show', {keyboard: true});
+					consolidateConfirmModal.modal('show', {keyboard: true});
 
-					jQuery('#consolidate-confirm-modal').on('shown.bs.modal', function () {
+					consolidateConfirmModal.on('shown.bs.modal', function () {
 						jQuery('#consolidate-button-close').focus();
 					});
 
@@ -472,12 +477,10 @@ function showConsolidationModal(messages) {
 	});
 
 	// Show the modal and focus button
-	jQuery('#consolidate-modal').modal('show', {keyboard: true});
-	jQuery('#consolidate-modal').on('shown.bs.modal', function () {
+	consolidateModal.modal('show', {keyboard: true});
+	consolidateModal.on('shown.bs.modal', function () {
 		jQuery('#consolidate-button').focus();
 	});
-
-
 }
 
 /**
@@ -487,6 +490,7 @@ function saveAllAsDraft() {
 
 	jQuery.each(editors, function (translation_id, editor) {
 
+		formatEditor(editor.right);
 		var text = editor.right.getValue();
 
 		jQuery.ajax({
@@ -535,14 +539,14 @@ function loadTranslation(id) {
  */
 function selectStringInStringList(id) {
 	jQuery('.string-activated').removeClass('string-activated');
-	jQuery('#elements-wrapper .string[data-id=' + id + ']').addClass('string-activated');
+	jQuery('#elements-wrapper').find('.string[data-id=' + id + ']').addClass('string-activated');
 }
 
 
 /**
  * Check the structure of HTML in all editors and show a prompt if something is wrong
  * as well as shows an error below the field
- * @returns true if everthing is OK or if users confirm else returns false
+ * @returns true if everything is OK or if users confirm else returns false
  */
 function checkStructure() {
 
@@ -724,8 +728,9 @@ function loadNotesToTranslators(only_this_translation_id) {
 		jQuery.ajax({
 			url    : 'index.php?option=com_neno&task=editor.getTranslationNotes&id=' + translation_id,
 			success: function (data) {
-				jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.note-to-translators').html(data);
-				jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
+				var mainTranslationDiv = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']');
+				mainTranslationDiv.find('.note-to-translators').html(data);
+				mainTranslationDiv.find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
 				initTooltips();
 			}
 		});
