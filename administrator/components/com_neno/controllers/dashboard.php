@@ -20,6 +20,21 @@ class NenoControllerDashboard extends JControllerAdmin
 {
 
 	/**
+	 *
+	 */
+	public function isLanguageReady()
+	{
+		$lang = $this->input->getString('language');
+
+		if(NenoHelper::isCompletelyInstall($lang))
+		{
+			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+		}
+
+		JFactory::getApplication()->close();
+	}
+
+	/**
 	 * Toggle language
 	 *
 	 * @return void

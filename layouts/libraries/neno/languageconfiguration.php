@@ -25,7 +25,6 @@ $item['wordCount']->total = $item['isInstalled'] ? $item['wordCount']->total : 0
 $translationMethods = NenoHelper::loadTranslationMethods();
 $n = 0;
 ?>
-
 <div class="language-wrapper language-<?php echo $item['placement']; ?>">
     <?php if (!empty($item['errors'])): ?>
         <div class="alert alert-error">
@@ -52,7 +51,12 @@ $n = 0;
         <?php echo NenoHelper::renderWordCountProgressBar($item['wordCount'], $item['isInstalled'], $item['isInstalled']) ?>
         <a class="btn <?php echo $item['isInstalled'] == false ? 'not-ready' : ''; ?>"
            href="<?php echo JRoute::_('index.php?option=com_neno&task=setWorkingLang&lang=' . $item['lang_code'] . '&next=editor'); ?>">
-            <?php echo JText::_('COM_NENO_DASHBOARD_TRANSLATE_BUTTON'); ?>
+            <?php if ($item['isInstalled'] == false) : ?>
+                <?php echo JText::_('COM_NENO_LANGUAGE_SETTING_UP_MESSAGE') . '<i class="icon-clock"></i>'; ?>
+                <script>isLangReady(jQuery(this).data('language'));</script>
+            <?php else : ?>
+                <?php echo JText::_('COM_NENO_DASHBOARD_TRANSLATE_BUTTON'); ?>
+            <?php endif; ?>
         </a>
     <?php endif; ?>
     <?php if ($item['placement'] == 'dashboard'): ?>
