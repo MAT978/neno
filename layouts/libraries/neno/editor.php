@@ -93,11 +93,23 @@ $isLockedUp = $translation->checked_out != $user->id;
             ><?php echo (empty($translation) === false && $translation->time_changed != '0000-00-00 00:00:00') ? $translation->string : ''; ?></textarea>
 
 			<div class="clearfix"></div>
-			<div class="pull-left translated-by">
-				<?php echo JText::sprintf('COM_NENO_EDITOR_TRANSLATED_BY', NenoSettings::get('translator')); ?>
+			<div class="pull-left versions-button">
+				<?php if (NenoSettings::get('content_history', 1) && JFactory::getUser()->authorise('core.edit')) :?>
+					<a href="<?php echo JRoute::_('index.php?option=com_contenthistory&view=history&layout=modal&tmpl=component&type_alias=com_neno.translation&item_id=' . (int) $translation->id); ?>">
+						<?php echo JText::_('COM_NENO_EDITOR_VERSIONS_BUTTON'); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 			<div class="pull-right last-modified">
-				<?php echo empty($translation) ? '' : JText::sprintf('COM_NENO_EDITOR_LAST_MODIFIED', $translation->time_changed !== '0000-00-00 00:00:00' ? $translation->time_changed : JText::_('COM_NENO_EDITOR_NEVER')) ?>
+				<?php
+				if (!empty($translation)) {
+					echo JText::sprintf('COM_NENO_EDITOR_LAST_MODIFIED', $translation->time_changed !== '0000-00-00 00:00:00' ? $translation->time_changed : JText::_('COM_NENO_EDITOR_NEVER'));
+					$translator = NenoSettings::get('translator');
+					if (!empty($translator)){
+						echo '. ' . JText::sprintf('COM_NENO_EDITOR_TRANSLATED_BY', $translator);
+					}
+				}
+				?>
 			</div>
 			<div class="clearfix"></div>
 			<br />

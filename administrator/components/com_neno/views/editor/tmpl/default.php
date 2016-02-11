@@ -100,13 +100,6 @@ if (NenoSettings::get('load_related_content'))
 		<div class="span12 editor-buttons">
 			<div class="pull-right">
 				<div class="pull-right right-buttons">
-					<?php if (NenoSettings::get('content_history', 1) && JFactory::getUser()->authorise('core.edit')) :?>
-					<button id="versions-btn" class="btn btn-big" type="button">
-						<span class="icon-calendar big-icon"></span>
-						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_VERSIONS_BUTTON'); ?></span>
-						<span class="small-text">Ctrl + Shift + V</span>
-					</button>
-					<?php endif; ?>
 					<button id="copy-btn" class="btn btn-big" type="button">
 						<span class="icon-copy big-icon"></span>
 						<span class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_BUTTON' . $all); ?></span>
