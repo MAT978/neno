@@ -16,5 +16,5 @@ defined('_JEXEC') or die;
 		<?php echo $displayData->button; ?>
 	</button>
     
-    <a href="<?php echo JRoute::_('index.php?option=com_neno&view=externaltranslations'); ?>" class="btn btn-success"><?php echo JText::_('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_BUTTON'); ?></a>
+    <a href="<?php echo JRoute::_('index.php?option=com_neno&view=externaltranslations'); ?>" class="btn btn-primary btn-tc"><?php echo JText::_('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_BUTTON'); ?></a>
 </div>
