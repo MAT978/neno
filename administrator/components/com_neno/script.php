@@ -31,6 +31,7 @@ class com_NenoInstallerScript
 		$installationPath = $parent->getParent()->getPath('source');
 
 		jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
 
 		// If the layout folder exists, let's delete them first
 		if (JFolder::exists(JPATH_ROOT . '/layouts/libraries/neno'))
@@ -60,6 +61,8 @@ class com_NenoInstallerScript
 			$app->enqueueMessage('Error installing layouts: ' . $mediaError);
 		}
 
+		JFile::move($installationPath . '/cli/neno.php', JPATH_ROOT . '/cli/neno.php');
+
 		return true;
 	}
 
@@ -70,7 +73,11 @@ class com_NenoInstallerScript
 	 */
 	public function uninstall()
 	{
+		jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
+
 		JFolder::delete(JPATH_ROOT . '/layouts/libraries/neno');
 		JFolder::delete(JPATH_ROOT . '/media/neno');
+		JFile::delete(JPATH_ROOT . '/cli/neno.php');
 	}
 }
