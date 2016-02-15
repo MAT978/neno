@@ -276,10 +276,10 @@ if (!empty($this->extraSidebar))
 						</h3>
 					</div>
 					<div class="center">
-						<a href="https://www.neno-translate.com/en/pricing/checkout" class="btn btn-primary"
-							target="_blank">
+						<button onclick="location.href='https://www.neno-translate.com/en/pricing/checkout'" class="btn btn-primary">
+							<span class="icon-cart"></span>
 							<?php echo JText::_('COM_NENO_EXTERNALTRANSLATION_BUY_TC_BUTTON'); ?>
-						</a>
+						</button>
 					</div>
 				</div>
 			</div>
