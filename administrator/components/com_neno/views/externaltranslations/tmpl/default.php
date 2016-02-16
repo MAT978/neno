@@ -156,11 +156,7 @@ if (!empty($this->extraSidebar))
 										<?php $machinePriceTc = $item->words * $item->tc_price; ?>
 										<?php $machinePriceEur = number_format($item->words * $item->euro_price, 4, ',', '.'); ?>
 										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?>
-										<span
-											id="machine-<?php echo $item->language; ?>-tc"><?php echo $machinePriceTc; ?></span>
-										TC (€
-										<span
-											id="machine-<?php echo $item->language; ?>-eur"><?php echo $machinePriceEur; ?></span>)
+										<?php echo $machinePriceTc; ?> TC (€ <?php echo $machinePriceEur; ?>)
 									</div>
 									<div class="span3">
 										<button type="button" class="btn order-button"
@@ -232,11 +228,7 @@ if (!empty($this->extraSidebar))
 										<?php $proPriceTc = $item->words * $item->tc_price; ?>
 										<?php $proPriceEur = number_format($item->words * $item->euro_price, 2, ',', '.'); ?>
 										<?php echo JText::sprintf('COM_NENO_EXTERNALTRANSLATION_PRICE'); ?>
-										<span
-											id="professional-<?php echo $item->language; ?>-tc"><?php echo $proPriceTc; ?></span>
-										TC (€
-										<span
-											id="professional-<?php echo $item->language; ?>-eur"><?php echo $proPriceEur; ?></span>)
+										<?php echo $proPriceTc; ?> TC (€ <?php echo $proPriceEur; ?>)
 									</div>
 									<div class="span3">
 										<button type="button" class="btn order-button"
