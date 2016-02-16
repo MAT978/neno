@@ -21,7 +21,7 @@ class NenoModelJobs extends JModelList
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
 	 * @see     JController
 	 * @since   1.6
@@ -93,8 +93,8 @@ class NenoModelJobs extends JModelList
 	/**
 	 * Get and set current values of filters
 	 *
-	 * @param   string $ordering  Ordering clause
-	 * @param   string $direction Direction clause
+	 * @param   string  $ordering   Ordering clause
+	 * @param   string  $direction  Direction clause
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

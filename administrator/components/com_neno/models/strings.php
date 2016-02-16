@@ -23,10 +23,10 @@ class NenoModelStrings extends JModelList
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
-	 * @see        JController
-	 * @since      1.6
+	 * @see     JController
+	 * @since   1.6
 	 */
 	public function __construct($config = array())
 	{
@@ -207,8 +207,8 @@ class NenoModelStrings extends JModelList
 	/**
 	 * Get and set current values of filters
 	 *
-	 * @param   string $ordering  Ordering field
-	 * @param   string $direction Direction field
+	 * @param   string  $ordering   Ordering field
+	 * @param   string  $direction  Direction field
 	 *
 	 * @return void
 	 */
@@ -225,7 +225,7 @@ class NenoModelStrings extends JModelList
 	/**
 	 * Build an SQL query to load the list data.
 	 *
-	 * @return    JDatabaseQuery
+	 * @return   JDatabaseQuery
 	 *
 	 * @since    1.6
 	 */

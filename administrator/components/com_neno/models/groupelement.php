@@ -21,9 +21,9 @@ class NenoModelGroupElement extends JModelAdmin
     /**
      * Get the JTable class related to this view
      *
-     * @param   string $type   JTable type
-     * @param   string $prefix JTable prefix
-     * @param   array  $config JTable configuration
+     * @param   string  $type    JTable type
+     * @param   string  $prefix  JTable prefix
+     * @param   array   $config  JTable configuration
      *
      * @return mixed
      */
@@ -35,8 +35,8 @@ class NenoModelGroupElement extends JModelAdmin
     /**
      * Method to get the record form.
      *
-     * @param   array   $data     An optional array of data for the form to interrogate.
-     * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
+     * @param   array    $data      An optional array of data for the form to interrogate.
+     * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
      *
      * @return JForm
      */
@@ -56,7 +56,7 @@ class NenoModelGroupElement extends JModelAdmin
     /**
      * {@inheritdoc}
      *
-     * @param   array $data Data to save
+     * @param   array  $data  Data to save
      *
      * @return bool
      *
