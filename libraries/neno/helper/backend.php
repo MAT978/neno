@@ -154,7 +154,7 @@ class NenoHelperBackend
 
 		$adminTitleLayout     = JLayoutHelper::render('toolbar', $displayData, JPATH_NENO_LAYOUTS);
 		$layout               = new JLayoutFile('joomla.toolbar.title');
-		$html                 = $layout->render(array( 'title' => $adminTitleLayout, 'icon' => 'nope' ));
+		$html                 = $layout->render(array('title' => $adminTitleLayout, 'icon' => 'nope'));
 		$app->JComponentTitle = $html;
 	}
 
@@ -176,7 +176,8 @@ class NenoHelperBackend
 			try
 			{
 				JFolder::delete($path . '/' . $folder);
-			} catch (UnexpectedValueException $e)
+			}
+			catch (UnexpectedValueException $e)
 			{
 				throw new Exception('An error occur deleting a folder: %s', $e->getMessage());
 			}
@@ -240,7 +241,7 @@ class NenoHelperBackend
 
 		if (!empty($tablesNotDiscovered))
 		{
-			$doNotTranslateGroup = new NenoContentElementGroup(array( 'group_name' => 'Do not translate' ));
+			$doNotTranslateGroup = new NenoContentElementGroup(array('group_name' => 'Do not translate'));
 			$tablesIgnored       = NenoHelper::getDoNotTranslateTables();
 
 			foreach ($tablesIgnored as $tableIgnored)
@@ -420,7 +421,7 @@ class NenoHelperBackend
 			}
 			else
 			{
-				$otherGroup = new NenoContentElementGroup(array( 'group_name' => 'Other' ));
+				$otherGroup = new NenoContentElementGroup(array('group_name' => 'Other'));
 			}
 
 			$tablesIgnored = NenoHelper::getDoNotTranslateTables();
@@ -504,7 +505,7 @@ class NenoHelperBackend
 		{
 			foreach ($methods as $key => $method)
 			{
-				$methods[ $key ] = JText::_(strtoupper($method->name_constant));
+				$methods[$key] = JText::_(strtoupper($method->name_constant));
 			}
 		}
 
@@ -522,9 +523,9 @@ class NenoHelperBackend
 
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true)
-		            ->select('id AS value, group_name AS text')
-		            ->from('#__neno_content_element_groups AS n')
-		            ->order('n.group_name');
+			->select('id AS value, group_name AS text')
+			->from('#__neno_content_element_groups AS n')
+			->order('n.group_name');
 
 		// Get the options.
 		$db->setQuery($query);
@@ -532,7 +533,8 @@ class NenoHelperBackend
 		try
 		{
 			$options = $db->loadObjectList();
-		} catch (RuntimeException $e)
+		}
+		catch (RuntimeException $e)
 		{
 			NenoLog::log($e->getMessage(), NenoLog::PRIORITY_ERROR);
 		}
@@ -549,11 +551,11 @@ class NenoHelperBackend
 	 */
 	public static function getStatuses()
 	{
-		$translationStatesText                                                                     = array();
-		$translationStatesText[ NenoContentElementTranslation::TRANSLATED_STATE ]                  = JText::_('COM_NENO_STATUS_TRANSLATED');
-		$translationStatesText[ NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE ] = JText::_('COM_NENO_STATUS_QUEUED');
-		$translationStatesText[ NenoContentElementTranslation::SOURCE_CHANGED_STATE ]              = JText::_('COM_NENO_STATUS_CHANGED');
-		$translationStatesText[ NenoContentElementTranslation::NOT_TRANSLATED_STATE ]              = JText::_('COM_NENO_STATUS_NOT_TRANSLATED');
+		$translationStatesText                                                                   = array();
+		$translationStatesText[NenoContentElementTranslation::TRANSLATED_STATE]                  = JText::_('COM_NENO_STATUS_TRANSLATED');
+		$translationStatesText[NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE] = JText::_('COM_NENO_STATUS_QUEUED');
+		$translationStatesText[NenoContentElementTranslation::SOURCE_CHANGED_STATE]              = JText::_('COM_NENO_STATUS_CHANGED');
+		$translationStatesText[NenoContentElementTranslation::NOT_TRANSLATED_STATE]              = JText::_('COM_NENO_STATUS_NOT_TRANSLATED');
 
 		// Create a new query object.
 		/* @var $db NenoDatabaseDriverMysqlx */
@@ -571,7 +573,7 @@ class NenoHelperBackend
 
 		foreach ($statuses as $status)
 		{
-			$translationStatuses[ $status ] = $translationStatesText[ $status ];
+			$translationStatuses[$status] = $translationStatesText[$status];
 		}
 
 		return $translationStatuses;
@@ -670,7 +672,7 @@ class NenoHelperBackend
 			{
 				if (mb_strlen($match[1]))
 				{
-					$phpInfo[ $match[1] ] = array();
+					$phpInfo[$match[1]] = array();
 				}
 				elseif (isset($match[3]))
 				{
@@ -678,8 +680,8 @@ class NenoHelperBackend
 				}
 				else
 				{
-					$keys1                    = array_keys($phpInfo);
-					$phpInfo[ end($keys1) ][] = $match[2];
+					$keys1                  = array_keys($phpInfo);
+					$phpInfo[end($keys1)][] = $match[2];
 				}
 			}
 		}
@@ -702,14 +704,14 @@ class NenoHelperBackend
 
 		if ($directive)
 		{
-			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+			$phpInfo[end($keys1)][$match[2]] = isset($match[4]) ? array(
 				'Local Value'  => $match[3],
 				'Master Value' => $match[4]
 			) : $match[3];
 		}
 		else
 		{
-			$phpInfo[ end($keys1) ][ $match[2] ] = isset($match[4]) ? array(
+			$phpInfo[end($keys1)][$match[2]] = isset($match[4]) ? array(
 				$match[3],
 				$match[4]
 			) : $match[3];
@@ -739,7 +741,7 @@ class NenoHelperBackend
 						{
 							if (is_numeric($key))
 							{
-								unset($phpInfo[ $name ][ $key ]);
+								unset($phpInfo[$name][$key]);
 							}
 						}
 					}
@@ -820,7 +822,7 @@ class NenoHelperBackend
 			$lines--;
 		}
 
-		return array( $buffer, $lines );
+		return array($buffer, $lines);
 	}
 
 	protected static function readFile($f, $lines, $buffer)
@@ -847,7 +849,7 @@ class NenoHelperBackend
 			$lines -= substr_count($chunk, "\n");
 		}
 
-		return array( $output, $lines );
+		return array($output, $lines);
 	}
 
 	/**
@@ -1138,7 +1140,7 @@ class NenoHelperBackend
 			'com_content.article' => '#__content'
 		);
 
-		return isset($contextSupported[ $context ]) ? $contextSupported[ $context ] : false;
+		return isset($contextSupported[$context]) ? $contextSupported[$context] : false;
 	}
 
 	/**
@@ -1153,7 +1155,7 @@ class NenoHelperBackend
 		/* @var $group NenoContentElementGroup */
 		foreach ($groups as $key => $group)
 		{
-			$groups[ $key ] = $group->prepareDataForView();
+			$groups[$key] = $group->prepareDataForView();
 		}
 
 		return $groups;
@@ -1194,5 +1196,60 @@ class NenoHelperBackend
 	protected static function convertString2Datetime($stringDateTime)
 	{
 		return new DateTime($stringDateTime);
+	}
+
+	/**
+	 * Refreshes pricing for language pairs installed
+	 *
+	 * @return void
+	 */
+	public static function refreshLanguagePairsPricing()
+	{
+		$targetLanguages = NenoHelper::getLanguages(false, false);
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
+
+		$query
+			->select(
+				array(
+					'target_language',
+				)
+			)
+			->from('#__neno_language_pairs_pricing')
+			->where('TIMESTAMPDIFF(HOUR, time_updated, NOW()) < 24')
+			->group('target_language');
+
+		$db->setQuery($query);
+		$languagesUpToDate = $db->loadObjectList();
+
+		foreach ($targetLanguages as $targetLanguage)
+		{
+			// If the language is not on the up to date, let's refresh it
+			if (!in_array($targetLanguage->lang_code, $languagesUpToDate))
+			{
+				list($professionalPricing, $machinePricing) = NenoHelperApi::getQuote($targetLanguage->lang_code);
+
+				$query = 'INSERT INTO `#__neno_language_pairs_pricing` (`target_language`,`translation_type`,`price_per_word`,`time_updated`)
+							VALUES (' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('professional') . ', ' . $db->quote($professionalPricing) . ', NOW()),
+							(' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('machine') . ', ' . $db->quote($machinePricing) . ', NOW())
+							ON DUPLICATE KEY UPDATE `price_per_word` = VALUES(`price_per_word`),`time_updated` = NOW()';
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+	}
+
+	/**
+	 * Checks whether the incoming request is being made via Ajax or not
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public static function isAjax()
+	{
+		$input         = JFactory::getApplication()->input;
+		$requestedWith = $input->server->get('HTTP_X_REQUESTED_WITH');
+
+		return !empty($requestedWith) && strtolower($requestedWith) == 'xmlhttprequest';
 	}
 }

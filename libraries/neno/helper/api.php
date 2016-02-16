@@ -70,7 +70,7 @@ class NenoHelperApi
 						$apiCall = $apiCall . '/' . $query;
 					}
 
-					$apiResponse = self::$httpClient->{$method}($apiEndpoint . $apiCall, array( 'Authorization' => $licenseCode ));
+					$apiResponse = self::$httpClient->{$method}($apiEndpoint . $apiCall, array('Authorization' => $licenseCode));
 				}
 				else
 				{
@@ -101,7 +101,7 @@ class NenoHelperApi
 			}
 		}
 
-		return array( $responseStatus, $response );
+		return array($responseStatus, $response);
 	}
 
 	/**
@@ -127,7 +127,7 @@ class NenoHelperApi
 	 */
 	public static function getJobFile($jobId, $filePath)
 	{
-		list($status, $fileContents) = self::makeApiCall('job', 'GET', array( (int) $jobId ));
+		list($status, $fileContents) = self::makeApiCall('job', 'GET', array((int) $jobId));
 
 		if ($status)
 		{
@@ -142,24 +142,21 @@ class NenoHelperApi
 	}
 
 	/**
-	 * @param string $translationMethod Translation method
-	 * @param string $sourceLanguage    Source language (JISO format)
-	 * @param string $targetLanguage    Target language (JISO format)
-	 * @param int    $words             Words amount
+	 * Gets price per word for a particular language
+	 *
+	 * @param string $targetLanguage Target language (JISO format)
 	 *
 	 * @return float
 	 */
-	public static function getQuote($translationMethod, $sourceLanguage, $targetLanguage, $words)
+	public static function getQuote($targetLanguage)
 	{
 		$data = array(
-			'source_language'    => $sourceLanguage,
-			'target_language'    => $targetLanguage,
-			'translation_method' => $translationMethod,
-			'words'              => $words
+			'source_language' => NenoSettings::get('source_language'),
+			'target_language' => $targetLanguage
 		);
 
 		list(, $response) = NenoHelperApi::makeApiCall('quote', 'POST', $data);
 
-		return array( NenoHelper::convertEuroToTranslationCredit($response['response']), $response['response'] );
+		return array_values($response['response']);
 	}
 }
