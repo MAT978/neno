@@ -77,24 +77,4 @@ class NenoControllerExternalTranslations extends JControllerAdmin
 
 		$app->close();
 	}
-
-	/**
-	 * Performs an API call to the server to get a quote
-	 *
-	 * @throws Exception
-	 */
-	public function getQuote()
-	{
-		$app   = JFactory::getApplication();
-		$input = $app->input;
-
-		$targetLanguage  = $input->get('target_language');
-		$translationType = $input->get('translation_type');
-		$words           = $input->get('words');
-		$quotes          = NenoHelperApi::getQuote($translationType, NenoSettings::get('source_language'), $targetLanguage, $words);
-
-		echo json_encode(array( 'tc' => $quotes[0], 'price' => $quotes[1] ));
-
-		$app->close();
-	}
 }
