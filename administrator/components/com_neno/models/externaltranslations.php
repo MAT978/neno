@@ -50,7 +50,7 @@ class NenoModelExternalTranslations extends JModelList
 
 		$query
 			->select(
-				array (
+				array(
 					'SUM(word_counter) AS words',
 					'trtm.translation_method_id',
 					'l.title_native',
@@ -63,7 +63,7 @@ class NenoModelExternalTranslations extends JModelList
 			->innerJoin('#__neno_translation_methods AS tm ON trtm.translation_method_id = tm.id')
 			->leftJoin('#__languages AS l ON tr.language = l.lang_code')
 			->where(
-				array (
+				array(
 					'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
 					'NOT EXISTS (SELECT 1 FROM #__neno_jobs_x_translations AS jt WHERE tr.id = jt.translation_id)',
 					'tm.pricing_per_word <> 0',
@@ -71,7 +71,7 @@ class NenoModelExternalTranslations extends JModelList
 				)
 			)
 			->group(
-				array (
+				array(
 					'trtm.translation_method_id',
 					'language'
 				)
@@ -89,4 +89,48 @@ class NenoModelExternalTranslations extends JModelList
 	{
 		return NenoSettings::get('external_translators_notes');
 	}
+
+	public function getItems()
+	{
+		$items = parent::getItems();
+
+		foreach ($items as $key => $item)
+		{
+			$items[$key]->euro_price = $this->getPrice($item->language, $item->translation_method_id);
+			$items[$key]->tc_price   = NenoHelper::convertEuroToTranslationCredit($items[$key]->euro_price);
+		}
+
+		return $items;
+	}
+
+	/**
+	 *
+	 *
+	 * @param string $language
+	 * @param int    $translationMethodId
+	 *
+	 * @return mixed
+	 */
+	protected function getPrice($language, $translationMethodId)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('price_per_word')
+			->from('#__neno_language_pairs_pricing AS lpp')
+			->innerJoin('#__neno_translation_methods AS tm ON LOWER(REPLACE(tm.name_constant, \'COM_NENO_TRANSLATION_METHOD_\', \'\')) = lpp.translation_type')
+			->where(
+				array(
+					'lpp.target_language = ' . $db->quote($language),
+					'tm.id = ' . (int) $translationMethodId
+				)
+			);
+
+		$db->setQuery($query);
+
+		return $db->loadResult();
+	}
+
+
 }

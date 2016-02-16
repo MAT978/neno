@@ -1220,7 +1220,7 @@ class NenoHelperBackend
 			->group('target_language');
 
 		$db->setQuery($query);
-		$languagesUpToDate = $db->loadObjectList();
+		$languagesUpToDate = $db->loadColumn();
 
 		foreach ($targetLanguages as $targetLanguage)
 		{
