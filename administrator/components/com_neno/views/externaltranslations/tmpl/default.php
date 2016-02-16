@@ -39,6 +39,8 @@ if (!empty($this->extraSidebar))
 
 		.translation-type .translation {
 			padding: 20px 15px;
+			min-height: 28px;
+			line-height: 28px;
 		}
 
 		.information-box {
