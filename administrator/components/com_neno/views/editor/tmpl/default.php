@@ -15,6 +15,7 @@ JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
 JHtml::_('behavior.keepalive');
+JHtml::_('behavior.modal', 'a.modal_jform_contenthistory');
 
 // Joomla Component Creator code to allow adding non select list filters
 if (!empty($this->extraSidebar))
