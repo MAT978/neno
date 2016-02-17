@@ -156,6 +156,11 @@ class NenoContentElementTranslation extends NenoContentElement
 	public $related;
 
 	/**
+	 * @var string
+	 */
+	public $typeAlias = 'com_neno.translation';
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Element data
@@ -165,6 +170,9 @@ class NenoContentElementTranslation extends NenoContentElement
 	public function __construct($data, $loadExtraData = true, $loadParent = false)
 	{
 		parent::__construct($data);
+
+		// Adding observer for content history
+		JObserverMapper::addObserverClassToClass('JTableObserverContenthistory', 'NenoContentElementTranslation', array('typeAlias' => 'com_neno.translation'));
 
 		$data = new JObject($data);
 
