@@ -3461,6 +3461,12 @@ class NenoHelper
 
 		$subquery1 = $db->getQuery(true);
 		$subquery2 = $db->getQuery(true);
+		$subquery3 = $db->getQuery(true);
+
+		$subquery3
+			->select('m.id')
+			->from('#__neno_content_element_translation_x_translation_methods AS m')
+			->where('m.translation_id = tr.id');
 
 		$subquery2
 			->select('tr2.*')
@@ -3496,7 +3502,7 @@ class NenoHelper
 			->from('#__languages AS l')
 			->leftJoin('#__neno_language_external_translators_comments AS lc ON l.lang_code = lc.language')
 			->leftJoin('(' . (string) $subquery1 . ') AS tr ON tr.language = l.lang_code')
-			->where('l.lang_code <> ' . $db->quote($default))
+			->where('l.lang_code <> ' . $db->quote($default) . ' AND EXISTS (' . (string) $subquery3 . ')')
 			->group(
 				array(
 					'l.lang_code',

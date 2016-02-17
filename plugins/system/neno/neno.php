@@ -183,7 +183,7 @@ class PlgSystemNeno extends JPlugin
 			$tableName = $content->getTableName();
 
 			/* @var $table NenoContentElementTable */
-			$table = NenoContentElementTable::load(array( 'table_name' => $tableName ), false);
+			$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
 
 			if (!empty($table))
 			{
@@ -191,7 +191,7 @@ class PlgSystemNeno extends JPlugin
 				if (isset($content->state) && $content->state == -2)
 				{
 					$primaryKeys = $content->getPrimaryKey();
-					$this->trashTranslations($table, array( $content->{$primaryKeys[0]} ));
+					$this->trashTranslations($table, array($content->{$primaryKeys[0]}));
 				}
 				else
 				{
@@ -206,7 +206,7 @@ class PlgSystemNeno extends JPlugin
 
 							foreach ($content->getPrimaryKey() as $primaryKeyName => $primaryKeyValue)
 							{
-								$primaryKeyData[ $primaryKeyName ] = $primaryKeyValue;
+								$primaryKeyData[$primaryKeyName] = $primaryKeyValue;
 							}
 
 							$field->persistTranslations($primaryKeyData);
@@ -216,15 +216,19 @@ class PlgSystemNeno extends JPlugin
 					$languages       = NenoHelper::getLanguages(false);
 					$defaultLanguage = NenoSettings::get('source_language');
 
-					foreach ($languages as $language)
+					// Only do that if the translation is new.
+					if ($isNew)
 					{
-						if ($language->lang_code != $defaultLanguage)
+						foreach ($languages as $language)
 						{
-							$shadowTable = $db->generateShadowTableName($tableName, $language->lang_code);
-							$properties  = $content->getProperties();
-							$query       = 'REPLACE INTO ' . $db->quoteName($shadowTable) . ' (' . implode(',', $db->quoteName(array_keys($properties))) . ') VALUES(' . implode(',', $db->quote($properties)) . ')';
-							$db->setQuery($query);
-							$db->execute();
+							if ($language->lang_code != $defaultLanguage)
+							{
+								$shadowTable = $db->generateShadowTableName($tableName, $language->lang_code);
+								$properties  = $content->getProperties();
+								$query       = 'REPLACE INTO ' . $db->quoteName($shadowTable) . ' (' . implode(',', $db->quoteName(array_keys($properties))) . ') VALUES(' . implode(',', $db->quote($properties)) . ')';
+								$db->setQuery($query);
+								$db->execute();
+							}
 						}
 					}
 				}
@@ -286,7 +290,7 @@ class PlgSystemNeno extends JPlugin
 		if ($value == -2)
 		{
 			/* @var $table NenoContentElementTable */
-			$table = NenoContentElementTable::load(array( 'table_name' => '#__categories' ), false);
+			$table = NenoContentElementTable::load(array('table_name' => '#__categories'), false);
 
 			foreach ($pks as $pk)
 			{
@@ -313,7 +317,7 @@ class PlgSystemNeno extends JPlugin
 			if ($tableName !== false)
 			{
 				/* @var $table NenoContentElementTable */
-				$table = NenoContentElementTable::load(array( 'table_name' => $tableName ), false);
+				$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
 
 				foreach ($pks as $pk)
 				{
@@ -338,11 +342,11 @@ class PlgSystemNeno extends JPlugin
 		$tableName = str_replace($db->getPrefix(), '#__', $tableName);
 
 		/* @var $table NenoContentElementTable */
-		$table = NenoContentElementTable::load(array( 'table_name' => $tableName ));
+		$table = NenoContentElementTable::load(array('table_name' => $tableName));
 
 		if (empty($table))
 		{
-			$otherGroup = NenoContentElementGroup::load(array( 'other_group' => 1 ));
+			$otherGroup = NenoContentElementGroup::load(array('other_group' => 1));
 			$table      = NenoHelper::createTableInstance($tableName, $otherGroup);
 			$table->persist();
 		}

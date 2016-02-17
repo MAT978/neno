@@ -648,7 +648,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$query
 			->select('table_name')
 			->from('#__neno_content_element_tables')
-			->where('translate = 1');
+			->where('translate <> 0');
 
 		$manifestTablesObjectList = $this->executeQuery($query, true, true);
 

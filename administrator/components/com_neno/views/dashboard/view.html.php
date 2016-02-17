@@ -85,6 +85,8 @@ class NenoViewDashboard extends JViewLegacy
 
 		JToolbarHelper::custom('fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
 
+		JToolbarHelper::custom('dashboard.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
+
 		JToolBarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
 
 		$this->sidebar = JHtmlSidebar::render();
