@@ -83,7 +83,7 @@ if (!empty($this->extraSidebar))
 					},
 					success: function (data) {
 						if (data != 'ok') {
-							alert("There was an error saving setting");
+							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_SAVING_SETTING'); ?>");
 						}
 					}
 				});
@@ -99,11 +99,14 @@ if (!empty($this->extraSidebar))
 						language: jQuery(this).data('language')
 					},
 					success: function (data) {
-						if (data != 'ok') {
-							alert("There was an error saving setting");
+						if (data == 'no_tc') {
+							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_ORDERING_NOT_ENOUGH_TC'); ?>");
+						}
+						else if (data == 'ok') {
+							button.closest('.translation').slideToggle();
 						}
 						else {
-							button.closest('.translation').slideToggle();
+							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_ORDERING_GENERAL_ERROR'); ?>");
 						}
 					}
 				});

@@ -59,15 +59,18 @@ class NenoControllerExternalTranslations extends JControllerAdmin
 		if (!empty($type) && !empty($language))
 		{
 			$job = NenoJob::createJob($language, $type);
-			$job->sendJob();
-
-			if ($job !== null)
+			if ($job->sendJob())
 			{
 				echo 'ok';
 			}
 			else
 			{
-				echo 'err';
+				if ($job->getStatus() === NenoJob::JOB_STATE_NO_TC)
+				{
+					echo 'no_tc';
+
+					$job->remove();
+				}
 			}
 		}
 		else
