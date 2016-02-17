@@ -86,6 +86,7 @@ if (!empty($this->extraSidebar))
 							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_SAVING_SETTING'); ?>");
 						}
 					}
+
 				});
 			});
 
