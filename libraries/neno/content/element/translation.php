@@ -156,11 +156,6 @@ class NenoContentElementTranslation extends NenoContentElement
 	public $related;
 
 	/**
-	 * @var string
-	 */
-	public $typeAlias = 'com_neno.translation';
-
-	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Element data
@@ -170,9 +165,6 @@ class NenoContentElementTranslation extends NenoContentElement
 	public function __construct($data, $loadExtraData = true, $loadParent = false)
 	{
 		parent::__construct($data);
-
-		// Adding observer for content history
-		JObserverMapper::addObserverClassToClass('JTableObserverContenthistory', 'NenoContentElementTranslation', array('typeAlias' => 'com_neno.translation'));
 
 		$data = new JObject($data);
 
@@ -1088,6 +1080,9 @@ class NenoContentElementTranslation extends NenoContentElement
 		// Update word counter
 		$this->wordCounter = NenoHelperHtml::getWordCount($this->getString());
 
+		// JTable instantiation
+		$table = JTable::getInstance('Translation', 'NenoContentElementTable', array());
+
 		if ($this->contentType == self::DB_STRING)
 		{
 			/* @var $field NenoContentElementField */
@@ -1116,8 +1111,11 @@ class NenoContentElementTranslation extends NenoContentElement
 			$this->timeChanged = new DateTime;
 		}
 
+		$table->bind($this->toArray());
+
 		// Only execute this task when the translation is new and there are no records about how to find it.
-		if (parent::persist())
+		//if (parent::persist())
+		if ($table->store())
 		{
 			if ($isNew && $this->contentType == self::DB_STRING)
 			{
