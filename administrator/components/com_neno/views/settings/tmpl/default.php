@@ -225,7 +225,7 @@ foreach ($this->items as $item)
 					</td>
 				</tr>
 				<tr>
-					<?php $item = $options['content_history']; ?>
+					<?php $item = $options['save_history']; ?>
 					<td class='setting-label'>
 						<?php echo JText::sprintf('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key), JFactory::getDbo()->getPrefix()); ?>
 					</td>
