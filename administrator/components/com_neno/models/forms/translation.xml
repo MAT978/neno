@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields>
+        <field
+                name="original_text"
+                type="text"
+                label="COM_NENO_TRANSLATION_ORIGINAL_TEXT"
+        />
+
+        <field
+                name="string"
+                type="text"
+                label="COM_NENO_TRANSLATION_STRING"
+        />
+
+        <field
+                name="word_counter"
+                type="text"
+                label="COM_NENO_TRANSLATION_WORD_COUNTER"
+        />
+
+        <field
+                name="state"
+                type="text"
+                label="COM_NENO_TRANSLATION_STATE"
+        />
+
+        <field
+                name="time_added"
+                type="text"
+                label="COM_NENO_TRANSLATION_TIME_ADDED"
+        />
+
+        <field
+                name="time_changed"
+                type="text"
+                label="COM_NENO_TRANSLATION_TIME_CHANGED"
+        />
+
+        <field
+                name="time_requested"
+                type="text"
+                label="COM_NENO_TRANSLATION_TIME_REQUESTED"
+        />
+
+        <field
+                name="time_completed"
+                type="text"
+                label="COM_NENO_TRANSLATION_TIME_COMPLETED"
+        />
+
+        <field
+                name="comment"
+                type="text"
+                label="COM_NENO_TRANSLATION_COMMENT"
+        />
+
+    </fields>
+</form>
