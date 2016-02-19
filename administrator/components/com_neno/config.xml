@@ -2,18 +2,16 @@
 <config>
     <fieldset name="component">
         <field name="save_history"
-               type="radio"
+               type="hidden"
                class="btn-group btn-group-yesno"
                default="0"
                label="JGLOBAL_SAVE_HISTORY_OPTIONS_LABEL"
                description="JGLOBAL_SAVE_HISTORY_OPTIONS_DESC"
         >
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
         </field>
 
         <field name="history_limit"
-               type="text"
+               type="hidden"
                filter="integer"
                label="JGLOBAL_HISTORY_LIMIT_OPTIONS_LABEL"
                description="JGLOBAL_HISTORY_LIMIT_OPTIONS_DESC"

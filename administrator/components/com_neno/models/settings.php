@@ -217,4 +217,31 @@ class NenoModelSettings extends JModelList
 
 		return $items;
 	}
+
+
+	public function saveNenoHistoryConfig($value)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$params = array(
+			'save_history' => $value,
+			'history_limit' => 10
+		);
+
+		$fields = array(
+			$db->quoteName('params') . ' = \'' . json_encode($params) . '\''
+		);
+
+		$query
+			->update($db->quoteName('#__extensions'))
+			->set($fields)
+			->where($db->quoteName('name') . ' = \'com_neno\' AND ' . $db->quoteName('type') . ' = \'component\'');
+
+		$db->setQuery($query);
+
+		$result = $db->execute();
+
+		return $result;
+	}
 }
