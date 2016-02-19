@@ -14,6 +14,8 @@ $document = JFactory::getDocument();
 $translation = $displayData;
 $user = JFactory::getUser();
 JHtml::_('behavior.modal', 'a.modal_jform_contenthistory');
+$contentTypeTable = JTable::getInstance('Contenttype');
+$typeId           = $contentTypeTable->getTypeId('com_neno.translation');
 
 $languageParts = null;
 
@@ -96,9 +98,9 @@ $isLockedUp = $translation->checked_out != $user->id;
 
             <div class="clearfix"></div>
             <div class="pull-left versions-button">
-                <?php if (NenoSettings::get('content_history', 1) && JFactory::getUser()->authorise('core.edit')): ?>
+                <?php if (NenoSettings::get('save_history', 1) && JFactory::getUser()->authorise('core.edit')): ?>
                     <a rel="{handler: 'iframe', size: {x: 800, y: 600}}"
-                       href="<?php echo JRoute::_('index.php?option=com_contenthistory&view=history&layout=modal&tmpl=component&type_alias=com_neno.translation&item_id=' . (int)$translation->id . '&' . JSession::getFormToken() . '=1'); ?>"
+                       href="<?php echo JRoute::_('index.php?option=com_contenthistory&view=history&layout=modal&tmpl=component&type_alias=com_neno.translation&type_id=' . $typeId . '&item_id=' . (int)$translation->id . '&' . JSession::getFormToken() . '=1'); ?>"
                        class="modal_jform_contenthistory">
                         <?php echo JText::_('COM_NENO_EDITOR_VERSIONS_BUTTON'); ?>
                     </a>
