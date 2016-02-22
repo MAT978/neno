@@ -88,17 +88,26 @@ foreach ($this->items as $item)
 					value  : value
 				},
 				success: function (response) {
-					if (response == 'ok') {
-						element.parent().append('<span class="icon-checkmark"></span>');
-						setTimeout(function () {
-							jQuery('.icon-checkmark').hide('slow');
-						}, 2000);
-					}
-					else {
-						element.parent().append('<span class="icon-remove"></span>');
-						setTimeout(function () {
-							jQuery('.icon-remove').hide('slow');
-						}, 2000);
+
+					switch (response)
+					{
+						case 'ok'    :
+							element.parent().append('<span class="icon-checkmark"></span>');
+							setTimeout(function () {
+								jQuery('.icon-checkmark').hide('slow');
+							}, 2000);
+							break;
+						case 'saved' :
+							jQuery('#saved-modal').modal('show');
+							setTimeout(function () {
+								jQuery('#saved-modal').modal('hide');
+							}, 3000);
+							break;
+						default      :
+							element.parent().append('<span class="icon-remove"></span>');
+							setTimeout(function () {
+								jQuery('.icon-remove').hide('slow');
+							}, 2000);
 					}
 				}
 			});
@@ -373,7 +382,12 @@ foreach ($this->items as $item)
 			<?php echo JHtml::_('form.token'); ?>
 
 		</div>
-
 	</form>
+
+	<div class="modal hide fade" id="saved-modal">
+		<div class="modal-body">
+			<h3><?php echo JText::_('COM_NENO_SETTINGS_SAVED'); ?></h3>
+		</div>
+	</div>
 
 <?php echo NenoHelperBackend::renderVersionInfoBox(); ?>

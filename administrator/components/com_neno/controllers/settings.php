@@ -33,17 +33,29 @@ class NenoControllerSettings extends JControllerAdmin
 		$error = false;
 
 		// Saving component params
-		if ($setting == 'save_history') {
-			if (!$this->saveContentHistory($newValue)) {
+		if ($setting == 'save_history')
+		{
+			if (!$this->saveContentHistory($newValue))
+			{
 				$error = true;
 			}
 		}
 
 		// Check for errors
 		if (!$error) {
+
 			// Saving neno settings
-			if (NenoSettings::set($setting, $newValue)) {
-				echo 'ok';
+			if (NenoSettings::set($setting, $newValue))
+			{
+
+				if ($setting == 'license_code' || $setting == 'translator_api_key')
+				{
+					echo 'saved';
+				}
+				else
+				{
+					echo 'ok';
+				}
 			}
 		}
 
