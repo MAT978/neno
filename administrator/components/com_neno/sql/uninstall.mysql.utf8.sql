@@ -1,6 +1,9 @@
 UPDATE `#__extensions`
 SET `enabled` = 0
 WHERE `type` = 'plugin' AND `folder` = 'system' AND element = 'neno';
+
+DELETE FROM `#__content_types` WHERE (type_alias LIKE 'com_neno.%');
+
 DROP TABLE IF EXISTS `#__neno_installation_messages`;
 DROP TABLE IF EXISTS `#__neno_content_element_groups_x_extensions`;
 DROP TABLE IF EXISTS `#__neno_content_element_fields_x_translations`;
@@ -22,3 +25,4 @@ DROP TABLE IF EXISTS `#__neno_settings`;
 DROP TABLE IF EXISTS `#__neno_machine_translation_apis`;
 DROP TABLE IF EXISTS `#__neno_language_external_translators_comments`;
 DROP TABLE IF EXISTS `#__neno_content_element_table_filters`;
+DROP TABLE IF EXISTS `#__neno_translation_states`;
