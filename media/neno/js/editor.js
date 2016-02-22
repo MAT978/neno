@@ -48,7 +48,15 @@ function bindEditorButtons() {
 	jQuery('.copy-string-link').off().on('click', copy);
 	jQuery('.translate-string-link').off().on('click', translate);
 
-
+	jQuery(function($) {
+		SqueezeBox.initialize();
+		SqueezeBox.assign(jQuery('a.modal_jform_contenthistory').get(), {
+			parse: 'rel'
+		});
+	});
+	function jModalClose() {
+		SqueezeBox.close();
+	}
 }
 
 

@@ -20,7 +20,7 @@ class NenoTableGroupElement extends JTable
 	/**
 	 * Constructor
 	 *
-	 * @param   JDatabaseDriver $db A database connector object
+	 * @param   JDatabaseDriver  $db  A database connector object
 	 */
 	public function __construct($db)
 	{
@@ -30,9 +30,9 @@ class NenoTableGroupElement extends JTable
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @param   mixed $pk Primary key
+	 * @param   mixed  $pk  Primary key
 	 *
-	 * @return bool
+	 * @return  bool
 	 */
 	public function delete($pk = null)
 	{

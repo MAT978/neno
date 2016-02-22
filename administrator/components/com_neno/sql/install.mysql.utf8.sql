@@ -367,6 +367,37 @@ CREATE TABLE IF NOT EXISTS `#__neno_language_pairs_pricing` (
   UNIQUE (`target_language`, `translation_type`)
 );
 
+--
+-- Table structure for table `#__neno_translation_states`
+--
+CREATE TABLE IF NOT EXISTS `#__neno_translation_states` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `state` TINYINT UNSIGNED NULL,
+  `name` VARCHAR(45) NULL,
+  `description` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`));
+
+--
+-- Values for translation states
+--
+INSERT IGNORE INTO `#__neno_translation_states` (`id`, `state`, `name`, `description`) VALUES
+(NULL, 1, 'Translated', 'The item has been translated'),
+(NULL, 2, 'Waiting', 'The item is in queue for being traslated'),
+(NULL, 3, 'Changed', 'The original source has changed'),
+(NULL, 4, 'Not Translated', 'The item is not translated yet');
+
+--
+-- Values for content history
+--
+INSERT IGNORE INTO `#__content_types` (`type_id`, `type_title`, `type_alias`, `table`, `rules`, `field_mappings`, `router`, `content_history_options`)
+VALUES
+(NULL, 'Translations', 'com_neno.translation',
+'{"special":	{"dbtable":"#__neno_content_element_translations", "key":"id", "type":"Translation", "prefix":"NenoContentElementTable"}}','','','',
+'{"formFile":"administrator\\/components\\/com_neno\\/models\\/forms\\/translation.xml",
+"hideFields": ["id","content_type","content_id","language","checked_out","checked_out_time","params","language"],
+"displayLookup":[{"sourceColumn":"state","targetTable":"#__neno_translation_states", "targetColumn":"id","displayColumn":"name"}]}');
+
+
 INSERT IGNORE INTO `#__neno_machine_translation_apis`
 VALUES (1, 'Google', 'machine'), (3, 'Yandex', 'machine'), (4, 'Bing', 'machine');
 
@@ -376,15 +407,15 @@ VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0', 0), (2, 'COM_NENO_TRANSLAT
 
 INSERT IGNORE INTO `#__neno_settings` (`setting_key`, `setting_value`, `read_only`)
 VALUES ('translate_automatically_professional', '0', 0),
-  ('translate_automatically_machine', '1', 0),
-  ('api_server_url', 'http://api.neno-translate.com/en/api/', 1),
-  ('license_code', '', 0), ('translator', '', 0),
-  ('translator_api_key', '', 0),
-  ('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),
-  ('hide_empty_strings', '1', 0), ('installation_completed', '0', 0), ('default_translate_action', '', 2),
-  ('copy_unpublished', '1', 2), ('copy_trashed', '0', 2),
-  ('server_url', 'https://www.neno-translate.com/', 1), ('external_translators_notes', '', 0), ('only_prefix', 1, 0),
-  ('load_related_content', '', 0), ('default_translate_action', '0', 0);
+	('translate_automatically_machine', '1', 0),
+	('api_server_url', 'http://api.neno-translate.com/en/api/', 1),
+	('license_code', '', 0), ('translator', '', 0),
+	('translator_api_key', '', 0),
+	('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),
+	('hide_empty_strings', '1', 0), ('installation_completed', '0', 0), ('default_translate_action', '', 2),
+	('copy_unpublished', '1', 2), ('copy_trashed', '0', 2),
+	('server_url', 'https://www.neno-translate.com/', 1), ('external_translators_notes', '', 0), ('only_prefix', 1, 0),
+	('load_related_content', '', 0), ('default_translate_action', '0', 0), ('save_history', '1', 0);
 
 INSERT IGNORE INTO `#__neno_machine_translation_api_language_pairs`
 VALUES (1, 1, 'af', 'ar'), (2, 1, 'af', 'az'), (3, 1, 'af', 'be'), (4, 1, 'af', 'bg'), (5, 1, 'af', 'bn'),

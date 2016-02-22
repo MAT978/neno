@@ -30,11 +30,38 @@ class NenoControllerSettings extends JControllerAdmin
 		$setting  = $input->getString('setting');
 		$newValue = $input->getString('value');
 
-		if (NenoSettings::set($setting, $newValue))
-		{
-			echo 'ok';
+		$error = false;
+
+		// Saving component params
+		if ($setting == 'save_history') {
+			if (!$this->saveContentHistory($newValue)) {
+				$error = true;
+			}
+		}
+
+		// Check for errors
+		if (!$error) {
+			// Saving neno settings
+			if (NenoSettings::set($setting, $newValue)) {
+				echo 'ok';
+			}
 		}
 
 		JFactory::getApplication()->close();
+	}
+
+	/*
+	 * Activate save history in component params
+	 *
+	 * @param   bool  $value  Value if saving or not
+	 *
+	 * @return  bool
+	 */
+	public function saveContentHistory($value)
+	{
+		$model = JModelLegacy::getInstance('Settings', 'NenoModel');
+		$result = $model->saveNenoHistoryConfig($value);
+
+		return $result;
 	}
 }
