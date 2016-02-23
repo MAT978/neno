@@ -166,7 +166,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			$query
 				->select(
 					array(
-						'id AS value',
+						'f.id AS value',
 						'field_name AS text',
 						'table_name'
 					)
@@ -174,7 +174,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				->from('#__neno_content_element_fields AS f')
 				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
 				->where('table_id = ' . (int) $tableId)
-				->order('id ASC');
+				->order('f.id ASC');
 
 			$db->setQuery($query);
 			$fields = $db->loadObjectList();
