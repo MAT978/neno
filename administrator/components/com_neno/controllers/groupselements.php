@@ -186,6 +186,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				$extraAttributes        = $this->getFilterAttributesBasedOnFilterType($contentElementFilePath, $field->text, $filterField);
 			}
 
+			$tableName = $field->table_name;
+
 			$displayData                  = new stdClass;
 			$displayData->fields          = $fields;
 			$displayData->fieldsSelect    = JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"');
@@ -206,6 +208,12 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			$db->setQuery($query);
 			$displayData->filters = $db->loadAssocList();
+
+			// Create some common filters
+			if (!$displayData->filters)
+			{
+				$displayData->filters = NenoHelperBackend::generateCommonFilters($tableName);
+			}
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
 		}

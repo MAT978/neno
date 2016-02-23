@@ -526,6 +526,36 @@ class NenoHelperBackend
 		return $options;
 	}
 
+	private static function generateFilter($field, $operator = '', $value = '')
+	{
+		$filter = array(
+			'field'     => $field,
+			'operator'  => $operator,
+			'value'     => $value
+		);
+
+		return $filter;
+	}
+
+	public function generateCommonFilters($table)
+	{
+		$filterArr = array();
+
+		switch ($table)
+		{
+			case '#__content' :
+				$filterArr[0] = NenoHelperBackend::generateFilter('id', '<>');
+				$filterArr[1] = NenoHelperBackend::generateFilter('parent_id', '=');
+				$filterArr[2] = NenoHelperBackend::generateFilter('alias', 'LIKE');
+				//$filterArr[3] = NenoHelperBackend::generateFilter('extension');
+				break;
+
+		}
+
+		return $filterArr;
+	}
+
+
 	/**
 	 * Return all translation statuses present.
 	 *
