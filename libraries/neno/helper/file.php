@@ -172,6 +172,6 @@ class NenoHelperFile
 	 */
 	public static function getContentElementFilePathBasedOnTableName($tableName)
 	{
-		return JPATH_NENO_CONTENT_FILES . str_replace('#__', '', $tableName) . '_contentelements.xml';
+		return JPATH_NENO_CONTENT_FILES . '/' . str_replace('#__', '', $tableName) . '_contentelements.xml';
 	}
 }
