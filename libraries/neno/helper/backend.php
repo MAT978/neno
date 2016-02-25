@@ -537,16 +537,32 @@ class NenoHelperBackend
 		return $filter;
 	}
 
-	public function generateCommonFilters($table)
+	private static function getFieldVvalueFromName($fieldName, $arr)
+	{
+		$fieldValue = null;
+
+		foreach ($arr as $field)
+		{
+			if ($field->text == $fieldName)
+			{
+				$fieldValue = $field->value;
+				break;
+			}
+		}
+
+		return $fieldValue;
+	}
+
+	public function generateCommonFilters($table, $fields)
 	{
 		$filterArr = array();
 
 		switch ($table)
 		{
 			case '#__content' :
-				$filterArr[0] = NenoHelperBackend::generateFilter('id', '<>');
-				$filterArr[1] = NenoHelperBackend::generateFilter('parent_id', '=');
-				$filterArr[2] = NenoHelperBackend::generateFilter('alias', 'LIKE');
+				$filterArr[0] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('id', $fields), '<>');
+				$filterArr[1] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('cat_id', $fields), '=');
+				$filterArr[2] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('alias', $fields), 'LIKE');
 				//$filterArr[3] = NenoHelperBackend::generateFilter('extension');
 				break;
 

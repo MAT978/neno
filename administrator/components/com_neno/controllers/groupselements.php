@@ -212,7 +212,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			// Create some common filters
 			if (!$displayData->filters)
 			{
-				$displayData->filters = NenoHelperBackend::generateCommonFilters($tableName);
+				$displayData->filters = NenoHelperBackend::generateCommonFilters($tableName, $displayData->fields);
 			}
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
