@@ -517,7 +517,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$language = JFactory::getLanguage();
 		$tables   = null;
-		preg_match('/insert into (\w+)/', $this->sql, $tables);
+		preg_match('/insert into `?(#\w+)`?/i', (string) $this->sql, $tables);
 
 		if (!empty($tables))
 		{
