@@ -74,6 +74,9 @@ class NenoHelperApi
 				}
 				else
 				{
+					// Get information from the user
+					$parameters = array_merge($parameters, self::getUserInformation());
+
 					$apiResponse = self::$httpClient->{$method}(
 						$apiEndpoint . $apiCall,
 						json_encode($parameters),
@@ -102,6 +105,22 @@ class NenoHelperApi
 		}
 
 		return array($responseStatus, $response);
+	}
+
+	/**
+	 * Get information about the domain, source language and target languages.
+	 *
+	 * @return array
+	 */
+	protected static function getUserInformation()
+	{
+		return array(
+			'user_information' => array(
+				'domain'           => JUri::root(),
+				'source_language'  => NenoSettings::get('source_language'),
+				'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
+			)
+		);
 	}
 
 	/**
