@@ -776,6 +776,14 @@ function saveTranslatorsNote(event) {
 		data['contentId'] = checkbox.data('content-id');
 	}
 
+	// Chek if we should also set the note for all languages
+	var allLangs = jQuery('#comment-all-langs-' + translation_id);
+
+	if (allLangs.is(':checked')) {
+		data['allLangs'] = 1;
+		data['contentId'] = checkbox.data('content-id');
+	}
+
 	jQuery.post(
 		'index.php?option=com_neno&task=saveExternalTranslatorsComment',
 		data,

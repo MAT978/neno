@@ -547,7 +547,7 @@ class NenoController extends JControllerLegacy
 	 *
 	 * @return bool
 	 */
-	protected function saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment)
+	protected function saveExternalTranslatorsCommentForString($translationId, $allTranslations, $allLanguages, $contentId, $comment)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -557,6 +557,34 @@ class NenoController extends JControllerLegacy
 		$result = $translation
 			->setComment($comment)
 			->persist();
+
+		if ($allLanguages)
+		{
+			if (!empty($contentId))
+			{
+				$query
+					->select('original_text')
+					->from('#__neno_content_element_translations')
+					->where($db->quoteName('id') . ' = ' . (int) $translationId);
+
+				$db->setQuery($query);
+				$original_text = $db->loadResult();
+				$query->clear();
+
+				$query
+					->update('#__neno_content_element_translations')
+					->set('comment = ' . $db->quote($comment))
+					->where(
+						array(
+							'content_id = ' . $db->quote($contentId),
+							'original_text = ' . $db->quote($original_text)
+						)
+					);
+
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
 
 		if ($allTranslations)
 		{
@@ -620,8 +648,9 @@ class NenoController extends JControllerLegacy
 			case 'string':
 				$translationId   = $input->post->getInt('stringId');
 				$allTranslations = $input->post->getBool('alltranslations', false);
+				$allLanguages    = $input->post->getBool('allLangs', false);
 				$contentId       = $input->post->getInt('contentId');
-				$result          = $this->saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment);
+				$result          = $this->saveExternalTranslatorsCommentForString($translationId, $allTranslations, $allLanguages, $contentId, $comment);
 
 				break;
 		}
