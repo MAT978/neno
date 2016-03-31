@@ -1,3 +1,4 @@
+I.DS_Store
 /*
 !.gitignore
 !pkg_neno.xml
@@ -414,3 +415,5 @@ cli/*
 !phpmd.xml
 !RoboFile.php
 tests/acceptance.suite.yml
+
+libraries/neno/.DS_Store
