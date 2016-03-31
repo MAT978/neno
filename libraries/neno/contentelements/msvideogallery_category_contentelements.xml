@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>msvideogallery_category</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table msvideogallery_category</description><translate>1</translate><reference type="content"><table name="msvideogallery_category"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="title" translate="1">title</field></table></reference></neno>

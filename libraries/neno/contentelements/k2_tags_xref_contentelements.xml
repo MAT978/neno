@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>k2_tags_xref</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table k2_tags_xref</description><translate>0</translate><reference type="content"><table name="k2_tags_xref"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="itemID" translate="0">itemID</field><field type="text" name="tagID" translate="0">tagID</field></table></reference></neno>

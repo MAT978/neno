@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>hikashop_zone_link</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table hikashop_zone_link</description><translate>0</translate><reference type="content"><table name="hikashop_zone_link"><field type="referenceid" name="zone_child_namekey" translate="0">zone_child_namekey</field><field type="referenceid" name="zone_parent_namekey" translate="0">zone_parent_namekey</field></table></reference></neno>

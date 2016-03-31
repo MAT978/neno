@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>discuss_posts_tags</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table discuss_posts_tags</description><translate>0</translate><reference type="content"><table name="discuss_posts_tags"><field type="referenceid" name="id" translate="0">id</field><field type="referenceid" name="post_id" translate="0">post_id</field><field type="referenceid" name="tag_id" translate="0">tag_id</field></table></reference></neno>

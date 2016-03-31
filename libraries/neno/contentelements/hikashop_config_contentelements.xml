@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>hikashop_config</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table hikashop_config</description><translate>1</translate><reference type="content"><table name="hikashop_config"><field type="text" name="config_default" translate="0">config_default</field><field type="referenceid" name="config_namekey" translate="0">config_namekey</field><field type="text" name="config_value" translate="0">config_value</field></table></reference></neno>

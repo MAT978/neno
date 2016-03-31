@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>easyblog_mediamanager</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table easyblog_mediamanager</description><translate>0</translate><reference type="content"><table name="easyblog_mediamanager"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="params" translate="0">params</field><field type="text" name="path" translate="0">path</field><field type="text" name="type" translate="0">type</field></table></reference></neno>
