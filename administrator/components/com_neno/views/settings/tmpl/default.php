@@ -92,9 +92,9 @@ foreach ($this->items as $item)
 					switch (response)
 					{
 						case 'ok'    :
-							element.parent().append('<span class="icon-checkmark"></span>');
+							element.parent().append('<span class="settings-toogle icon-checkmark"></span>');
 							setTimeout(function () {
-								jQuery('.icon-checkmark').hide('slow');
+								jQuery('.settings-toogle.icon-checkmark').hide('slow');
 							}, 2000);
 							break;
 						case 'saved' :
@@ -104,9 +104,9 @@ foreach ($this->items as $item)
 							}, 3000);
 							break;
 						default      :
-							element.parent().append('<span class="icon-remove"></span>');
+							element.parent().append('<span class="settings-toogle icon-remove"></span>');
 							setTimeout(function () {
-								jQuery('.icon-remove').hide('slow');
+								jQuery('.settings-toogle.icon-remove').hide('slow');
 							}, 2000);
 					}
 				}
