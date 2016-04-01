@@ -221,11 +221,11 @@ class NenoControllerDashboard extends JControllerAdmin
 
 		if ($placement == 'module')
 		{
-			JFactory::getApplication()->redirect('index.php');
+			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
 		}
 		else
 		{
-			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+			JFactory::getApplication()->redirect('index.php');
 		}
 	}
 

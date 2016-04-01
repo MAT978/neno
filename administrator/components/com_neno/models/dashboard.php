@@ -68,7 +68,7 @@ class NenoModelDashboard extends JModelList
 	 *
 	 * @return bool
 	 */
-	public function isSwitcherPublished($createdAndPublished = true)
+	public function getIsSwitcherPublished($createdAndPublished = true)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
