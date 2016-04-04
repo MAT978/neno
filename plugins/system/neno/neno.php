@@ -183,7 +183,7 @@ class PlgSystemNeno extends JPlugin
 			$tableName = $content->getTableName();
 
 			/* @var $table NenoContentElementTable */
-			$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
+			$table = NenoContentElementTable::load(array('table_name' => $tableName), false, true);
 
 			if (!empty($table))
 			{
@@ -195,7 +195,7 @@ class PlgSystemNeno extends JPlugin
 				}
 				else
 				{
-					$fields = $table->getFields(false, true);
+					$fields = $table->getFields(false, true, false, true);
 
 					/* @var $field NenoContentElementField */
 					foreach ($fields as $field)

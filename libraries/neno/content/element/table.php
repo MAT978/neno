@@ -127,10 +127,11 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	 * @param   bool $loadExtraData                Load Extra data flag for fields
 	 * @param   bool $onlyTranslatable             Returns only the translatable fields
 	 * @param   bool $onlyFieldsWithNoTranslations Returns only fields with no translations
+	 * @param   bool $loadParent                   Load parent table
 	 *
 	 * @return array
 	 */
-	public function getFields($loadExtraData = false, $onlyTranslatable = false, $onlyFieldsWithNoTranslations = false)
+	public function getFields($loadExtraData = false, $onlyTranslatable = false, $onlyFieldsWithNoTranslations = false, $loadParent = false)
 	{
 		if ($this->fields === null || $onlyFieldsWithNoTranslations)
 		{
@@ -178,7 +179,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				{
 					$fieldInfo        = $fieldsInfo[ $i ];
 					$fieldInfo->table = $this;
-					$field            = new NenoContentElementField($fieldInfo, $loadExtraData);
+					$field            = new NenoContentElementField($fieldInfo, $loadExtraData, $loadParent);
 
 					// Insert the field only if the $onlyTranslatable flag is off or if the flag is on and the field is translatable
 					if (($field->isTranslatable() && $onlyTranslatable) || !$onlyTranslatable)
