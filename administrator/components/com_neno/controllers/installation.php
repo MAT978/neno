@@ -282,7 +282,7 @@ class NenoControllerInstallation extends JControllerAdmin
 					/* @var $field NenoContentElementField */
 					foreach ($fields as $key => $field)
 					{
-						if ($field->isTranslatableType($field->getFieldType()))
+						if (NenoContentElementField::isTranslatableType($field->getFieldType()))
 						{
 							$fields[ $key ] = $field->prepareDataForView();
 						}
