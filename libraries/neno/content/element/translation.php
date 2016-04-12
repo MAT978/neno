@@ -1117,6 +1117,7 @@ class NenoContentElementTranslation extends NenoContentElement
 		//if (parent::persist())
 		if ($table->store())
 		{
+			$this->id = $table->id;
 			if ($isNew && $this->contentType == self::DB_STRING)
 			{
 				$this->persistSourceData();
