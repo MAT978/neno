@@ -63,7 +63,7 @@ class NenoViewDashboard extends JViewLegacy
 	{
 		$this->state                       = $this->get('State');
 		$this->items                       = $this->get('Items');
-		$this->isLanguageSwitcherPublished = $this->get('IsSwitcherPublished');
+		$this->isLanguageSwitcherPublished = $this->getModel()->IsSwitcherPublished();
 
 		if (!$this->isLanguageSwitcherPublished)
 		{
