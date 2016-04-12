@@ -447,7 +447,7 @@ class NenoControllerInstallation extends JControllerAdmin
 				else
 				{
 					/* @var $element NenoContentElementGroup */
-					$element->discoverElement(false);
+					$element->discoverElement();
 				}
 			}
 			else

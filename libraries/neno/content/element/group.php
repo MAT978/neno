@@ -411,7 +411,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 					$translationMethod                        = new stdClass;
 					$translationMethod->lang                  = $language->lang_code;
 					$translationMethod->translation_method_id = 1;
-					$translationMethod->lang                  = 1;
 					$this->assignedTranslationMethods[]       = $translationMethod;
 				}
 			}
