@@ -767,8 +767,7 @@ class NenoControllerInstallation extends JControllerAdmin
 			$languageString = NenoContentElementLanguageString::load(
 				array(
 					'discovered' => 0,
-					'_limit'     => 1,
-					'translate'  => 1
+					'_limit'     => 1
 				), false, true
 			);
 		}
