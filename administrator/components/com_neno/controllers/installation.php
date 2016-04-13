@@ -432,6 +432,7 @@ class NenoControllerInstallation extends JControllerAdmin
 
 			if (!$this->isLeafLevel($level))
 			{
+				/* @var $element NenoContentElementTable */
 				$element = $this->getElementByLevel($level);
 
 				if ($element == null && $level == 0)
@@ -440,13 +441,12 @@ class NenoControllerInstallation extends JControllerAdmin
 					NenoHelperBackend::createDoNotTranslateGroup();
 					$finished = true;
 				}
-				elseif ($element == null && $level != 0)
+				elseif (($element == null || !$element->isDiscovered()) && $level != 0)
 				{
 					$this->goingBackInTheHierarchy($level);
 				}
 				else
 				{
-					/* @var $element NenoContentElementGroup */
 					$element->discoverElement();
 				}
 			}
