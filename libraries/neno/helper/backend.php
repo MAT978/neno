@@ -338,7 +338,7 @@ class NenoHelperBackend
 				array(
 					'TABLE_TYPE = ' . $db->quote('BASE TABLE'),
 					'TABLE_SCHEMA = ' . $db->quote($database),
-					'db.table_name LIKE ' . $db->quote($dbPrefix . '%'),
+					'dbt.table_name LIKE ' . $db->quote($dbPrefix . '%'),
 					'REPLACE(dbt.table_name, ' . $db->quote($dbPrefix) . ', ' . $db->quote('#__') . ') NOT LIKE ' . $db->quote('#\_\_neno_%'),
 					'REPLACE(dbt.table_name, ' . $db->quote($dbPrefix) . ', ' . $db->quote('#__') . ') NOT LIKE ' . $db->quote('#\_\_\_%'),
 					'REPLACE(dbt.table_name, ' . $db->quote($dbPrefix) . ', ' . $db->quote('#__') . ') NOT IN (' . implode(',', $db->quote(self::getJoomlaTablesWithNoContent())) . ')',

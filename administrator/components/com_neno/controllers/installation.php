@@ -441,7 +441,7 @@ class NenoControllerInstallation extends JControllerAdmin
 					NenoHelperBackend::createDoNotTranslateGroup();
 					$finished = true;
 				}
-				elseif (($element == null || !$element->isDiscovered()) && $level != 0)
+				elseif (($element == null || ($element instanceof NenoContentElementTable && !$element->isDiscovered())) && $level != 0)
 				{
 					$this->goingBackInTheHierarchy($level);
 				}
