@@ -1879,7 +1879,7 @@ class NenoHelper
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db              = JFactory::getDbo();
-		$languages       = self::getTargetLanguages();
+		$languages       = self::getTargetLanguages(false);
 		$defaultLanguage = NenoSettings::get('source_language');
 
 		if (!isset(self::$menuAssociations[ $menuItem->menutype ]))
@@ -2149,7 +2149,7 @@ class NenoHelper
 			->leftJoin('#__menu AS m ON mt.menutype = m.menutype')
 			->where(
 				array(
-					'NOT EXISTS(SELECT 1 FROM #__associations AS a WHERE a.id = m.id AND a.`key` = ' . $db->quote('com_menus.item') . ')',
+					'NOT EXISTS(SELECT 1 FROM #__associations AS a WHERE a.id = m.id AND a.`context` = ' . $db->quote('com_menus.item') . ')',
 					'client_id = 0',
 					'level <> 0',
 					'published <> -2'
