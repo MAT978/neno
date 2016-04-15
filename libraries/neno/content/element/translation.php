@@ -1050,7 +1050,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	public function ensureJsonStringsLength()
 	{
-		if ($this->isJson($this->string))
+		if (!empty($this->string) && $this->isJson($this->string))
 		{
 			$this->string = json_encode(json_decode($this->string));
 		}

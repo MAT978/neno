@@ -541,16 +541,6 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	}
 
 	/**
-	 * Check if the language string is translatable
-	 *
-	 * @return boolean
-	 */
-	public function isTranslate()
-	{
-		return $this->translate;
-	}
-
-	/**
 	 * Set translate status
 	 *
 	 * @param boolean $translate
