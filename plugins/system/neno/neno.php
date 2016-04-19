@@ -21,6 +21,11 @@ defined('JPATH_BASE') or die;
 class PlgSystemNeno extends JPlugin
 {
 	/**
+	 * @var array
+	 */
+	protected static $recordsApprovedToSave = array();
+
+	/**
 	 * Method to register a custom database driver
 	 *
 	 * @return void
@@ -37,7 +42,7 @@ class PlgSystemNeno extends JPlugin
 			NenoLoader::init();
 
 			// Load custom driver.
-			JFactory::$database = null;
+			JFactory::$database = NULL;
 			JFactory::$database = NenoFactory::getDbo();
 		}
 	}
@@ -56,9 +61,9 @@ class PlgSystemNeno extends JPlugin
 
 		// Check if the extension is Neno
 		$query
-			->select('*')
-			->from('#__extensions')
-			->where('extension_id = ' . $db->quote($extensionId));
+		  ->select('*')
+		  ->from('#__extensions')
+		  ->where('extension_id = ' . $db->quote($extensionId));
 
 		$db->setQuery($query);
 		$extensionData = $db->loadObject();
@@ -66,9 +71,9 @@ class PlgSystemNeno extends JPlugin
 		if (empty($extensionData) || strpos($extensionData->element, 'neno') === false)
 		{
 			$query
-				->select('group_id')
-				->from('#__neno_content_element_groups_x_extensions')
-				->where('extension_id = ' . (int) $extensionId);
+			  ->select('group_id')
+			  ->from('#__neno_content_element_groups_x_extensions')
+			  ->where('extension_id = ' . (int) $extensionId);
 
 			$db->setQuery($query);
 			$groupId = $db->loadResult();
@@ -113,14 +118,14 @@ class PlgSystemNeno extends JPlugin
 		$extensions = $db->quote(NenoHelper::whichExtensionsShouldBeTranslated());
 
 		$query
-			->select('*')
-			->from('#__extensions')
-			->where(
-				array(
-					'extension_id = ' . (int) $extensionId,
-					'type IN (' . implode(',', $extensions) . ')',
-				)
-			);
+		  ->select('*')
+		  ->from('#__extensions')
+		  ->where(
+			array(
+			  'extension_id = ' . (int) $extensionId,
+			  'type IN (' . implode(',', $extensions) . ')',
+			)
+		  );
 
 		$db->setQuery($query);
 		$extensionData = $db->loadAssoc();
@@ -195,30 +200,34 @@ class PlgSystemNeno extends JPlugin
 				}
 				else
 				{
-					$fields = $table->getFields(false, true, false, true);
-
-					/* @var $field NenoContentElementField */
-					foreach ($fields as $field)
+					// If this change has been approved, let's process it
+					if (in_array(md5($content->getPrimaryKey()), static::$recordsApprovedToSave[$context]))
 					{
-						if ($field->isTranslatable())
+						$fields = $table->getFields(false, true, false, true);
+
+						/* @var $field NenoContentElementField */
+						foreach ($fields as $field)
 						{
-							$primaryKeyData = array();
-
-							foreach ($content->getPrimaryKey() as $primaryKeyName => $primaryKeyValue)
+							if ($field->isTranslatable())
 							{
-								$primaryKeyData[$primaryKeyName] = $primaryKeyValue;
-							}
+								$primaryKeyData = array();
 
-							$field->persistTranslations($primaryKeyData);
+								foreach ($content->getPrimaryKey() as $primaryKeyName => $primaryKeyValue)
+								{
+									$primaryKeyData[$primaryKeyName] = $primaryKeyValue;
+								}
+
+								$field->persistTranslations($primaryKeyData);
+							}
 						}
 					}
-
-					$languages       = NenoHelper::getLanguages(false);
-					$defaultLanguage = NenoSettings::get('source_language');
 
 					// Only do that if the translation is new.
 					if ($isNew)
 					{
+						$languages       = NenoHelper::getLanguages(false);
+						$defaultLanguage = NenoSettings::get('source_language');
+
 						foreach ($languages as $language)
 						{
 							if ($language->lang_code != $defaultLanguage)
@@ -229,6 +238,98 @@ class PlgSystemNeno extends JPlugin
 								$db->setQuery($query);
 								$db->execute();
 							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method will be executed once the content is save
+	 *
+	 * @param   string $context Save context
+	 * @param   JTable $content JTable class of the content
+	 * @param   bool   $isNew   If the record is new or not
+	 *
+	 * @return void
+	 */
+	public function onContentBeforeSave($context, $content, $isNew)
+	{
+		if ($content instanceof JTable && $context !== 'com_menus.item' && !$isNew) // We only can process a record if the content is a JTable instance.
+		{
+			$tableName = $content->getTableName();
+
+			/* @var $table NenoContentElementTable */
+			$table = NenoContentElementTable::load(array('table_name' => $tableName), false, true);
+
+			if (!empty($table))
+			{
+				$tableCloned = clone $content;
+				$tableCloned->load($content->getPrimaryKey());
+				$oldValue      = $tableCloned->getProperties();
+				$newValue      = $content->getProperties();
+				$fields        = $table->getFields(false, true, false, true);
+				$approved      = false;
+				$fieldsChanged = array();
+
+				/* @var $field NenoContentElementField */
+				foreach ($fields as $field)
+				{
+					if ($oldValue->{$field->getFieldName()} != $newValue->{$field->getFieldName()})
+					{
+						if ($field->isTranslatable())
+						{
+							$approved = true;
+						}
+						else
+						{
+							$fieldsChanged[] = $field->getFieldName();
+						}
+					}
+				}
+
+				// If the record has changed, let's mark it as approved
+				if ($approved)
+				{
+					if (!isset(static::$recordsApprovedToSave[$context]))
+					{
+						static::$recordsApprovedToSave[$context] = array();
+					}
+
+					static::$recordsApprovedToSave[$context][] = md5($content->getPrimaryKey());
+				}
+
+				// Propagate changes for non translate fields
+				if (!empty($fieldsChanged))
+				{
+					/* @var $db NenoDatabaseDriverMysqlx */
+					$db              = JFactory::getDbo();
+					$languages       = NenoHelper::getLanguages(false);
+					$defaultLanguage = NenoSettings::get('source_language');
+
+					foreach ($languages as $language)
+					{
+						if ($language->lang_code != $defaultLanguage)
+						{
+							$shadowTable = $db->generateShadowTableName($tableName, $language->lang_code);
+							$query       = $db->getQuery(true);
+
+							$query->update($db->quoteName($shadowTable));
+
+							foreach ($fieldsChanged as $fieldChanged)
+							{
+								$query->set($db->quoteName($fieldChanged) . ' = ' . $db->quote($content->{$fieldChanged}));
+							}
+
+							$primaryKeys = $content->getPrimaryKey();
+
+							foreach ($primaryKeys as $primaryKeyName => $primaryKeyValue)
+							{
+								$query->where($db->quoteName($primaryKeyName) . ' = ' . $db->quote($primaryKeyValue));
+							}
+							$db->setQuery($query);
+							$db->execute();
 						}
 					}
 				}
@@ -251,17 +352,17 @@ class PlgSystemNeno extends JPlugin
 		$query       = $db->getQuery(true);
 
 		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translations AS tr');
+		  ->select('tr.id')
+		  ->from('#__neno_content_element_translations AS tr');
 
 		/* @var $primaryKey NenoContentElementField */
 		foreach ($primaryKeys as $key => $primaryKey)
 		{
 			$alias = 'ft' . $key;
 			$query
-				->where(
-					"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
-				);
+			  ->where(
+				"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
+			  );
 		}
 
 		$db->setQuery($query);
