@@ -36,8 +36,14 @@ class NenoSettings
 			self::loadSettingsFromDb();
 		}
 
+		if (empty(self::$settings[$settingName]))
+		{
+			self::$settings[$settingName]['value'] = $default;
+			static::createSetting($settingName, $default);
+		}
+
 		// If the setting doesn't exists, let's return the default value.
-		return empty(self::$settings[$settingName]) ? $default : self::$settings[$settingName]['value'];
+		return self::$settings[$settingName]['value'];
 	}
 
 	/**
@@ -160,6 +166,36 @@ class NenoSettings
 			  ->set('setting_value = ' . $db->quote(self::$settings[$setting]['value']))
 			  ->where('setting_key = ' . $db->quote($setting));
 		}
+
+		$db->setQuery($query);
+
+		return $db->execute() !== false;
+	}
+
+	/**
+	 * Create setting in case it does not exist
+	 *
+	 * @param string $settingName  Setting name
+	 * @param string $settingValue Setting value
+	 * @param bool   $readOnly     If it's read only or not
+	 *
+	 * @return bool
+	 */
+	protected static function createSetting($settingName, $settingValue, $readOnly = false)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->insert('#__neno_settings')
+		  ->columns(
+			array(
+			  'setting_key',
+			  'setting_value',
+			  'read_only'
+			)
+		  )
+		  ->values($db->quote($settingName) . ',' . $db->quote($settingValue) . ',' . $db->quote($readOnly));
 
 		$db->setQuery($query);
 
