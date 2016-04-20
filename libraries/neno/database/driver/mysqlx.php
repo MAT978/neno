@@ -17,14 +17,12 @@ if ($config->get('dbtype') == 'mysql')
 {
 	class CommonDriver extends JDatabaseDriverMysql
 	{
-
 	}
 }
 else
 {
 	class CommonDriver extends JDatabaseDriverMysqli
 	{
-
 	}
 }
 
@@ -39,44 +37,36 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 * Select query constant
 	 */
 	const SELECT_QUERY = 1;
-
 	/**
 	 * Insert query constant
 	 */
 	const INSERT_QUERY = 2;
-
 	/**
 	 * Update query constant
 	 */
 	const UPDATE_QUERY = 3;
-
 	/**
 	 * Replace query constant
 	 */
 	const REPLACE_QUERY = 4;
-
 	/**
 	 * Delete query constant
 	 */
 	const DELETE_QUERY = 5;
-
 	/**
 	 * Other query constant, such as SHOW TABLES, etc...
 	 */
 	const OTHER_QUERY = 6;
-
 	/**
 	 * Tables configured to be translatable
 	 *
 	 * @var array
 	 */
 	private $manifestTables;
-
 	/**
 	 * @var array
 	 */
 	private $languages;
-
 	/**
 	 * @var bool
 	 */
@@ -98,14 +88,14 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 			$query = $this->getQuery(true);
 
 			$query
-				->select($this->quoteName('AUTO_INCREMENT'))
-				->from('INFORMATION_SCHEMA.TABLES')
-				->where(
-					array(
-						'TABLE_SCHEMA = ' . $this->quote($this->getDatabase()),
-						'TABLE_NAME = ' . $this->quote($this->replacePrefix($tableName))
-					)
-				);
+			  ->select($this->quoteName('AUTO_INCREMENT'))
+			  ->from('INFORMATION_SCHEMA.TABLES')
+			  ->where(
+				array(
+				  'TABLE_SCHEMA = ' . $this->quote($this->getDatabase()),
+				  'TABLE_NAME = ' . $this->quote($this->replacePrefix($tableName))
+				)
+			  );
 
 			$data = $this->executeQuery($query, true, true);
 
@@ -113,7 +103,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 			$this->executeQuery($sql);
 
 			return true;
-		} catch (RuntimeException $ex)
+		}
+		catch (RuntimeException $ex)
 		{
 			return false;
 		}
@@ -282,16 +273,16 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @return string
 	 */
-	protected function replaceTableNameStatements($sql, $languageTagSelected = null)
+	protected function replaceTableNameStatements($sql, $languageTagSelected = NULL)
 	{
 		/* @var $config Joomla\Registry\Registry */
 		$config         = JFactory::getConfig();
 		$databasePrefix = $config->get('dbprefix');
 		$pattern        = '/(#__|' . preg_quote($databasePrefix) . ')(\w+)/';
-		$matches        = null;
+		$matches        = NULL;
 		$sql            = str_replace("\n", ' ', $sql);
 
-		if ($languageTagSelected === null)
+		if ($languageTagSelected === NULL)
 		{
 			$languageTagSelected = $this->getLanguageTagSelected();
 		}
@@ -358,7 +349,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	public function generateShadowTableName($tableName, $languageTag)
 	{
-		return '#___' . $this->cleanLanguageTag($languageTag) . '_' . $this->cleanTableName($tableName);
+		return '#___' . NenoHelper::cleanLanguageTag($languageTag) . '_' . $this->cleanTableName($tableName);
 	}
 
 	/**
@@ -370,7 +361,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	public function cleanLanguageTag($languageTag)
 	{
-		return strtolower(str_replace(array( '-' ), array( '' ), $languageTag));
+		return strtolower(str_replace(array('-'), array(''), $languageTag));
 	}
 
 	/**
@@ -385,7 +376,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$config         = JFactory::getConfig();
 		$databasePrefix = $config->get('dbprefix');
 
-		return str_replace(array( '#__', $databasePrefix ), '', $tableName);
+		return str_replace(array('#__', $databasePrefix), '', $tableName);
 	}
 
 	/**
@@ -399,8 +390,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	public function executeQuery($sql, $preservePreviousQuery = true, $returnObjectList = false)
 	{
-		$currentSql   = null;
-		$returnObject = null;
+		$currentSql   = NULL;
+		$returnObject = NULL;
 
 		// If the flag is activated, let's keep it save
 		if ($preservePreviousQuery)
@@ -438,8 +429,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$app      = JFactory::getApplication();
 
 		return $this->getQueryType((string) $this->sql) === self::INSERT_QUERY
-		       && $language->getTag() !== NenoSettings::get('source_language')
-		       && $app->isSite() && !$this->isNenoSql((string) $this->sql);
+		&& $language->getTag() !== NenoSettings::get('source_language')
+		&& $app->isSite() && !$this->isNenoSql((string) $this->sql);
 	}
 
 	/**
@@ -453,7 +444,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$queryType = $this->getQueryType((string) $this->sql);
 
 		return ($queryType === self::INSERT_QUERY || $queryType === self::DELETE_QUERY || $queryType === self::UPDATE_QUERY || $queryType === self::REPLACE_QUERY)
-		       && $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery;
+		&& $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery;
 	}
 
 	/**
@@ -471,8 +462,10 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		{
 			foreach ($tables as $tableName)
 			{
+				$tableName = NenoHelper::unifyTableName($tableName);
+
 				/* @var $table NenoContentElementTable */
-				$table = NenoContentElementTable::load(array( 'table_name' => $tableName ));
+				$table = NenoContentElementTable::load(array('table_name' => $tableName));
 
 				// If the table exists and it's translatable.
 				if (!empty($table) && $table->isTranslate())
@@ -516,13 +509,13 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	protected function handleFrontendSavingDifferentLanguage()
 	{
 		$language = JFactory::getLanguage();
-		$tables   = null;
+		$tables   = NULL;
 		preg_match('/insert into `?(#\w+)`?/i', (string) $this->sql, $tables);
 
 		if (!empty($tables))
 		{
 			/* @var $table NenoContentElementTable */
-			$table = NenoContentElementTable::load(array( 'table_name' => $tables[1] ));
+			$table = NenoContentElementTable::load(array('table_name' => $tables[1]));
 
 			if (!empty($table) && $table->isTranslate())
 			{
@@ -556,7 +549,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				}
 
 				return $result;
-			} catch (RuntimeException $ex)
+			}
+			catch (RuntimeException $ex)
 			{
 				// If the table(s) doesn't exists, let's create them
 				if ($ex->getCode() == 1146)
@@ -571,7 +565,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 	protected function extractTableNamesFromSqlQuery()
 	{
-		$matches = null;
+		$matches = NULL;
 		if (preg_match_all('/#__[a-zA-Z_]+/', $this->sql, $matches))
 		{
 			return array_unique($matches[0]);
@@ -610,7 +604,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		// Execute the query and get the result set cursor.
 		if (!($cursor = $this->execute()))
 		{
-			return null;
+			return NULL;
 		}
 
 		// Get all of the rows from the result set as objects of type $class.
@@ -618,12 +612,12 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		{
 			if ($key)
 			{
-				if (!isset($array[ $row->$key ]))
+				if (!isset($array[$row->$key]))
 				{
-					$array[ $row->$key ] = array();
+					$array[$row->$key] = array();
 				}
 
-				$array[ $row->$key ][] = $row;
+				$array[$row->$key][] = $row;
 			}
 			else
 			{
@@ -646,9 +640,9 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$query = $this->getQuery(true);
 		$query
-			->select('table_name')
-			->from('#__neno_content_element_tables')
-			->where('translate <> 0');
+		  ->select('table_name')
+		  ->from('#__neno_content_element_tables')
+		  ->where('translate <> 0');
 
 		$manifestTablesObjectList = $this->executeQuery($query, true, true);
 
@@ -696,14 +690,14 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 *
 	 * @return void
 	 */
-	public function createShadowTables($tableName, $copyContent = true, $language = null)
+	public function createShadowTables($tableName, $copyContent = true, $language = NULL)
 	{
 		$defaultLanguage = NenoSettings::get('source_language');
 		$tableColumns    = array_keys($this->getTableColumns($tableName));
 		$hasLanguage     = in_array('language', $tableColumns);
 
 		// If there's no language passed, let's execute this for each language
-		if ($language === null)
+		if ($language === NULL)
 		{
 			$knownLanguages = NenoHelper::getLanguages(false);
 
@@ -755,8 +749,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		{
 			$query = $this->getQuery(true);
 			$query
-				->update($shadowTableName)
-				->set('language = ' . $this->quote($language));
+			  ->update($shadowTableName)
+			  ->set('language = ' . $this->quote($language));
 			$this->executeQuery($query);
 		}
 	}
@@ -776,7 +770,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$cacheId = NenoCache::getCacheId(__FUNCTION__, func_get_args());
 
-		if (NenoCache::getCacheData($cacheId) === null)
+		if (NenoCache::getCacheData($cacheId) === NULL)
 		{
 			NenoCache::setCacheData($cacheId, parent::getTableColumns($table, $typeOnly));
 		}
@@ -796,8 +790,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$query = $this->getQuery(true);
 		$query
-			->delete($sourceTableName)
-			->where('language = ' . $this->quote($language));
+		  ->delete($sourceTableName)
+		  ->where('language = ' . $this->quote($language));
 		$this->setQuery($query);
 		$oldValue             = $this->propagateQuery;
 		$this->propagateQuery = false;
@@ -817,9 +811,9 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$query = $this->getQuery(true);
 		$query
-			->update($sourceTableName)
-			->set('language =' . $this->quote($sourceLanguage))
-			->where('language = ' . $this->quote('*'));
+		  ->update($sourceTableName)
+		  ->set('language =' . $this->quote($sourceLanguage))
+		  ->where('language = ' . $this->quote('*'));
 		$this->setQuery($query);
 		$this->execute();
 	}
@@ -841,7 +835,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		{
 			if ($column == 'id')
 			{
-				unset($columns[ $key ]);
+				unset($columns[$key]);
 				break;
 			}
 		}
@@ -856,11 +850,11 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				{
 					if ($selectColumn == 'language')
 					{
-						$selectColumns[ $key ] = $this->quote($knownLanguage->lang_code);
+						$selectColumns[$key] = $this->quote($knownLanguage->lang_code);
 					}
 					else
 					{
-						$selectColumns[ $key ] = $this->quoteName($selectColumn);
+						$selectColumns[$key] = $this->quoteName($selectColumn);
 					}
 				}
 
@@ -906,19 +900,19 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$cacheId = NenoCache::getCacheId(__FUNCTION__, func_get_args());
 
-		if (NenoCache::getCacheData($cacheId) === null)
+		if (NenoCache::getCacheData($cacheId) === NULL)
 		{
 			$tablePattern = NenoHelper::getTableNamePatternBasedOnComponentName($componentName);
 			$query        = $this->getQuery(true);
 			$query
-				->select('TABLE_NAME')
-				->from('information_schema.tables')
-				->where(
-					array(
-						'table_schema = DATABASE()',
-						'table_name LIKE ' . $this->quote($tablePattern . '%')
-					)
-				);
+			  ->select('TABLE_NAME')
+			  ->from('information_schema.tables')
+			  ->where(
+				array(
+				  'table_schema = DATABASE()',
+				  'table_name LIKE ' . $this->quote($tablePattern . '%')
+				)
+			  );
 
 			$tablesList = $this->executeQuery($query, true, true);
 
@@ -943,8 +937,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$query = $this->getQuery(true);
 		$query
-			->delete((string) $table)
-			->where('id = ' . (int) $id);
+		  ->delete((string) $table)
+		  ->where('id = ' . (int) $id);
 
 		$this->setQuery($query);
 
@@ -1037,7 +1031,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		{
 			if (($onlyPrefix && NenoHelper::startsWith($table, $this->getPrefix())) || !$onlyPrefix)
 			{
-				$tableList[ $key ] = str_replace($this->getPrefix(), '#__', $table);
+				$tableList[$key] = str_replace($this->getPrefix(), '#__', $table);
 			}
 		}
 
@@ -1069,7 +1063,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 			foreach ($newFields as $newField)
 			{
-				$diff['add'][] = $table1Columns[ $newField ];
+				$diff['add'][] = $table1Columns[$newField];
 			}
 		}
 
@@ -1079,7 +1073,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 			foreach ($oldFields as $oldField)
 			{
-				$diff['drop'][] = $table2Columns[ $oldField ];
+				$diff['drop'][] = $table2Columns[$oldField];
 			}
 		}
 
@@ -1116,10 +1110,10 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	{
 		$query = $this->getQuery(true);
 		$query
-			->updateJoin($this->quoteName($destinationTable), $this->quoteName($sourceTable))
-			->set(
-				$this->generateTableColumnName($destinationTable, $columnName) . ' = ' . $this->generateTableColumnName($sourceTable, $columnName)
-			);
+		  ->updateJoin($this->quoteName($destinationTable), $this->quoteName($sourceTable))
+		  ->set(
+			$this->generateTableColumnName($destinationTable, $columnName) . ' = ' . $this->generateTableColumnName($sourceTable, $columnName)
+		  );
 
 		$primaryKeyFields = $this->getPrimaryKey($sourceTable);
 
