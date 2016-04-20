@@ -93,7 +93,8 @@ class NenoSettings
 			  'value'     => $settingValue,
 			  'read_only' => $readOnly
 			);
-			$refresh                      = true;
+
+			static::createSetting($settingName, $settingValue, $readOnly);
 		}
 		else
 		{
