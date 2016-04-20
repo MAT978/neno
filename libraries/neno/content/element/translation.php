@@ -1067,6 +1067,12 @@ class NenoContentElementTranslation extends NenoContentElement
 			}
 		}
 
+		// If the string is empty, let's set as already translated
+		if ($this->string === '')
+		{
+			$this->state = self::TRANSLATED_STATE;
+		}
+
 		if ($this->getState() == self::TRANSLATED_STATE)
 		{
 			$this->timeCompleted = new DateTime;

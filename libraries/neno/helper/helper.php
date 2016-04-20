@@ -1149,6 +1149,8 @@ class NenoHelper
 				$string = $db->loadResult();
 			}
 
+			$string = $string === null ? '' : $string;
+
 			NenoCache::setCacheData($cacheId, $string);
 			$cachedData = $string;
 		}
