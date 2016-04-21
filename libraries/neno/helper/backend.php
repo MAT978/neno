@@ -418,7 +418,29 @@ class NenoHelperBackend
 		$db->setQuery($query);
 
 		return $db->loadResult();
+	}
 
+	public static function renderTableFilter($displayData, $filter)
+	{
+		$html  = '<tr class="filter-row">';
+		$html .= '<td>' . JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']) . '</td>';
+		$html .= '<td>' . JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']) . '</td>';
+		$html .= '<td>';
+		$html .= '<input type="text" name="value[]" value="' . $filter['value'] . '" class="filter-value" />';
+		$html .= '</td>';
+		$html .= '<td>';
+		$html .= '<div class="btn-group">';
+		$html .= '<button type="button" class="btn btn-primary btn-small add-row-button">';
+		$html .= '<i class="icon-plus"></i>';
+		$html .= '</button>';
+		$html .= '<button type="button" class="btn btn-danger btn-small remove-row-button">';
+		$html .= '<i class="icon-minus"></i>';
+		$html .= '</button>';
+		$html .= '</div>';
+		$html .= '</td>';
+		$html .= '</tr>';
+
+		return $html;
 	}
 
 	/**
