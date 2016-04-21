@@ -346,6 +346,82 @@ class NenoHelperBackend
 	}
 
 	/**
+	 * Get data of filters for translations in gropus and elements
+	 * 
+	 * @param   int     $table  The table id
+	 * 
+	 * @param   string  $opt    The type of data
+	 * 
+	 * @return  mixed The data
+	 */
+	public static function getTableFiltersData($table, $opt = 'fields')
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		if ($opt == 'filters')
+		{
+			$query
+				->select(
+					array(
+						'field_id AS field',
+						'comparaison_operator AS operator',
+						'filter_value AS value'
+					)
+				)
+				->from('#__neno_content_element_table_filters')
+				->where('table_id = ' . (int) $table);
+
+			$db->setQuery($query);
+			$result = $db->loadAssocList();
+		}
+		else
+		{
+			$query
+				->select(
+					array(
+						'f.id AS value',
+						'field_name AS text',
+						'table_name'
+					)
+				)
+				->from('#__neno_content_element_fields AS f')
+				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
+				->where('table_id = ' . (int) $table)
+				->order('f.id ASC');
+
+			$db->setQuery($query);
+
+			$result = $db->loadObjectList();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get the name of a field by its id
+	 * 
+	 * @param   int  $field  The id
+	 * 
+	 * @return  string|null The field name
+	 */
+	public static function getFieldName($field)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('field_name')
+			->from('#__neno_content_element_fields')
+			->where('id = ' . (int) $field);
+
+		$db->setQuery($query);
+
+		return $db->loadResult();
+
+	}
+
+	/**
 	 * Get a list of tables that should not be included into Neno
 	 *
 	 * @return array

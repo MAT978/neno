@@ -153,50 +153,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		JFactory::getApplication()->close();
 	}
 
-	private function getTableFiltersData($table, $opt = 'fields')
-	{
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		if ($opt == 'filters')
-		{
-			$query
-				->select(
-					array(
-						'field_id AS field',
-						'comparaison_operator AS operator',
-						'filter_value AS value'
-					)
-				)
-				->from('#__neno_content_element_table_filters')
-				->where('table_id = ' . (int) $table);
-
-			$db->setQuery($query);
-			$result = $db->loadAssocList();
-		}
-		else
-		{
-			$query
-				->select(
-					array(
-						'f.id AS value',
-						'field_name AS text',
-						'table_name'
-					)
-				)
-				->from('#__neno_content_element_fields AS f')
-				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
-				->where('table_id = ' . (int) $table)
-				->order('f.id ASC');
-
-			$db->setQuery($query);
-
-			$result = $db->loadObjectList();
-		}
-
-		return $result;
-	}
-
 	public function getTableFilterModalLayout()
 	{
 		$app     = JFactory::getApplication();
@@ -205,7 +161,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		if (!empty($tableId))
 		{
-			$fields = $this->getTableFiltersData($tableId);
+			$fields = NenoHelperBackend::getTableFiltersData($tableId);
 
 			foreach ($fields as $key => $field)
 			{
@@ -221,7 +177,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			$displayData->fieldsSelect    = JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"');
 			$displayData->operators       = $this->getComparaisonOperatorsList();
 			$displayData->operatorsSelect = JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"');
-			$displayData->filters         = $this->getTableFiltersData($tableId, 'filters');
+			$displayData->filters         = NenoHelperBackend::getTableFiltersData($tableId, 'filters');
 			$displayData->tableId         = $tableId;
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
@@ -238,7 +194,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$filterValue = '';
 		$html        = '';
 
-		switch ($field)
+		$fieldName = NenoHelperBackend::getFieldName($field);
+
+		switch ($fieldName)
 		{
 			case 'created_by' :
 				$filterValue = '';
@@ -249,13 +207,32 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				break;
 
 			case 'state' :
-				$filterValue = '';
+				$status  = array(
+					array(
+						'value' => 1,
+						'text'  => JText::_('JPUBLISHED')
+					),
+					array(
+						'value' => 0,
+						'text'  => JText::_('JUNPUBLISHED')
+					),
+					array(
+						'value' => 2,
+						'text'  => JText::_('JARCHIVED')
+					),
+					array(
+						'value' => -2,
+						'text'  => JText::_('JTRASHED')
+					)
+				);
+
+				$filterValue = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value');
 				break;
 		}
 
 		if (empty($filterValue))
 		{
-			$html .= '<td>' .  '</td>';
+			$html .= '<td></td>';
 			$html .= '<td>' . $filterValue . '</td>';
 			$html .= '<td>';
 		}

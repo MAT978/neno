@@ -65,7 +65,7 @@ $step = $displayData;
 	jQuery(document).ready(function(){
 		jQuery('.filter-field').change(function() {
 			debugger;
-			var field = jQuery(this).find('option:selected').text();
+			var field = jQuery(this).val();
 			var div   = jQuery(this).parent().parent();
 			var url   = '<?php echo JUri::base(); ?>index.php?option=com_neno&task=groupselements.generateFieldFilterOutput&table=<?php echo $displayData->tableId; ?>&field='+field;
 
