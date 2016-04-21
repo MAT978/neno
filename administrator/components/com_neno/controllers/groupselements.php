@@ -153,16 +153,29 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		JFactory::getApplication()->close();
 	}
 
-	public function getTableFilterModalLayout()
+	private function getTableFiltersData($table, $opt = 'fields')
 	{
-		$app     = JFactory::getApplication();
-		$input   = $app->input;
-		$tableId = $input->getInt('tableId');
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
 
-		if (!empty($tableId))
+		if ($opt == 'filters')
 		{
-			$db    = JFactory::getDbo();
-			$query = $db->getQuery(true);
+			$query
+				->select(
+					array(
+						'field_id AS field',
+						'comparaison_operator AS operator',
+						'filter_value AS value'
+					)
+				)
+				->from('#__neno_content_element_table_filters')
+				->where('table_id = ' . (int) $table);
+
+			$db->setQuery($query);
+			$result = $db->loadAssocList();
+		}
+		else
+		{
 			$query
 				->select(
 					array(
@@ -173,11 +186,26 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				)
 				->from('#__neno_content_element_fields AS f')
 				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
-				->where('table_id = ' . (int) $tableId)
+				->where('table_id = ' . (int) $table)
 				->order('f.id ASC');
 
 			$db->setQuery($query);
-			$fields = $db->loadObjectList();
+
+			$result = $db->loadObjectList();
+		}
+
+		return $result;
+	}
+
+	public function getTableFilterModalLayout()
+	{
+		$app     = JFactory::getApplication();
+		$input   = $app->input;
+		$tableId = $input->getInt('tableId');
+
+		if (!empty($tableId))
+		{
+			$fields = $this->getTableFiltersData($tableId);
 
 			foreach ($fields as $key => $field)
 			{
@@ -193,32 +221,65 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			$displayData->fieldsSelect    = JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"');
 			$displayData->operators       = $this->getComparaisonOperatorsList();
 			$displayData->operatorsSelect = JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"');
-
-			$query
-				->clear()
-				->select(
-					array(
-						'field_id AS field',
-						'comparaison_operator AS operator',
-						'filter_value AS value'
-					)
-				)
-				->from('#__neno_content_element_table_filters')
-				->where('table_id = ' . (int) $tableId);
-
-			$db->setQuery($query);
-			$displayData->filters = $db->loadAssocList();
-
-			// Create some common filters
-			if (!$displayData->filters)
-			{
-				$displayData->filters = NenoHelperBackend::generateCommonFilters($tableName, $displayData->fields);
-			}
+			$displayData->filters         = $this->getTableFiltersData($tableId, 'filters');
+			$displayData->tableId         = $tableId;
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
 		}
 
 		$app->close();
+	}
+
+	public function generateFieldFilterOutput()
+	{
+		$app         = JFactory::getApplication();
+		$field       = $app->input->get('field');
+		$tableId     = $app->input->getInt('id');
+		$filterValue = '';
+		$html        = '';
+
+		switch ($field)
+		{
+			case 'created_by' :
+				$filterValue = '';
+				break;
+
+			case 'catid' :
+				$filterValue = '';
+				break;
+
+			case 'state' :
+				$filterValue = '';
+				break;
+		}
+
+		if (empty($filterValue))
+		{
+			$html .= '<td>' .  '</td>';
+			$html .= '<td>' . $filterValue . '</td>';
+			$html .= '<td>';
+		}
+		else
+		{
+			$html .= '<td>&nbsp;</td>';
+			$html .= '<td>' . $filterValue . '</td>';
+			$html .= '<td>';
+		}
+		
+
+		$html .= '<div class="btn-group">';
+		$html .= '<button type="button" class="btn btn-primary btn-small add-row-button">';
+		$html .= '<i class="icon-plus"></i>';
+		$html .= '</button>';
+		$html .= '<button type="button" class="btn btn-danger btn-small remove-row-button">';
+		$html .= '<i class="icon-minus"></i>';
+		$html .= '</button>';
+		$html .= '</div>';
+		$html .= '</td>';
+
+		echo $html;
+
+		exit;
 	}
 
 	protected static function getFilterAttributesBasedOnFilterType($contentElementFilePath, $fieldName, $filterType)

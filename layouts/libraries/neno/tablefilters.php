@@ -61,3 +61,20 @@ $step = $displayData;
 	<?php endif; ?>
 
 </table>
+<script>
+	jQuery(document).ready(function(){
+		jQuery('.filter-field').change(function() {
+			debugger;
+			var field = jQuery(this).find('option:selected').text();
+			var div   = jQuery(this).parent().parent();
+			var url   = '<?php echo JUri::base(); ?>index.php?option=com_neno&task=groupselements.generateFieldFilterOutput&table=<?php echo $displayData->tableId; ?>&field='+field;
+
+			jQuery.get(url, function (data) {
+				var p = div.children('td:first');
+				div.children().remove();
+				div.append(p);
+				div.append(data);
+			});
+		});
+	});
+</script>

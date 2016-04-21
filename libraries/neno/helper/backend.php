@@ -526,52 +526,6 @@ class NenoHelperBackend
 		return $options;
 	}
 
-	private static function generateFilter($field, $operator = '', $value = '')
-	{
-		$filter = array(
-			'field'     => $field,
-			'operator'  => $operator,
-			'value'     => $value
-		);
-
-		return $filter;
-	}
-
-	private static function getFieldVvalueFromName($fieldName, $arr)
-	{
-		$fieldValue = null;
-
-		foreach ($arr as $field)
-		{
-			if ($field->text == $fieldName)
-			{
-				$fieldValue = $field->value;
-				break;
-			}
-		}
-
-		return $fieldValue;
-	}
-
-	public function generateCommonFilters($table, $fields)
-	{
-		$filterArr = array();
-
-		switch ($table)
-		{
-			case '#__content' :
-				$filterArr[0] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('id', $fields), '<>');
-				$filterArr[1] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('cat_id', $fields), '=');
-				$filterArr[2] = NenoHelperBackend::generateFilter(NenoHelperBackend::getFieldVvalueFromName('alias', $fields), 'LIKE');
-				//$filterArr[3] = NenoHelperBackend::generateFilter('extension');
-				break;
-
-		}
-
-		return $filterArr;
-	}
-
-
 	/**
 	 * Return all translation statuses present.
 	 *
