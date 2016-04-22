@@ -423,11 +423,13 @@ class NenoHelperBackend
 	/**
 	 * Get the name of a table by its id
 	 *
-	 * @param   int  $table  The id
+	 * @param   int   $table  The id
 	 *
-	 * @return  string|null The table name
+	 * @param   bool  $ext    Name of extension or table
+	 *
+	 * @return  string|null The table or extension name
 	 */
-	private static function getTableName($table)
+	private static function getTableName($table, $ext = false)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -439,7 +441,15 @@ class NenoHelperBackend
 
 		$db->setQuery($query);
 
-		return $db->loadResult();
+		$name = $db->loadResult();
+
+		if ($ext)
+		{
+			$name = str_replace('#__', '', $name);
+			$name = 'com_' . $name;
+		}
+
+		return $name;
 	}
 
 	/**
@@ -456,8 +466,8 @@ class NenoHelperBackend
 		// Fields that use to be in all the tables
 		$commonFields = array('state', 'created_by');
 
-		$fieldName     = NenoHelperBackend::getFieldName($filter['field']);
-		$tableName     = NenoHelperBackend::getTableName($table);
+		$fieldName     = self::getFieldName($filter['field']);
+		$tableName     = self::getTableName($table);
 		$specialFilter = '';
 
 		// Check if the field is a common field
@@ -488,8 +498,7 @@ class NenoHelperBackend
 					break;
 
 				case 'created_by' :
-					$specialFilter = NenoHelperBackend::renderDropdownSpecialFilter($fieldName, $filter['value']);
-					// TODO render created_by special filter
+					$specialFilter = self::renderDropdownSpecialFilter($table, $fieldName, $filter['value']);
 					break;
 			}
 		}
@@ -502,8 +511,7 @@ class NenoHelperBackend
 				case '#__content' :
 					if ($fieldName == 'catid')
 					{
-						// TODO render catid special filter
-						NenoHelperBackend::renderDropdownSpecialFilter($fieldName, $filter['value']);
+						$specialFilter = self::renderDropdownSpecialFilter($table, $fieldName, $filter['value']);
 					}
 
 					break;
@@ -516,8 +524,8 @@ class NenoHelperBackend
 			}
 		}
 
-		$fieldList  = NenoHelperBackend::getTableFiltersData($table, 'fields');
-		$operators  = NenoHelperBackend::getComparaisonOperatorsList();
+		$fieldList  = self::getTableFiltersData($table, 'fields');
+		$operators  = self::getComparaisonOperatorsList();
 
 		$displayData                = new stdClass;
 		$displayData->fields        = JHtml::_('select.genericlist', $fieldList, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']);
@@ -528,7 +536,18 @@ class NenoHelperBackend
 		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
 	}
 
-	private static function renderDropdownSpecialFilter($field, $active = null)
+	/**
+	 * Render a dropdown for special filters in common fields
+	 *
+	 * @param   int     $table   Table id
+	 *
+	 * @param   string  $field   Name of field
+	 *
+	 * @param   array   $active  Array of active filters
+	 *
+	 * @return string  HTML dropdown
+	 */
+	private static function renderDropdownSpecialFilter($table, $field, $active = null)
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -542,9 +561,12 @@ class NenoHelperBackend
 				break;
 
 			case 'catid'        :
+				$extension = self::getTableName($table, true);
+
 				$query
-					->select($db->quoteName(array('id', 'title AS name')))
-					->form($db->quoteName('#__categories'));
+					->select(array('id', 'title AS name'))
+					->from($db->quoteName('#__categories'))
+					->where('extension = ' . $db->quote($extension));
 				break;
 		}
 
