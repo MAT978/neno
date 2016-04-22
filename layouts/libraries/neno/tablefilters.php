@@ -47,19 +47,31 @@ $step = $displayData;
 
 </table>
 <script>
-	jQuery(document).ready(function(){
-		jQuery('.filter-field').change(function() {
-			debugger;
-			var field = jQuery(this).val();
-			var div   = jQuery(this).parent().parent();
-			var url   = '<?php echo JUri::base(); ?>index.php?option=com_neno&task=groupselements.generateFieldFilterOutput&table=<?php echo $displayData->tableId; ?>&field='+field;
 
-			jQuery.get(url, function (data) {
-				var p = div.children('td:first');
-				div.children().remove();
-				div.append(p);
-				div.append(data);
-			});
-		});
+	var url = '<?php echo JUri::base(); ?>index.php?option=com_neno&task=groupselements.generateFieldFilterOutput&table=<?php echo $displayData->tableId; ?>';
+
+	jQuery(document).ready(function() {
+		jQuery('.filter-field').change(loadAjaxFilter);
 	});
+
+	function loadAjaxFilter() {
+		var field = jQuery(this).val();
+		var div   = jQuery(this).parent().parent();
+
+		jQuery.get(url+'&field='+field, function (data) {
+			var p = div.children('td:first');
+			div.children().remove();
+			div.append(p);
+			div.append(data);
+
+			bindEvents();
+		});
+	}
+
+	function bindEvents()
+	{
+		jQuery('.filter-field').off('change').on('change', loadAjaxFilter);
+		jQuery('.add-row-button').off('click').on('click', duplicateFilterRow);
+		jQuery('.remove-row-button').off('click').on('click', removeFilterRow);
+	}
 </script>
