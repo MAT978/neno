@@ -22,28 +22,19 @@ $step = $displayData;
 		<th></th>
 	</tr>
 
-	<?php if (empty($displayData->filters)): ?>
-		<tr class="filter-row">
-			<td><?php echo $displayData->fieldsSelect; ?></td>
-			<td><?php echo $displayData->operatorsSelect; ?></td>
-			<td><input type="text" name="value[]" value="" class="filter-value" /></td>
-			<td>
-				<div class="btn-group">
-					<button type="button" class="btn btn-primary btn-small add-row-button">
-						<i class="icon-plus"></i>
-					</button>
-					<button type="button" class="btn btn-danger btn-small remove-row-button">
-						<i class="icon-minus"></i>
-					</button>
-				</div>
-			</td>
-		</tr>
-	<?php else:
+	<?php 
+	if (empty($displayData->filters))
+	{
+		echo NenoHelperBackend::renderTableFilter($displayData->tableId);
+	}
+	else
+	{
 		foreach ($displayData->filters as $filter)
 		{
-			echo NenoHelperBackend::renderTableFilter($displayData, $filter);
+			echo NenoHelperBackend::renderTableFilter($displayData->tableId, $filter);
 		}
-	endif; ?>
+	} 
+?>
 
 </table>
 <script>
@@ -57,12 +48,11 @@ $step = $displayData;
 	function loadAjaxFilter() {
 		var field = jQuery(this).val();
 		var div   = jQuery(this).parent().parent();
+		url       = url+'&field='+field;
 
-		jQuery.get(url+'&field='+field, function (data) {
-			var p = div.children('td:first');
-			div.children().remove();
-			div.append(p);
-			div.append(data);
+		jQuery.get(url, function (data) {
+			div.parent().append(data);
+			div.remove();
 
 			bindEvents();
 		});

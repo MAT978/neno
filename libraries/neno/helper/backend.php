@@ -493,8 +493,9 @@ class NenoHelperBackend
 
 		$displayData                = new stdClass;
 		$displayData->fields        = JHtml::_('select.genericlist', $fieldList, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']);
-		$displayData->operators     = JHtml::_('select.genericlist', $operators, 'operators[]', 'class="filter-operator"');
+		$displayData->operators     = JHtml::_('select.genericlist', $operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']);
 		$displayData->specialFilter = $filterValue;
+		$displayData->value         = $filter['value'];
 
 		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
 	}

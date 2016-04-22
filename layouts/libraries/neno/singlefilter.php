@@ -27,7 +27,7 @@ $step = $displayData;
 			<?php echo $displayData->operators; ?>
 		</td>
 		<td>
-			<input type="text" name="value[]" value="<?php echo $displayData->filterValue; ?>" class="filter-value" />
+			<input type="text" name="value[]" value="<?php echo $displayData->value; ?>" class="filter-value" />
 		</td>
 	<?php endif; ?>
 

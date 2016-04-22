@@ -161,22 +161,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		if (!empty($tableId))
 		{
-			$fields = NenoHelperBackend::getTableFiltersData($tableId);
-
-			foreach ($fields as $key => $field)
-			{
-				$contentElementFilePath = NenoHelperFile::getContentElementFilePathBasedOnTableName($field->table_name);
-				$filterField            = NenoHelper::getFieldAttributeFromContentElementFile($contentElementFilePath, $field->text, 'filter');
-				$extraAttributes        = $this->getFilterAttributesBasedOnFilterType($contentElementFilePath, $field->text, $filterField);
-			}
-
-			$tableName = $field->table_name;
-
 			$displayData                  = new stdClass;
-			$displayData->fields          = $fields;
-			$displayData->fieldsSelect    = JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"');
-			$displayData->operators       = $this->getComparaisonOperatorsList();
-			$displayData->operatorsSelect = JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"');
 			$displayData->filters         = NenoHelperBackend::getTableFiltersData($tableId, 'filters');
 			$displayData->tableId         = $tableId;
 
@@ -189,73 +174,15 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	public function generateFieldFilterOutput()
 	{
 		$app         = JFactory::getApplication();
-		$field       = $app->input->get('field');
-		$tableId     = $app->input->getInt('id');
-		$filterValue = '';
-		$html        = '';
+		$field       = $app->input->getInt('field');
+		$tableId     = $app->input->getInt('table');
 
-		$fieldName = NenoHelperBackend::getFieldName($field);
+		$filter = array(
+			'field' => $field,
+			'value' => ''
+		);
 
-		switch ($fieldName)
-		{
-			case 'created_by' :
-				$filterValue = '';
-				break;
-
-			case 'catid' :
-				$filterValue = '';
-				break;
-
-			case 'state' :
-				$status  = array(
-					array(
-						'value' => 1,
-						'text'  => JText::_('JPUBLISHED')
-					),
-					array(
-						'value' => 0,
-						'text'  => JText::_('JUNPUBLISHED')
-					),
-					array(
-						'value' => 2,
-						'text'  => JText::_('JARCHIVED')
-					),
-					array(
-						'value' => -2,
-						'text'  => JText::_('JTRASHED')
-					)
-				);
-
-				$filterValue = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value');
-				break;
-		}
-
-		if (empty($filterValue))
-		{
-			$html .= '<td></td>';
-			$html .= '<td>' . $filterValue . '</td>';
-			$html .= '<td>';
-		}
-		else
-		{
-			$html .= '<td>&nbsp;</td>';
-			$html .= '<td>' . $filterValue . '</td>';
-			$html .= '<td>';
-		}
-		
-
-		$html .= '<div class="btn-group">';
-		$html .= '<button type="button" class="btn btn-primary btn-small add-row-button">';
-		$html .= '<i class="icon-plus"></i>';
-		$html .= '</button>';
-		$html .= '<button type="button" class="btn btn-danger btn-small remove-row-button">';
-		$html .= '<i class="icon-minus"></i>';
-		$html .= '</button>';
-		$html .= '</div>';
-		$html .= '</td>';
-
-		echo $html;
-
+		echo NenoHelperBackend::renderTableFilter($tableId, $filter);
 		exit;
 	}
 
@@ -271,49 +198,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		}
 
 		return $attributes;
-	}
-
-	/**
-	 * Get list of comparaison operators
-	 *
-	 * @return array
-	 */
-	protected function getComparaisonOperatorsList()
-	{
-		return array(
-			array(
-				'value' => '=',
-				'text'  => '='
-			),
-			array(
-				'value' => '<>',
-				'text'  => '!='
-			),
-			array(
-				'value' => '<',
-				'text'  => '<'
-			),
-			array(
-				'value' => '<=',
-				'text'  => '<='
-			),
-			array(
-				'value' => '>',
-				'text'  => '>'
-			),
-			array(
-				'value' => '>=',
-				'text'  => '>='
-			),
-			array(
-				'value' => 'LIKE',
-				'text'  => 'LIKE'
-			),
-			array(
-				'value' => 'IN',
-				'text'  => 'IN'
-			)
-		);
 	}
 
 	/**
