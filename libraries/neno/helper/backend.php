@@ -405,7 +405,7 @@ class NenoHelperBackend
 	 * 
 	 * @return  string|null The field name
 	 */
-	private static function getFieldName($field)
+	public static function getFieldName($field)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -453,28 +453,8 @@ class NenoHelperBackend
 	 */
 	public static function renderTableFilter($table, $filter = null)
 	{
-		// Initialise some common filters
-		$status = array(
-			array(
-				'value' => 1,
-				'text' => JText::_('JPUBLISHED')
-			),
-			array(
-				'value' => 0,
-				'text' => JText::_('JUNPUBLISHED')
-			),
-			array(
-				'value' => 2,
-				'text' => JText::_('JARCHIVED')
-			),
-			array(
-				'value' => -2,
-				'text' => JText::_('JTRASHED')
-			)
-		);
-
 		// Fields that use to be in all the tables
-		$commonFields = array('state', 'created_by');
+		$commonFields = array('state');
 
 		$fieldName     = NenoHelperBackend::getFieldName($filter['field']);
 		$tableName     = NenoHelperBackend::getTableName($table);
@@ -486,11 +466,29 @@ class NenoHelperBackend
 			switch ($fieldName)
 			{
 				case 'state' :
+					$status = array(
+						array(
+							'value' => 1,
+							'text' => JText::_('JPUBLISHED')
+						),
+						array(
+							'value' => 0,
+							'text' => JText::_('JUNPUBLISHED')
+						),
+						array(
+							'value' => 2,
+							'text' => JText::_('JARCHIVED')
+						),
+						array(
+							'value' => -2,
+							'text' => JText::_('JTRASHED')
+						)
+					);
 					$specialFilter = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value', 'text', $filter['value']);
 					break;
 
 				case 'created_by' :
-					$specialFilter = 'Soy un created bai compae';
+					// TODO render created_by special filter
 					break;
 			}
 		}

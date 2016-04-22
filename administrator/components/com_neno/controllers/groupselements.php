@@ -508,6 +508,14 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			foreach ($filters as $filter)
 			{
+				// Check if the filters are common fields
+				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
+
+				if ($fieldName == 'state' || $fieldName == 'created_by' || $fieldName == 'catid')
+				{
+					$filter['operator'] = 'IN';
+				}
+
 				$query
 					->values(
 						$db->quote($tableId) . ','
