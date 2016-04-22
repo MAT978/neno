@@ -701,7 +701,7 @@ class NenoHelper
 	/**
 	 * Converts a table name to the Joomla table naming convention: #__table_name
 	 *
-	 * @param   string      $tableName Table name
+	 * @param   string $tableName Table name
 	 *
 	 * @return mixed
 	 */
@@ -1576,6 +1576,7 @@ class NenoHelper
 		$db->setQuery($query);
 		$db->execute();
 
+		// Set to source language all the modules that manage content
 		$query
 		  ->clear()
 		  ->update('#__modules')
@@ -1583,7 +1584,7 @@ class NenoHelper
 		  ->where(
 			array(
 			  'published = 1',
-			  'module = ' . $db->quote('mod_menu'),
+			  'module IN  ( ' . $db->quote(self::getModuleTypesNeedToBeDuplicated()) . ')',
 			  'client_id = 0',
 			  'language  = ' . $db->quote('*')
 			)
@@ -3787,5 +3788,176 @@ class NenoHelper
 	public static function cleanLanguageTag($languageTag)
 	{
 		return strtolower(str_replace(array('-'), array(''), $languageTag));
+	}
+
+	/**
+	 * Get all the front-end modules in the source language
+	 *
+	 * @return array
+	 */
+	public static function getModulesInSourceLanguage()
+	{
+		$sourceLanguage = NenoSettings::get('source_language');
+		$db             = JFactory::getDbo();
+		$query          = $db->getQuery(true);
+
+		$query
+		  ->select('m.*')
+		  ->from('#__modules AS m')
+		  ->where(
+			array(
+			  'client_id = 0',
+			  'language = ' . $db->quote($sourceLanguage)
+			)
+		  );
+
+		$db->setQuery($query);
+		$modules = $db->loadObjectList();
+
+		return $modules;
+	}
+
+	/**
+	 * Get a list of modules should be replicated
+	 *
+	 * @return array
+	 */
+	public static function getModuleTypesNeedToBeDuplicated()
+	{
+		return array(
+		  'mod_custom',
+		  'mod_menu'
+		);
+	}
+
+	/**
+	 * Get similar modules to the provided one.
+	 *
+	 * @param stdClass $module
+	 *
+	 * @return array
+	 */
+	public static function getSimilarModulesToModule($module)
+	{
+		$db    = JFactory::getDbo();
+		$query = self::generateModulesQuery();
+
+		$query
+		  ->where(
+			array(
+			  'position = ' . $db->quote($module->position),
+			  'ordering = ' . $db->quote($module->ordering),
+			  'language <> ' . $db->quote('*'),
+			  'language <> ' . $db->quote($module->language),
+			  'module = ' . $db->quote($module->module)
+			)
+		  );
+
+		$db->setQuery($query);
+		$modules = $db->loadObjectList();
+
+		return $modules;
+	}
+
+	/**
+	 * Generates common query part for modules (it includes the menu assignment type)
+	 *
+	 * @return \JDatabaseQuery
+	 */
+	protected function generateModulesQuery()
+	{
+		$db            = JFactory::getDbo();
+		$query         = $db->getQuery(true);
+		$queryAll      = $db->getQuery(true);
+		$querySelected = $db->getQuery(true);
+		$queryNone     = $db->getQuery(true);
+
+		// This query checks if the
+		$queryAll
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where(
+			array(
+			  'mm.module_id = m.id',
+			  'mm.menuid = 0'
+			)
+		  );
+
+		$querySelected
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where(
+			array(
+			  'mm.module_id = m.id',
+			  'mm.menuid > 0'
+			)
+		  );
+
+		$queryNone
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where('mm.module_id = m.id');
+
+
+		$query
+		  ->select(
+			array(
+			  'm.*',
+			  'IF(EXIST(' . (string) $queryAll . '), \'all\', IF(NOT EXISTS(' . (string) $queryNone . '), \'none\', IF(EXISTS(' . (string) $querySelected . ') ,\'selected\', \'not_selected\') AS assignment_type'
+			)
+		  )
+		  ->from('#__modules AS m');
+
+		return $query;
+	}
+
+	/**
+	 * Get the most similar
+	 *
+	 * @param stdClass      $module
+	 * @param null|callable $callback Function that will be executed with the candidates left
+	 *
+	 * @return bool|stdClass False if there's no similar module, module object otherwise
+	 */
+	public static function getMostSimilarModule($module, $callback = NULL)
+	{
+		$modules = self::getSimilarModulesToModule($module);
+
+		if (!empty($modules))
+		{
+			// Get only the modules that have associated the same configuration for menu items assignment
+			$similarModules = array();
+			foreach ($modules as $possibleSimilarModule)
+			{
+				// Check if both modules have the same assignment type
+				if ($possibleSimilarModule->assignment_type === $module->assignment_type)
+				{
+					// If the assignment type is ALL or NONE, it's one of the similar
+					if (in_array(
+					  $possibleSimilarModule->assignment_type,
+					  array(
+						'all',
+						'none'
+					  )
+					))
+					{
+						$similarModules[] = $possibleSimilarModule;
+					}
+					else
+					{
+						// Check if the selected or not selected items are associated.
+					}
+				}
+			}
+
+			if ($callback !== NULL)
+			{
+				$module = call_user_func($callback);
+			}
+
+			return $module;
+		}
+
+		return false;
 	}
 }

@@ -48,7 +48,7 @@ class NenoControllerInstallation extends JControllerAdmin
 
 		$sidebar = '';
 
-		if ($step == 6)
+		if ($step == 7)
 		{
 			NenoHelperBackend::addSubmenu();
 			$sidebar = JHtmlSidebar::render();
@@ -214,6 +214,28 @@ class NenoControllerInstallation extends JControllerAdmin
 	 * @return stdClass
 	 */
 	public function getDataForStep5()
+	{
+		$data   = new stdClass;
+		$groups = NenoHelper::getGroups();
+
+		/* @var $group NenoContentElementGroup */
+		foreach ($groups as $key => $group)
+		{
+			$group->getTables();
+			$group->getLanguageFiles();
+			$groups[ $key ] = $group->prepareDataForView();
+		}
+		$data->groups = $groups;
+
+		return $data;
+	}
+
+	/**
+	 * Get data for 5th step
+	 *
+	 * @return stdClass
+	 */
+	public function getDataForStep6()
 	{
 		$data   = new stdClass;
 		$groups = NenoHelper::getGroups();
