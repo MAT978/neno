@@ -454,7 +454,7 @@ class NenoHelperBackend
 	public static function renderTableFilter($table, $filter = null)
 	{
 		// Fields that use to be in all the tables
-		$commonFields = array('state');
+		$commonFields = array('state', 'created_by');
 
 		$fieldName     = NenoHelperBackend::getFieldName($filter['field']);
 		$tableName     = NenoHelperBackend::getTableName($table);
@@ -484,10 +484,11 @@ class NenoHelperBackend
 							'text' => JText::_('JTRASHED')
 						)
 					);
-					$specialFilter = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value', 'text', $filter['value']);
+					$specialFilter = JHtml::_('select.genericlist', $status, 'value[]', 'class="filter-value"', 'value', 'text', $filter['value']);
 					break;
 
 				case 'created_by' :
+					$specialFilter = NenoHelperBackend::renderDropdownSpecialFilter($fieldName, $filter['value']);
 					// TODO render created_by special filter
 					break;
 			}
@@ -502,12 +503,14 @@ class NenoHelperBackend
 					if ($fieldName == 'catid')
 					{
 						// TODO render catid special filter
+						NenoHelperBackend::renderDropdownSpecialFilter($fieldName, $filter['value']);
 					}
 
 					break;
 
 				// com_categories
 				case '#__categories' :
+
 					//TODO com_categories special filters
 					break;
 			}
@@ -523,6 +526,49 @@ class NenoHelperBackend
 		$displayData->value         = $filter['value'];
 
 		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
+	}
+
+	private static function renderDropdownSpecialFilter($field, $active = null)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		switch ($field)
+		{
+			case 'created_by'   :
+				$query
+					->select($db->quoteName(array('id', 'name')))
+					->from($db->quoteName('#__users'));
+				break;
+
+			case 'catid'        :
+				$query
+					->select($db->quoteName(array('id', 'title AS name')))
+					->form($db->quoteName('#__categories'));
+				break;
+		}
+
+		$db->setQuery($query);
+		$dropdownItems = $db->loadAssocList();
+
+		// Check if value has more than one element
+		if (strpos($active, ','))
+		{
+			$active = explode(',', $active);
+		}
+
+		// Render the html selector
+		$html  = '<select name="value" class="filter-value" multiple="multiple">';
+
+		foreach ($dropdownItems as $item)
+		{
+			$selected  = (in_array($item['id'], (array) $active)) ? ' selected="selected"' : '';
+			$html     .= '<option value="' . $item['id'] . '"' . $selected . '>' . $item['name'] . '</option>';
+		}
+
+		$html .= '</select>';
+
+		return $html;
 	}
 
 	/**

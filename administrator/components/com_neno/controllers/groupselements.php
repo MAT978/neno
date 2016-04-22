@@ -516,6 +516,12 @@ class NenoControllerGroupsElements extends JControllerAdmin
 					$filter['operator'] = 'IN';
 				}
 
+				// Check if value is multiple
+				if (is_array($filter['value']))
+				{
+					$filter['value'] = implode(',', $filter['value']);
+				}
+
 				$query
 					->values(
 						$db->quote($tableId) . ','
