@@ -473,35 +473,46 @@ class NenoHelperBackend
 			)
 		);
 
-		$tableName = NenoHelperBackend::getTableName($table);
+		// Fields that use to be in all the tables
+		$commonFields = array('state', 'created_by');
 
-		switch ($tableName)
+		$fieldName     = NenoHelperBackend::getFieldName($filter['field']);
+		$tableName     = NenoHelperBackend::getTableName($table);
+		$specialFilter = '';
+
+		// Check if the field is a common field
+		if (in_array($fieldName, $commonFields))
 		{
-			// com_content
-			case '#__content' :
-				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
+			switch ($fieldName)
+			{
+				case 'state' :
+					$specialFilter = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value', 'text', $filter['value']);
+					break;
 
-				switch ($fieldName)
-				{
-					case 'created_by' :
-						$filterValue = '';
-						break;
+				case 'created_by' :
+					$specialFilter = 'Soy un created bai compae';
+					break;
+			}
+		}
+		else
+		{
+			// Specific table fields
+			switch ($tableName)
+			{
+				// com_content
+				case '#__content' :
+					if ($fieldName == 'catid')
+					{
+						// TODO render catid special filter
+					}
 
-					case 'catid' :
-						$filterValue = '';
-						break;
+					break;
 
-					case 'state' :
-						$filterValue = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value', 'text', $filter['value']);
-						break;
-				}
-
-				break;
-
-			// com_categories
-			/*case '#__categories' :
-				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
-				break;*/
+				// com_categories
+				case '#__categories' :
+					//TODO com_categories special filters
+					break;
+			}
 		}
 
 		$fieldList  = NenoHelperBackend::getTableFiltersData($table, 'fields');
@@ -510,7 +521,7 @@ class NenoHelperBackend
 		$displayData                = new stdClass;
 		$displayData->fields        = JHtml::_('select.genericlist', $fieldList, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']);
 		$displayData->operators     = JHtml::_('select.genericlist', $operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']);
-		$displayData->specialFilter = $filterValue;
+		$displayData->specialFilter = $specialFilter;
 		$displayData->value         = $filter['value'];
 
 		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
