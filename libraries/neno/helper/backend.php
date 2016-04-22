@@ -420,27 +420,126 @@ class NenoHelperBackend
 		return $db->loadResult();
 	}
 
-	public static function renderTableFilter($displayData, $filter)
+	private static function getTableName($table)
 	{
-		$html  = '<tr class="filter-row">';
-		$html .= '<td>' . JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']) . '</td>';
-		$html .= '<td>' . JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']) . '</td>';
-		$html .= '<td>';
-		$html .= '<input type="text" name="value[]" value="' . $filter['value'] . '" class="filter-value" />';
-		$html .= '</td>';
-		$html .= '<td>';
-		$html .= '<div class="btn-group">';
-		$html .= '<button type="button" class="btn btn-primary btn-small add-row-button">';
-		$html .= '<i class="icon-plus"></i>';
-		$html .= '</button>';
-		$html .= '<button type="button" class="btn btn-danger btn-small remove-row-button">';
-		$html .= '<i class="icon-minus"></i>';
-		$html .= '</button>';
-		$html .= '</div>';
-		$html .= '</td>';
-		$html .= '</tr>';
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
 
-		return $html;
+		$query
+			->select('table_name')
+			->from('#__neno_content_element_tables')
+			->where('id = ' . (int) $table);
+
+		$db->setQuery($query);
+
+		return $db->loadResult();
+	}
+
+	public static function renderTableFilter($table, $filter = null)
+	{
+		// Initialise some common filters
+		$status = array(
+			array(
+				'value' => 1,
+				'text' => JText::_('JPUBLISHED')
+			),
+			array(
+				'value' => 0,
+				'text' => JText::_('JUNPUBLISHED')
+			),
+			array(
+				'value' => 2,
+				'text' => JText::_('JARCHIVED')
+			),
+			array(
+				'value' => -2,
+				'text' => JText::_('JTRASHED')
+			)
+		);
+
+		$tableName = NenoHelperBackend::getTableName($table);
+
+		switch ($tableName)
+		{
+			// com_content
+			case '#__content' :
+				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
+
+				switch ($fieldName)
+				{
+					case 'created_by' :
+						$filterValue = '';
+						break;
+
+					case 'catid' :
+						$filterValue = '';
+						break;
+
+					case 'state' :
+						$filterValue = JHtml::_('select.genericlist', $status, 'value', 'class="filter-value"', 'value', 'text', $filter['value']);
+						break;
+				}
+
+				break;
+
+			// com_categories
+			/*case '#__categories' :
+				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
+				break;*/
+		}
+
+		$fieldList  = NenoHelperBackend::getTableFiltersData($table, 'fields');
+		$operators  = NenoHelperBackend::getComparaisonOperatorsList();
+
+		$displayData                = new stdClass;
+		$displayData->fields        = JHtml::_('select.genericlist', $fieldList, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']);
+		$displayData->operators     = JHtml::_('select.genericlist', $operators, 'operators[]', 'class="filter-operator"');
+		$displayData->specialFilter = $filterValue;
+
+		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
+	}
+
+	/**
+	 * Get list of comparaison operators
+	 *
+	 * @return array
+	 */
+	public static function getComparaisonOperatorsList()
+	{
+		return array(
+			array(
+				'value' => '=',
+				'text'  => '='
+			),
+			array(
+				'value' => '<>',
+				'text'  => '!='
+			),
+			array(
+				'value' => '<',
+				'text'  => '<'
+			),
+			array(
+				'value' => '<=',
+				'text'  => '<='
+			),
+			array(
+				'value' => '>',
+				'text'  => '>'
+			),
+			array(
+				'value' => '>=',
+				'text'  => '>='
+			),
+			array(
+				'value' => 'LIKE',
+				'text'  => 'LIKE'
+			),
+			array(
+				'value' => 'IN',
+				'text'  => 'IN'
+			)
+		);
 	}
 
 	/**
