@@ -464,7 +464,7 @@ class NenoHelperBackend
 	public static function renderTableFilter($table, $filter = null)
 	{
 		// Fields that use to be in all the tables
-		$commonFields = array('state', 'created_by');
+		$commonFields = array('state', 'published', 'created_by', 'created_user_id', 'modified_by', 'modified_user_id');
 
 		$fieldName     = self::getFieldName($filter['field']);
 		$tableName     = self::getTableName($table);
@@ -475,7 +475,8 @@ class NenoHelperBackend
 		{
 			switch ($fieldName)
 			{
-				case 'state' :
+				case 'state'     :
+				case 'published' :
 					$status = array(
 						array(
 							'value' => 1,
@@ -497,7 +498,10 @@ class NenoHelperBackend
 					$specialFilter = JHtml::_('select.genericlist', $status, 'value[]', 'class="filter-value"', 'value', 'text', $filter['value']);
 					break;
 
-				case 'created_by' :
+				case 'created_user_id'  :
+				case 'created_by'       :
+				case 'modified_by'      :
+				case 'modified_user_id' :
 					$specialFilter = self::renderDropdownSpecialFilter($table, $fieldName, $filter['value']);
 					break;
 			}
@@ -554,13 +558,16 @@ class NenoHelperBackend
 
 		switch ($field)
 		{
-			case 'created_by'   :
+			case 'created_user_id'  :
+			case 'created_by'       :
+			case 'modified_by'      :
+			case 'modified_user_id' :
 				$query
 					->select($db->quoteName(array('id', 'name')))
 					->from($db->quoteName('#__users'));
 				break;
 
-			case 'catid'        :
+			case 'catid' :
 				$extension = self::getTableName($table, true);
 
 				$query

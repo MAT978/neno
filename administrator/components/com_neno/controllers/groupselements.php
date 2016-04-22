@@ -511,7 +511,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				// Check if the filters are common fields
 				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
 
-				if ($fieldName == 'state' || $fieldName == 'created_by' || $fieldName == 'catid')
+				$commonFields = array('state', 'published', 'created_by', 'created_user_id', 'modified_by', 'modified_user_id');
+
+				if (in_array($fieldName, $commonFields))
 				{
 					$filter['operator'] = 'IN';
 				}
