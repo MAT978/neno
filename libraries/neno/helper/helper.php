@@ -3634,7 +3634,7 @@ class NenoHelper
 		$chunks = array();
 
 		//If the given string can fit in the first chunk then just return that
-		if (\Joomla\String\String::strlen($string) < $maxChunkLength)
+		if (\Joomla\String\StringHelper::strlen($string) < $maxChunkLength)
 		{
 			$chunks[] = $string;
 
@@ -3649,7 +3649,7 @@ class NenoHelper
 		$cutStrings[] = '</a>';
 		$cutStrings[] = '. ';
 
-		while (\Joomla\String\String::strlen($string) > $maxChunkLength)
+		while (\Joomla\String\StringHelper::strlen($string) > $maxChunkLength)
 		{
 
 			//Look for the breakpoint that is located last in the substring that is less than max
@@ -3671,7 +3671,7 @@ class NenoHelper
 				$breakPoint               = $selectedBreakPoint + utf8_strlen($selectedBreakPointString);
 
 				//Add the chunk
-				$chunks[] = \Joomla\String\String::substr($string, 0, $breakPoint);
+				$chunks[] = \Joomla\String\StringHelper::substr($string, 0, $breakPoint);
 
 			}
 			else
@@ -3680,11 +3680,11 @@ class NenoHelper
 				$wordWrappedString = wordwrap($string, $maxChunkLength, '|||---NENO---|||', true);
 				$wordWrappedArray  = explode('|||---NENO---|||', $wordWrappedString);
 				$chunks[]          = $wordWrappedArray[0];
-				$breakPoint        = \Joomla\String\String::strlen($wordWrappedArray[0]) + 3;
+				$breakPoint        = \Joomla\String\StringHelper::strlen($wordWrappedArray[0]) + 3;
 			}
 
 			//Reduce the string
-			$string = \Joomla\String\String::substr($string, $breakPoint);
+			$string = \Joomla\String\StringHelper::substr($string, $breakPoint);
 
 		}
 
