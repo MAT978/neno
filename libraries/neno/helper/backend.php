@@ -405,7 +405,7 @@ class NenoHelperBackend
 	 * 
 	 * @return  string|null The field name
 	 */
-	public static function getFieldName($field)
+	private static function getFieldName($field)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -420,6 +420,13 @@ class NenoHelperBackend
 		return $db->loadResult();
 	}
 
+	/**
+	 * Get the name of a table by its id
+	 *
+	 * @param   int  $table  The id
+	 *
+	 * @return  string|null The table name
+	 */
 	private static function getTableName($table)
 	{
 		$db    = JFactory::getDbo();
@@ -435,6 +442,15 @@ class NenoHelperBackend
 		return $db->loadResult();
 	}
 
+	/**
+	 * Render a table filter for groups and translations
+	 *
+	 * @param   int    $table   The table id
+	 *
+	 * @param   array  $filter  The active filter
+	 *
+	 * @return  string HTML string
+	 */
 	public static function renderTableFilter($table, $filter = null)
 	{
 		// Initialise some common filters
@@ -505,7 +521,7 @@ class NenoHelperBackend
 	 *
 	 * @return array
 	 */
-	public static function getComparaisonOperatorsList()
+	private static function getComparaisonOperatorsList()
 	{
 		return array(
 			array(
