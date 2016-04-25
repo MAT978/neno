@@ -148,42 +148,11 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		if (!empty($tableId))
 		{
-			$db    = JFactory::getDbo();
-			$query = $db->getQuery(true);
-			$query
-			  ->select(
-				array(
-				  'id AS value',
-				  'field_name AS text'
-				)
-			  )
-			  ->from('#__neno_content_element_fields')
-			  ->where('table_id = ' . (int) $tableId)
-			  ->order('id ASC');
-
-			$db->setQuery($query);
-			$fields = $db->loadObjectList();
 
 			$displayData                  = new stdClass;
-			$displayData->fields          = $fields;
-			$displayData->fieldsSelect    = JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"');
-			$displayData->operators       = $this->getComparaisonOperatorsList();
-			$displayData->operatorsSelect = JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"');
+			$displayData->filters         = NenoHelperBackend::getTableFiltersData($tableId, 'filters');
+			$displayData->tableId         = $tableId;
 
-			$query
-			  ->clear()
-			  ->select(
-				array(
-				  'field_id AS field',
-				  'comparaison_operator AS operator',
-				  'filter_value AS value'
-				)
-			  )
-			  ->from('#__neno_content_element_table_filters')
-			  ->where('table_id = ' . (int) $tableId);
-
-			$db->setQuery($query);
-			$displayData->filters = $db->loadAssocList();
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
 		}
@@ -191,47 +160,19 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$app->close();
 	}
 
-	/**
-	 * Get list of comparaison operators
-	 *
-	 * @return array
-	 */
-	protected function getComparaisonOperatorsList()
+
+	protected static function getFilterAttributesBasedOnFilterType($contentElementFilePath, $fieldName, $filterType)
 	{
-		return array(
-		  array(
-			'value' => '=',
-			'text'  => '='
-		  ),
-		  array(
-			'value' => '<>',
-			'text'  => '!='
-		  ),
-		  array(
-			'value' => '<',
-			'text'  => '<'
-		  ),
-		  array(
-			'value' => '<=',
-			'text'  => '<='
-		  ),
-		  array(
-			'value' => '>',
-			'text'  => '>'
-		  ),
-		  array(
-			'value' => '>=',
-			'text'  => '>='
-		  ),
-		  array(
-			'value' => 'LIKE',
-			'text'  => 'LIKE'
-		  ),
-		  array(
-			'value' => 'IN',
-			'text'  => 'IN'
-		  )
-		);
+		$attributes = array();
+		switch ($filterType)
+		{
+			case 'sql':
+				$attributes['query'] = NenoHelper::getFieldAttributeFromContentElementFile($contentElementFilePath, $fieldName, 'query');
+
+				break;
+		}
+
+		return $attributes;
 	}
 
 	/**
@@ -449,8 +390,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$this->executeMethodOnTranslationListPassedByInput('moveTranslationToTarget');
 	}
 
-	protected function executeMethodOnTranslationListPassedByInput($method)
-	{
+	protected function executeMethodOnTranslationListPassedByInput(
+		$method
+	){
 		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
 
 		foreach ($translationIds as $translationId)
@@ -552,6 +494,22 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			foreach ($filters as $filter)
 			{
+				// Check if the filters are common fields
+				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
+
+				$commonFields = array('state', 'published', 'created_by', 'created_user_id', 'modified_by', 'modified_user_id');
+
+				if (in_array($fieldName, $commonFields))
+				{
+					$filter['operator'] = 'IN';
+				}
+
+				// Check if value is multiple
+				if (is_array($filter['value']))
+				{
+					$filter['value'] = implode(',', $filter['value']);
+				}
+
 				$query
 				  ->values(
 					$db->quote($tableId) . ','

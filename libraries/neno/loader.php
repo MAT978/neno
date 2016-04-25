@@ -19,6 +19,11 @@ if (!defined('JPATH_NENO_LAYOUTS'))
 	define('JPATH_NENO_LAYOUTS', JPATH_ROOT . '/layouts/libraries/neno');
 }
 
+if (!defined('JPATH_NENO_CONTENT_FILES'))
+{
+	define('JPATH_NENO_CONTENT_FILES', JPATH_NENO . '/contentelements');
+}
+
 /**
  * Class to handle dependencies
  *

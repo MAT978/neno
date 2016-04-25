@@ -363,6 +363,304 @@ class NenoHelperBackend
 	}
 
 	/**
+	 * Get data of filters for translations in gropus and elements
+	 * 
+	 * @param   int     $table  The table id
+	 * 
+	 * @param   string  $opt    The type of data
+	 * 
+	 * @return  mixed The data
+	 */
+	public static function getTableFiltersData($table, $opt = 'fields')
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		if ($opt == 'filters')
+		{
+			$query
+				->select(
+					array(
+						'field_id AS field',
+						'comparaison_operator AS operator',
+						'filter_value AS value'
+					)
+				)
+				->from('#__neno_content_element_table_filters')
+				->where('table_id = ' . (int) $table);
+
+			$db->setQuery($query);
+			$result = $db->loadAssocList();
+		}
+		else
+		{
+			$query
+				->select(
+					array(
+						'f.id AS value',
+						'field_name AS text',
+						'table_name'
+					)
+				)
+				->from('#__neno_content_element_fields AS f')
+				->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
+				->where('table_id = ' . (int) $table)
+				->order('f.id ASC');
+
+			$db->setQuery($query);
+
+			$result = $db->loadObjectList();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get the name of a field by its id
+	 * 
+	 * @param   int  $field  The id
+	 * 
+	 * @return  string|null The field name
+	 */
+	public static function getFieldName($field)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('field_name')
+			->from('#__neno_content_element_fields')
+			->where('id = ' . (int) $field);
+
+		$db->setQuery($query);
+
+		return $db->loadResult();
+	}
+
+	/**
+	 * Get the name of a table by its id
+	 *
+	 * @param   int   $table  The id
+	 *
+	 * @param   bool  $ext    Name of extension or table
+	 *
+	 * @return  string|null The table or extension name
+	 */
+	private static function getTableName($table, $ext = false)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('table_name')
+			->from('#__neno_content_element_tables')
+			->where('id = ' . (int) $table);
+
+		$db->setQuery($query);
+
+		$name = $db->loadResult();
+
+		if ($ext)
+		{
+			$name = str_replace('#__', '', $name);
+			$name = 'com_' . $name;
+		}
+
+		return $name;
+	}
+
+	/**
+	 * Render a table filter for groups and translations
+	 *
+	 * @param   int    $table   The table id
+	 *
+	 * @param   array  $filter  The active filter
+	 *
+	 * @return  string HTML string
+	 */
+	public static function renderTableFilter($table, $filter = null)
+	{
+		// Fields that use to be in all the tables
+		$commonFields = array('state', 'published', 'created_by', 'created_user_id', 'modified_by', 'modified_user_id');
+
+		$fieldName     = self::getFieldName($filter['field']);
+		$tableName     = self::getTableName($table);
+		$specialFilter = '';
+
+		// Check if the field is a common field
+		if (in_array($fieldName, $commonFields))
+		{
+			switch ($fieldName)
+			{
+				case 'state'     :
+				case 'published' :
+					$status = array(
+						array(
+							'value' => 1,
+							'text' => JText::_('JPUBLISHED')
+						),
+						array(
+							'value' => 0,
+							'text' => JText::_('JUNPUBLISHED')
+						),
+						array(
+							'value' => 2,
+							'text' => JText::_('JARCHIVED')
+						),
+						array(
+							'value' => -2,
+							'text' => JText::_('JTRASHED')
+						)
+					);
+					$specialFilter = JHtml::_('select.genericlist', $status, 'value[]', 'class="filter-value"', 'value', 'text', $filter['value']);
+					break;
+
+				case 'created_user_id'  :
+				case 'created_by'       :
+				case 'modified_by'      :
+				case 'modified_user_id' :
+					$specialFilter = self::renderDropdownSpecialFilter($table, $fieldName, $filter['value']);
+					break;
+			}
+		}
+		else
+		{
+			// Specific table fields
+			switch ($tableName)
+			{
+				// com_content
+				case '#__content' :
+					if ($fieldName == 'catid')
+					{
+						$specialFilter = self::renderDropdownSpecialFilter($table, $fieldName, $filter['value']);
+					}
+
+					break;
+
+				// com_categories
+				case '#__categories' :
+
+					//TODO com_categories special filters
+					break;
+			}
+		}
+
+		$fieldList  = self::getTableFiltersData($table, 'fields');
+		$operators  = self::getComparaisonOperatorsList();
+
+		$displayData                = new stdClass;
+		$displayData->fields        = JHtml::_('select.genericlist', $fieldList, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']);
+		$displayData->operators     = JHtml::_('select.genericlist', $operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']);
+		$displayData->specialFilter = $specialFilter;
+		$displayData->value         = $filter['value'];
+
+		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
+	}
+
+	/**
+	 * Render a dropdown for special filters in common fields
+	 *
+	 * @param   int     $table   Table id
+	 *
+	 * @param   string  $field   Name of field
+	 *
+	 * @param   array   $active  Array of active filters
+	 *
+	 * @return string  HTML dropdown
+	 */
+	private static function renderDropdownSpecialFilter($table, $field, $active = null)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		switch ($field)
+		{
+			case 'created_user_id'  :
+			case 'created_by'       :
+			case 'modified_by'      :
+			case 'modified_user_id' :
+				$query
+					->select($db->quoteName(array('id', 'name')))
+					->from($db->quoteName('#__users'));
+				break;
+
+			case 'catid' :
+				$extension = self::getTableName($table, true);
+
+				$query
+					->select(array('id', 'title AS name'))
+					->from($db->quoteName('#__categories'))
+					->where('extension = ' . $db->quote($extension));
+				break;
+		}
+
+		$db->setQuery($query);
+		$dropdownItems = $db->loadAssocList();
+
+		// Check if value has more than one element
+		if (strpos($active, ','))
+		{
+			$active = explode(',', $active);
+		}
+
+		// Render the html selector
+		$html  = '<select name="value" class="filter-value" multiple="multiple">';
+
+		foreach ($dropdownItems as $item)
+		{
+			$selected  = (in_array($item['id'], (array) $active)) ? ' selected="selected"' : '';
+			$html     .= '<option value="' . $item['id'] . '"' . $selected . '>' . $item['name'] . '</option>';
+		}
+
+		$html .= '</select>';
+
+		return $html;
+	}
+
+	/**
+	 * Get list of comparaison operators
+	 *
+	 * @return array
+	 */
+	private static function getComparaisonOperatorsList()
+	{
+		return array(
+			array(
+				'value' => '=',
+				'text'  => '='
+			),
+			array(
+				'value' => '<>',
+				'text'  => '!='
+			),
+			array(
+				'value' => '<',
+				'text'  => '<'
+			),
+			array(
+				'value' => '<=',
+				'text'  => '<='
+			),
+			array(
+				'value' => '>',
+				'text'  => '>'
+			),
+			array(
+				'value' => '>=',
+				'text'  => '>='
+			),
+			array(
+				'value' => 'LIKE',
+				'text'  => 'LIKE'
+			),
+			array(
+				'value' => 'IN',
+				'text'  => 'IN'
+			)
+		);
+	}
+
+	/**
 	 * Get a list of tables that should not be included into Neno
 	 *
 	 * @return array

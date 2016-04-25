@@ -638,7 +638,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	 */
 	public function getContentElementFilename()
 	{
-		return JPATH_NENO . '/contentelements/' . str_replace('#__', '', $this->tableName) . '_contentelements.xml';
+		return NenoHelperFile::getContentElementFilePathBasedOnTableName($this->tableName);
 	}
 
 	/**

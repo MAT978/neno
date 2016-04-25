@@ -10,6 +10,8 @@
 // No direct access
 defined('_JEXEC') or die;
 
+JHtml::_('formbehavior.chosen', 'select');
+
 $step = $displayData;
 
 ?>
@@ -22,42 +24,46 @@ $step = $displayData;
 		<th></th>
 	</tr>
 
-	<?php if (empty($displayData->filters)): ?>
-		<tr class="filter-row">
-			<td><?php echo $displayData->fieldsSelect; ?></td>
-			<td><?php echo $displayData->operatorsSelect; ?></td>
-			<td><input type="text" name="value[]" value="" class="filter-value" /></td>
-			<td>
-				<div class="btn-group">
-					<button type="button" class="btn btn-primary btn-small add-row-button">
-						<i class="icon-plus"></i>
-					</button>
-					<button type="button" class="btn btn-danger btn-small remove-row-button">
-						<i class="icon-minus"></i>
-					</button>
-				</div>
-			</td>
-		</tr>
-	<?php else: ?>
-		<?php foreach ($displayData->filters as $filter) : ?>
-			<tr class="filter-row">
-				<td><?php echo JHtml::_('select.genericlist', $displayData->fields, 'fields[]', 'class="filter-field"', 'value', 'text', $filter['field']); ?></td>
-				<td><?php echo JHtml::_('select.genericlist', $displayData->operators, 'operators[]', 'class="filter-operator"', 'value', 'text', $filter['operator']); ?></td>
-				<td>
-					<input type="text" name="value[]" value="<?php echo $filter['value']; ?>" class="filter-value" />
-				</td>
-				<td>
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-small add-row-button">
-							<i class="icon-plus"></i>
-						</button>
-						<button type="button" class="btn btn-danger btn-small remove-row-button">
-							<i class="icon-minus"></i>
-						</button>
-					</div>
-				</td>
-			</tr>
-		<?php endforeach; ?>
-	<?php endif; ?>
+	<?php 
+	if (empty($displayData->filters))
+	{
+		echo NenoHelperBackend::renderTableFilter($displayData->tableId);
+	}
+	else
+	{
+		foreach ($displayData->filters as $filter)
+		{
+			echo NenoHelperBackend::renderTableFilter($displayData->tableId, $filter);
+		}
+	} 
+?>
 
 </table>
+<script>
+
+	var url = '<?php echo JUri::base(); ?>index.php?option=com_neno&task=groupselements.generateFieldFilterOutput&table=<?php echo $displayData->tableId; ?>';
+
+	jQuery(document).ready(function() {
+		jQuery('.filter-field').change(loadAjaxFilter);
+	});
+
+	function loadAjaxFilter() {
+		var field = jQuery(this).val();
+		var div   = jQuery(this).parent().parent();
+		url       = url+'&field='+field;
+
+		jQuery.get(url, function (data) {
+			div.parent().append(data);
+			div.remove();
+
+			bindEvents();
+		});
+	}
+
+	function bindEvents()
+	{
+		jQuery('.filter-field').off('change').on('change', loadAjaxFilter);
+		jQuery('.add-row-button').off('click').on('click', duplicateFilterRow);
+		jQuery('.remove-row-button').off('click').on('click', removeFilterRow);
+	}
+</script>
