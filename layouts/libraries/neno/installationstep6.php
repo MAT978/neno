@@ -15,25 +15,25 @@ JHtml::_('bootstrap.tooltip');
 ?>
 <style>
 	#task-messages {
-		height           : 200px;
-		background-color : #f5f5f5;
-		padding          : 20px;
-		color            : #808080;
-		overflow         : auto;
+		height: 200px;
+		background-color: #f5f5f5;
+		padding: 20px;
+		color: #808080;
+		overflow: auto;
 	}
 
 	.log-level-2 {
-		margin-left : 20px;
-		font-weight : bold;
-		margin-top  : 16px;
+		margin-left: 20px;
+		font-weight: bold;
+		margin-top: 16px;
 	}
 
 	.log-level-3 {
-		margin-left : 40px;
+		margin-left: 40px;
 	}
 
 	#proceed-button {
-		margin-top : 15px;
+		margin-top: 15px;
 	}
 </style>
 
@@ -41,104 +41,39 @@ JHtml::_('bootstrap.tooltip');
 	<div class="installation-body span12">
 		<div class="error-messages"></div>
 		<div id="database-tables-wrapper">
-			<h1><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_TITLE'); ?></h1>
+			<h1><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_TITLE'); ?></h1>
 
-			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_SUBTITLE'); ?></p>
-			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_SUBTITLE_2'); ?></p>
+			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SUBTITLE'); ?></p>
 			<table class="table">
-				<?php foreach ($displayData->groups as $group): ?>
+				<tr>
+					<th><?php echo JText::sprintf('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SOURCE_LANGUAGE'); ?></th>
+					<?php foreach ($displayData->languages as $language): ?>
+						<th><?php echo $language->title; ?> <img
+							  src="<?php echo JUri::root(); ?>/media/mod_languages/images/<?php echo $language->image; ?>.gif"
+							  style="margin-bottom: 3px;"></th>
+					<?php endforeach; ?>
+				</tr>
+				<?php foreach ($displayData->modules as $module): ?>
 					<tr>
-						<td colspan="5"><h3><?php echo $group->group_name; ?></h3></td>
+						<td><?php echo $module->title; ?>
+							(<?php echo $module->module; ?>)
+						</td>
+						<?php foreach ($displayData->languages as $language): ?>
+							<td><?php echo JHtml::_('select.genericlist', $module->languageModules[$language->lang_code]['modules'], '', '', 'id', 'title', $module->languageModules[$language->lang_code]['similar']->id); ?></td>
+						<?php endforeach; ?>
+
 					</tr>
-					<?php foreach ($group->tables as $table): ?>
-						<tr>
-							<td><h6><i class="icon-grid"></i> <?php echo $table->table_name; ?></h6></td>
-							<td>
-								<button class="btn btn-mini preview-btn" type="button"
-								        data-id="<?php echo $table->id; ?>"
-								        data-type="table" data-toogle="tooltip"
-								        title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_BTN_TOOLTIP'); ?>">
-									<i class="icon-eye"></i>
-								</button>
-							</td>
-							<td>
-								<?php echo JLayoutHelper::render('installationrecordcount', $table, JPATH_NENO_LAYOUTS); ?>
-							</td>
-							<td colspan="2">
-								<div class="pull-right">
-									<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
-								</div>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-					<?php foreach ($group->language_files as $languageFile): ?>
-						<tr>
-							<td><h6><i class="icon-file"></i> <?php echo $languageFile->filename; ?></h6></td>
-							<td>
-								<button class="btn btn-mini preview-btn" type="button"
-								        data-id="<?php echo $languageFile->id; ?>"
-								        data-type="file" data-toogle="tooltip"
-								        title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_BTN_TOOLTIP'); ?>">
-									<i class="icon-eye"></i>
-								</button>
-							</td>
-							<td>
-								<?php echo JText::sprintf('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_STRING_COUNT', $languageFile->strings_count); ?>
-								<?php if ($table->record_count > 1000): ?>
-									<i class="icon-warning" data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_RECORD_COUNT_WARNING'); ?>"></i>
-								<?php endif; ?>
-							</td>
-							<td colspan="2">
-								<div class="pull-right">
-									<?php echo JLayoutHelper::render('translatefilewidget', $languageFile, JPATH_NENO_LAYOUTS); ?>
-								</div>
-							</td>
-						</tr>
-					<?php endforeach; ?>
 				<?php endforeach; ?>
 			</table>
 		</div>
 
-		<div id="installation-wrapper" class="hide">
-			<h2><?php echo JText::_('COM_NENO_INSTALLATION_SETUP_COMPLETING_TITLE'); ?></h2>
-
-			<div class="progress progress-striped active" id="progress-bar">
-				<div class="bar" style="width: 2%;"></div>
-			</div>
-			<p><?php echo JText::_('COM_NENO_INSTALLATION_SETUP_COMPLETING_FINISH_SETUP_MESSAGE'); ?></p>
-
-			<div id="task-messages">
-
-			</div>
-		</div>
-		<div id="warning-message">
-			<div class="alert"><?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_TITLE'); ?></div>
-			<p><?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_P1'); ?></p>
-
-			<label class="checkbox">
-				<input type="checkbox" class="no-data"
-				       id="backup-created-checkbox"><?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_CHECKBOX_MESSAGE'); ?>
-			</label>
-			<button type="button" class="btn no-data" id="proceed-button" disabled>
-				<?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_PROCEED_BUTTON'); ?>
-			</button>
-		</div>
+		<button type="button" class="btn no-data" id="proceed-button"
+		        disabled>
+			<?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_PROCEED_BUTTON'); ?>
+		</button>
 	</div>
 
 	<?php echo JLayoutHelper::render('installationbottom', 4, JPATH_NENO_LAYOUTS); ?>
-</div>
-
-<div class="modal hide fade" id="preview-modal">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		<h3><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_5_PREVIEW_CONTENT_LAYOUT_TITLE'); ?></h3>
-	</div>
-	<div class="modal-body"></div>
-	<div class="modal-footer">
-		<a href="#" class="btn" data-dismiss="modal" aria-hidden="true">
-			<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_MODAL_GROUPFORM_BTN_CLOSE'); ?>
-		</a>
-	</div>
 </div>
 
 <script>
@@ -174,10 +109,3 @@ JHtml::_('bootstrap.tooltip');
 	jQuery('.record-refresher-btn').on('click', refreshRecordCounter);
 
 </script>
-
-<div class="hidden">
-	<!-- Different HTML to show depending on log level -->
-	<div id="installation-status-1" class="alert"></div>
-	<div id="installation-status-2" class="log-level-2"></div>
-	<div id="installation-status-3" class="log-level-3"></div>
-</div>

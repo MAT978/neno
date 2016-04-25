@@ -3799,11 +3799,9 @@ class NenoHelper
 	{
 		$sourceLanguage = NenoSettings::get('source_language');
 		$db             = JFactory::getDbo();
-		$query          = $db->getQuery(true);
+		$query          = $query = self::generateModulesQuery();;
 
 		$query
-		  ->select('m.*')
-		  ->from('#__modules AS m')
 		  ->where(
 			array(
 			  'client_id = 0',
@@ -3833,11 +3831,12 @@ class NenoHelper
 	/**
 	 * Get similar modules to the provided one.
 	 *
-	 * @param stdClass $module
+	 * @param stdClass $module   Module object
+	 * @param string   $language Language string
 	 *
 	 * @return array
 	 */
-	public static function getSimilarModulesToModule($module)
+	public static function getSimilarModulesToModule($module, $language)
 	{
 		$db    = JFactory::getDbo();
 		$query = self::generateModulesQuery();
@@ -3847,8 +3846,7 @@ class NenoHelper
 			array(
 			  'position = ' . $db->quote($module->position),
 			  'ordering = ' . $db->quote($module->ordering),
-			  'language <> ' . $db->quote('*'),
-			  'language <> ' . $db->quote($module->language),
+			  'language = ' . $db->quote($language),
 			  'module = ' . $db->quote($module->module)
 			)
 		  );
@@ -3864,7 +3862,7 @@ class NenoHelper
 	 *
 	 * @return \JDatabaseQuery
 	 */
-	protected function generateModulesQuery()
+	protected function  generateModulesQuery()
 	{
 		$db            = JFactory::getDbo();
 		$query         = $db->getQuery(true);
@@ -3878,7 +3876,7 @@ class NenoHelper
 		  ->from('#__modules_menu AS mm')
 		  ->where(
 			array(
-			  'mm.module_id = m.id',
+			  'mm.moduleid = m.id',
 			  'mm.menuid = 0'
 			)
 		  );
@@ -3888,7 +3886,7 @@ class NenoHelper
 		  ->from('#__modules_menu AS mm')
 		  ->where(
 			array(
-			  'mm.module_id = m.id',
+			  'mm.moduleid = m.id',
 			  'mm.menuid > 0'
 			)
 		  );
@@ -3896,14 +3894,14 @@ class NenoHelper
 		$queryNone
 		  ->select(1)
 		  ->from('#__modules_menu AS mm')
-		  ->where('mm.module_id = m.id');
+		  ->where('mm.moduleid = m.id');
 
 
 		$query
 		  ->select(
 			array(
 			  'm.*',
-			  'IF(EXIST(' . (string) $queryAll . '), \'all\', IF(NOT EXISTS(' . (string) $queryNone . '), \'none\', IF(EXISTS(' . (string) $querySelected . ') ,\'selected\', \'not_selected\') AS assignment_type'
+			  'IF(EXISTS(' . (string) $queryAll . '), \'all\', IF(NOT EXISTS(' . (string) $queryNone . '), \'none\', IF(EXISTS(' . (string) $querySelected . ') ,\'selected\', \'not_selected\'))) AS assignment_type'
 			)
 		  )
 		  ->from('#__modules AS m');
@@ -3914,14 +3912,15 @@ class NenoHelper
 	/**
 	 * Get the most similar
 	 *
-	 * @param stdClass      $module
+	 * @param stdClass      $module   Module object
+	 * @param string        $language Language tag
 	 * @param null|callable $callback Function that will be executed with the candidates left
 	 *
 	 * @return bool|stdClass False if there's no similar module, module object otherwise
 	 */
-	public static function getMostSimilarModule($module, $callback = NULL)
+	public static function getMostSimilarModuleForLanguage($module, $language, $callback = NULL)
 	{
-		$modules = self::getSimilarModulesToModule($module);
+		$modules = self::getSimilarModulesToModule($module, $language);
 
 		if (!empty($modules))
 		{
@@ -3946,18 +3945,136 @@ class NenoHelper
 					else
 					{
 						// Check if the selected or not selected items are associated.
+						$db    = JFactory::getDbo();
+						$query = $db->getQuery(true);
+
+						$query->select('DISTINCT 1')
+						  ->from('#__modules_menu AS mm1')
+						  ->innerJoin('#__associations AS a1 ON a1.id = mm1.menuid')
+						  ->innerJoin('#__associations AS a2 ON a1.`key` = a2.`key`')
+						  ->innerJoin('#__modules_menu AS mm2 ON a2.id = mm2.menuid')
+						  ->where(
+							array(
+							  'mm1.moduleid = ' . $possibleSimilarModule->id,
+							  'mm2.moduleid = ' . $module->id,
+							  'a1.context = ' . $db->quote('com_menus.item'),
+							  'a2.context = ' . $db->quote('com_menus.item')
+							)
+						  );
+
+						$db->setQuery($query);
+						$result = $db->loadResult();
+
+						if (!empty($result))
+						{
+							$similarModules[] = $possibleSimilarModule;
+						}
 					}
 				}
 			}
 
 			if ($callback !== NULL)
 			{
-				$module = call_user_func($callback);
+				$module = call_user_func_array($callback, array(
+				  $module,
+				  $similarModules
+				));
 			}
 
 			return $module;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Filter similar modules for mod_menu module
+	 *
+	 * @param stdClass $module
+	 * @param array    $similarModules
+	 *
+	 * @return stdClass|null
+	 */
+	public static function filterSimilarModulesForModMenu($module, $similarModules)
+	{
+		$moduleData = json_decode($module->params);
+
+		foreach ($similarModules as $similarModule)
+		{
+			$similarModuleData = json_decode($similarModule->params);
+
+			if (
+			  $similarModuleData->startLevel == $moduleData->startLevel &&
+			  $similarModuleData->endLevel == $moduleData->endLevel &&
+			  $similarModuleData->showAllChildren == $moduleData->showAllChildren &&
+			  self::areMenusRelated($moduleData->menutype, $similarModuleData->menutype)
+			)
+			{
+				return $similarModule;
+			}
+		}
+
+		return $similarModules;
+	}
+
+	/**
+	 * @param string $menuTypeA
+	 * @param string $menuTypeB
+	 *
+	 * @return bool
+	 */
+	public static function areMenusRelated($menuTypeA, $menuTypeB)
+	{
+		if ($menuTypeA === $menuTypeB)
+		{
+			return true;
+		}
+
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select('DISTINCT 1')
+		  ->from('#__menu AS m1')
+		  ->leftJoin('#__associations AS a1 ON m1.id = a1.id')
+		  ->leftJoin('#__associations AS a2 ON a2.`key` = a2.`key`')
+		  ->leftJoin('#__menu AS m2 ON a2.id = m2.id')
+		  ->where(
+			array(
+			  'm1.menutype = ' . $db->quote($menuTypeA),
+			  'm2.menutype = ' . $db->quote($menuTypeB),
+			  'a1.context = ' . $db->quote('com_menus.item'),
+			  'a2.context = ' . $db->quote('com_menus.item'),
+			)
+		  );
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return !empty($result);
+	}
+
+	/**
+	 * Return callback for a particular menu type to be applied on module filtering
+	 *
+	 * @param string $moduleType
+	 *
+	 * @return callable|null
+	 */
+	public static function getCallbackForModulesFilteringByModuleType($moduleType)
+	{
+		$callback = NULL;
+
+		switch ($moduleType)
+		{
+			case 'mod_menu':
+				$callback = array(
+				  'NenoHelper',
+				  'filterSimilarModulesForModMenu'
+				);
+				break;
+		}
+
+		return $callback;
 	}
 }
