@@ -88,17 +88,26 @@ foreach ($this->items as $item)
 					value  : value
 				},
 				success: function (response) {
-					if (response == 'ok') {
-						element.parent().append('<span class="icon-checkmark"></span>');
-						setTimeout(function () {
-							jQuery('.icon-checkmark').hide('slow');
-						}, 2000);
-					}
-					else {
-						element.parent().append('<span class="icon-remove"></span>');
-						setTimeout(function () {
-							jQuery('.icon-remove').hide('slow');
-						}, 2000);
+
+					switch (response)
+					{
+						case 'ok'    :
+							element.parent().append('<span class="settings-toogle icon-checkmark"></span>');
+							setTimeout(function () {
+								jQuery('.settings-toogle.icon-checkmark').hide('slow');
+							}, 2000);
+							break;
+						case 'saved' :
+							jQuery('#saved-modal').modal('show');
+							setTimeout(function () {
+								jQuery('#saved-modal').modal('hide');
+							}, 3000);
+							break;
+						default      :
+							element.parent().append('<span class="settings-toogle icon-remove"></span>');
+							setTimeout(function () {
+								jQuery('.settings-toogle.icon-remove').hide('slow');
+							}, 2000);
 					}
 				}
 			});
@@ -217,6 +226,28 @@ foreach ($this->items as $item)
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
 								name="<?php echo $item->setting_key; ?>" value="0"
+								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
+							<label for="<?php echo $item->setting_key; ?>1" class="btn">
+								<?php echo JText::_('JNO'); ?>
+							</label>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<?php $item = $options['save_history']; ?>
+					<td class='setting-label'>
+						<?php echo JText::sprintf('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key), JFactory::getDbo()->getPrefix()); ?>
+					</td>
+					<td class=''>
+						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
+							<input type="radio" id="<?php echo $item->setting_key; ?>0"
+								   name="<?php echo $item->setting_key; ?>" value="1"
+								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
+							<label for="<?php echo $item->setting_key; ?>0" class="btn">
+								<?php echo JText::_('JYES'); ?>
+							</label>
+							<input type="radio" id="<?php echo $item->setting_key; ?>1"
+								   name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -351,7 +382,12 @@ foreach ($this->items as $item)
 			<?php echo JHtml::_('form.token'); ?>
 
 		</div>
-
 	</form>
+
+	<div class="modal hide fade" id="saved-modal">
+		<div class="modal-body">
+			<h3><?php echo JText::_('COM_NENO_SETTINGS_SAVED'); ?></h3>
+		</div>
+	</div>
 
 <?php echo NenoHelperBackend::renderVersionInfoBox(); ?>

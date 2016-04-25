@@ -43,7 +43,7 @@ class NenoController extends JControllerLegacy
 		$app   = JFactory::getApplication();
 
 		if (NenoSettings::get('installation_completed') != 1
-		    && $view != 'installation' && $view != 'debug' && $app->isAdmin()
+		  && $view != 'installation' && $view != 'debug' && $app->isAdmin()
 		)
 		{
 			if ($view != 'dashboard')
@@ -58,9 +58,9 @@ class NenoController extends JControllerLegacy
 
 		// Ensure that a working language is set for some views
 		$viewsThatRequireWorkingLanguage = array(
-			'groupselements',
-			'editor',
-			'strings'
+		  'groupselements',
+		  'editor',
+		  'strings'
 		);
 
 		$showLanguagesDropDown = false;
@@ -69,7 +69,8 @@ class NenoController extends JControllerLegacy
 		{
 			// Get working language
 			$workingLanguage       = NenoHelper::getWorkingLanguage();
-			$languages             = JFactory::getLanguage()->getKnownLanguages();
+			$languages             = JFactory::getLanguage()
+			  ->getKnownLanguages();
 			$showLanguagesDropDown = true;
 
 			if (empty($workingLanguage) || !in_array($workingLanguage, array_keys($languages)))
@@ -132,7 +133,7 @@ class NenoController extends JControllerLegacy
 		/* @var $job NenoJob */
 		$job = NenoJob::load($jobId);
 
-		if ($job === null)
+		if ($job === NULL)
 		{
 			NenoLog::add('Job not found. Job Id:' . $jobId, NenoLog::PRIORITY_ERROR);
 		}
@@ -140,8 +141,8 @@ class NenoController extends JControllerLegacy
 		{
 			// Set the job as completed by the server but the component hasn't processed it yet.
 			$job
-				->setState(NenoJob::JOB_STATE_COMPLETED)
-				->persist();
+			  ->setState(NenoJob::JOB_STATE_COMPLETED)
+			  ->persist();
 
 			// Create task into the queue
 			NenoTaskMonitor::addTask('job_fetcher');
@@ -219,26 +220,26 @@ class NenoController extends JControllerLegacy
 			$query = $db->getQuery(true);
 
 			$query
-				->select(
-					array(
-						'l.lang_code',
-						'l.published',
-						'l.title',
-						'l.image',
-						'tr.state',
-						'SUM(tr.word_counter) AS word_count'
-					)
+			  ->select(
+				array(
+				  'l.lang_code',
+				  'l.published',
+				  'l.title',
+				  'l.image',
+				  'tr.state',
+				  'SUM(tr.word_counter) AS word_count'
 				)
-				->from('#__languages AS l')
-				->leftJoin('#__neno_content_element_translations AS tr ON tr.language = l.lang_code')
-				->where('l.lang_code = ' . $db->quote($language))
-				->group(
-					array(
-						'l.lang_code',
-						'tr.state'
-					)
+			  )
+			  ->from('#__languages AS l')
+			  ->leftJoin('#__neno_content_element_translations AS tr ON tr.language = l.lang_code')
+			  ->where('l.lang_code = ' . $db->quote($language))
+			  ->group(
+				array(
+				  'l.lang_code',
+				  'tr.state'
 				)
-				->order('lang_code');
+			  )
+			  ->order('lang_code');
 
 			$db->setQuery($query);
 			$languages = $db->loadObjectListMultiIndex('lang_code');
@@ -259,7 +260,7 @@ class NenoController extends JControllerLegacy
 					if ($placement == 'dashboard')
 					{
 						// Add task to
-						NenoTaskMonitor::addTask('language', array( 'language' => $item->lang_code ));
+						NenoTaskMonitor::addTask('language', array('language' => $item->lang_code));
 
 						// Create menu structure for this language
 						NenoHelper::createMenuStructureForLanguage($item->lang_code);
@@ -322,7 +323,7 @@ class NenoController extends JControllerLegacy
 		$app                = JFactory::getApplication();
 
 		// Ensure that we know what was selected for the previous selector
-		if (($n > 0 && !isset($selectedMethods[ $n - 1 ])) || ($n > 0 && $selectedMethods[ $n - 1 ] == 0))
+		if (($n > 0 && !isset($selectedMethods[$n - 1])) || ($n > 0 && $selectedMethods[$n - 1] == 0))
 		{
 			$app->close();
 		}
@@ -336,15 +337,15 @@ class NenoController extends JControllerLegacy
 		// Reduce the translation methods offered depending on the parents
 		if ($n > 0 && !empty($selectedMethods))
 		{
-			$parentMethod                = $selectedMethods[ $n - 1 ];
-			$acceptableFollowUpMethodIds = $translationMethods[ $parentMethod ]->acceptable_follow_up_method_ids;
+			$parentMethod                = $selectedMethods[$n - 1];
+			$acceptableFollowUpMethodIds = $translationMethods[$parentMethod]->acceptable_follow_up_method_ids;
 			$acceptableFollowUpMethods   = explode(',', $acceptableFollowUpMethodIds);
 
 			foreach ($translationMethods as $k => $translationMethod)
 			{
 				if (!in_array($k, $acceptableFollowUpMethods))
 				{
-					unset($translationMethods[ $k ]);
+					unset($translationMethods[$k]);
 				}
 			}
 		}
@@ -397,28 +398,28 @@ class NenoController extends JControllerLegacy
 			$query = $db->getQuery(true);
 
 			$query
-				->delete('#__neno_content_language_defaults')
-				->where(
-					array(
-						'lang = ' . $db->quote($language),
-						'ordering >= ' . $ordering
-					)
-				);
+			  ->delete('#__neno_content_language_defaults')
+			  ->where(
+				array(
+				  'lang = ' . $db->quote($language),
+				  'ordering >= ' . $ordering
+				)
+			  );
 
 			$db->setQuery($query);
 			$db->execute();
 
 			$query
-				->clear()
-				->insert('#__neno_content_language_defaults')
-				->columns(
-					array(
-						'lang',
-						'translation_method_id',
-						'ordering'
-					)
+			  ->clear()
+			  ->insert('#__neno_content_language_defaults')
+			  ->columns(
+				array(
+				  'lang',
+				  'translation_method_id',
+				  'ordering'
 				)
-				->values($db->quote($language) . ',' . $translationMethod . ',' . $ordering);
+			  )
+			  ->values($db->quote($language) . ',' . $translationMethod . ',' . $ordering);
 			$db->setQuery($query);
 			$db->execute();
 
@@ -426,28 +427,28 @@ class NenoController extends JControllerLegacy
 			{
 				// Deleting translation methods for groups
 				$query
-					->clear()
-					->delete('#__neno_content_element_groups_x_translation_methods')
-					->where(
-						array(
-							'lang = ' . $db->quote($language),
-							'ordering >= ' . $db->quote($ordering)
-						)
-					);
+				  ->clear()
+				  ->delete('#__neno_content_element_groups_x_translation_methods')
+				  ->where(
+					array(
+					  'lang = ' . $db->quote($language),
+					  'ordering >= ' . $db->quote($ordering)
+					)
+				  );
 
 				$db->setQuery($query);
 				$db->execute();
 
 				// Delete translation methods for translations
 				$query
-					->clear()
-					->delete('#__neno_content_element_translation_x_translation_methods')
-					->where(
-						array(
-							'translation_id IN (SELECT id FROM #__neno_content_element_translations WHERE language = ' . $db->quote($language) . ' AND state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE . ')',
-							'ordering >= ' . $db->quote($ordering)
-						)
-					);
+				  ->clear()
+				  ->delete('#__neno_content_element_translation_x_translation_methods')
+				  ->where(
+					array(
+					  'translation_id IN (SELECT id FROM #__neno_content_element_translations WHERE language = ' . $db->quote($language) . ' AND state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE . ')',
+					  'ordering >= ' . $db->quote($ordering)
+					)
+				  );
 
 				$db->setQuery($query);
 				$db->execute();
@@ -510,9 +511,9 @@ class NenoController extends JControllerLegacy
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-			->select('*')
-			->from('#__neno_language_external_translators_comments')
-			->where('language = ' . $db->quote($language));
+		  ->select('*')
+		  ->from('#__neno_language_external_translators_comments')
+		  ->where('language = ' . $db->quote($language));
 		$db->setQuery($query);
 
 		$languageComment = $db->loadObject();
@@ -547,7 +548,7 @@ class NenoController extends JControllerLegacy
 	 *
 	 * @return bool
 	 */
-	protected function saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment)
+	protected function saveExternalTranslatorsCommentForString($translationId, $allTranslations, $allLanguages, $contentId, $comment)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -555,23 +556,51 @@ class NenoController extends JControllerLegacy
 		$translation = NenoContentElementTranslation::load($translationId, false, true);
 
 		$result = $translation
-			->setComment($comment)
-			->persist();
+		  ->setComment($comment)
+		  ->persist();
+
+		if ($allLanguages)
+		{
+			if (!empty($contentId))
+			{
+				$query
+				  ->select('original_text')
+				  ->from('#__neno_content_element_translations')
+				  ->where($db->quoteName('id') . ' = ' . (int) $translationId);
+
+				$db->setQuery($query);
+				$original_text = $db->loadResult();
+				$query->clear();
+
+				$query
+				  ->update('#__neno_content_element_translations')
+				  ->set('comment = ' . $db->quote($comment))
+				  ->where(
+					array(
+					  'content_id = ' . $db->quote($contentId),
+					  'original_text = ' . $db->quote($original_text)
+					)
+				  );
+
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
 
 		if ($allTranslations)
 		{
 			if (!empty($contentId))
 			{
 				$query
-					->update('#__neno_content_element_translations')
-					->set('comment = ' . $db->quote($comment))
-					->where(
-						array(
-							'content_id = ' . $db->quote($contentId),
-							'content_type = ' . $db->quote($translation->getContentType()),
-							'language = ' . $db->quote($translation->getLanguage())
-						)
-					);
+				  ->update('#__neno_content_element_translations')
+				  ->set('comment = ' . $db->quote($comment))
+				  ->where(
+					array(
+					  'content_id = ' . $db->quote($contentId),
+					  'content_type = ' . $db->quote($translation->getContentType()),
+					  'language = ' . $db->quote($translation->getLanguage())
+					)
+				  );
 
 				$db->setQuery($query);
 				$db->execute();
@@ -589,8 +618,8 @@ class NenoController extends JControllerLegacy
 
 				// Saving this comment for the future
 				$query
-					->set('comment = ' . $db->quote($comment))
-					->where('id = ' . $db->quote($contentId));
+				  ->set('comment = ' . $db->quote($comment))
+				  ->where('id = ' . $db->quote($contentId));
 
 				$db->setQuery($query);
 				$db->execute();
@@ -620,8 +649,9 @@ class NenoController extends JControllerLegacy
 			case 'string':
 				$translationId   = $input->post->getInt('stringId');
 				$allTranslations = $input->post->getBool('alltranslations', false);
+				$allLanguages    = $input->post->getBool('allLangs', false);
 				$contentId       = $input->post->getInt('contentId');
-				$result          = $this->saveExternalTranslatorsCommentForString($translationId, $allTranslations, $contentId, $comment);
+				$result          = $this->saveExternalTranslatorsCommentForString($translationId, $allTranslations, $allLanguages, $contentId, $comment);
 
 				break;
 		}
@@ -635,6 +665,50 @@ class NenoController extends JControllerLegacy
 	{
 		NenoHelper::createMenuStructure();
 
-		JFactory::getApplication()->redirect('index.php?option=com_neno&view=dashboard');
+		JFactory::getApplication()
+		  ->redirect('index.php?option=com_neno&view=dashboard');
+	}
+
+	/**
+	 * This methhod
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception
+	 */
+	public function fixNullIssue()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select('tr.id')
+		  ->from('#__neno_content_element_translation AS tr')
+		  ->where('tr.string = ' . $db->quote('null'));
+
+		$db->setQuery($query);
+		$translationsWithNull = $db->loadColumn();
+
+		foreach ($translationsWithNull as $translationWithNull)
+		{
+			/* @var $translation NenoContentElementTranslation */
+			$translation = NenoContentElementTranslation::load($translationWithNull, false, true);
+
+			if (!empty($translation))
+			{
+				$translation->refresh();
+
+				// Only replace strings that has null in it
+				if ($translation->getString() === 'null')
+				{
+					$translation
+					  ->setString($translation->getOriginalText())
+					  ->persist();
+				}
+			}
+		}
+
+		JFactory::getApplication()
+		  ->redirect('index.php?option=com_neno&view=dashboard');
 	}
 }

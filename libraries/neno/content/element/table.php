@@ -127,10 +127,11 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 	 * @param   bool $loadExtraData                Load Extra data flag for fields
 	 * @param   bool $onlyTranslatable             Returns only the translatable fields
 	 * @param   bool $onlyFieldsWithNoTranslations Returns only fields with no translations
+	 * @param   bool $loadParent                   Load parent table
 	 *
 	 * @return array
 	 */
-	public function getFields($loadExtraData = false, $onlyTranslatable = false, $onlyFieldsWithNoTranslations = false)
+	public function getFields($loadExtraData = false, $onlyTranslatable = false, $onlyFieldsWithNoTranslations = false, $loadParent = false)
 	{
 		if ($this->fields === null || $onlyFieldsWithNoTranslations)
 		{
@@ -178,7 +179,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				{
 					$fieldInfo        = $fieldsInfo[ $i ];
 					$fieldInfo->table = $this;
-					$field            = new NenoContentElementField($fieldInfo, $loadExtraData);
+					$field            = new NenoContentElementField($fieldInfo, $loadExtraData, $loadParent);
 
 					// Insert the field only if the $onlyTranslatable flag is off or if the flag is on and the field is translatable
 					if (($field->isTranslatable() && $onlyTranslatable) || !$onlyTranslatable)
@@ -719,11 +720,40 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db = JFactory::getDbo();
 
-		$fieldNames = array_keys($db->getTableColumns($this->tableName));
+		$fieldsData = $db->getTableColumns($this->tableName);
+		$fieldNames = array_keys($fieldsData);
 
 		$query = $db->getQuery(true);
 
+		// Check if any fields have been added
 		$query
+			->select('field_name')
+			->from('#__neno_content_element_fields')
+			->where('table_id = ' . (int) $this->id);
+
+		$db->setQuery($query);
+		$existingFieldsDiscovered = $db->loadColumn();
+
+		$fieldsNotDiscovered = array_diff($fieldNames, $existingFieldsDiscovered);
+
+		if (!empty($fieldsNotDiscovered))
+		{
+			foreach ($fieldsNotDiscovered as $fieldNotDiscovered)
+			{
+				$field = NenoHelperBackend::createFieldInstance($fieldNotDiscovered, $fieldsData[ $fieldNotDiscovered ], $this);
+
+				// If this field has been saved on the database correctly, let's persist its content
+				if ($field->persist())
+				{
+					$field->persistTranslations();
+				}
+			}
+
+		}
+
+		// Check if any fields have been removed
+		$query
+			->clear()
 			->select('id')
 			->from('#__neno_content_element_fields')
 			->where(
@@ -826,7 +856,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			->where(
 				array(
 					't.content_type = ' . $db->quote('db_string'),
-					'EXISTS (SELECT 1 FROM #__neno_content_element_fields AS f ON t.content_id = f.id WHERE f.table_id = ' . (int) $this->id . ')'
+					'EXISTS (SELECT 1 FROM #__neno_content_element_fields AS f WHERE t.content_id = f.id AND f.table_id = ' . (int) $this->id . ')'
 				)
 			);
 
@@ -846,10 +876,10 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 			foreach ($filters as $filter)
 			{
-				$query->where(NenoHelper::getWhereClauseForTableFilters($filter));
+				$sqlQuery->where(NenoHelper::getWhereClauseForTableFilters($filter));
 			}
 
-			$db->setQuery($query);
+			$db->setQuery($sqlQuery);
 			$result = $db->loadResult();
 
 			// If the translation does not meet this requirements, let's delete it
@@ -918,5 +948,59 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		$db->setQuery($query, 0, $limit);
 
 		return $db->loadObjectList();
+	}
+
+	/**
+	 * This method will consolidate translations method the translations.
+	 *
+	 * @return void
+	 */
+	public function consolidateTranslateMethodsForTranslations()
+	{
+		$db               = JFactory::getDbo();
+		$translationQuery = $db->getQuery(true);
+		$workingLanguage  = NenoHelper::getWorkingLanguage();
+
+		$translationQuery
+			->select('tr.id')
+			->from('#__neno_content_element_translations as tr')
+			->innerJoin('#__neno_content_element_fields as f ON f.id = tr.content_id')
+			->where(
+				array(
+					'f.table_id = ' . $db->quote($this->id),
+					'tr.content_type = ' . $db->quote(NenoContentElementTranslation::DB_STRING),
+					'tr.language = ' . $db->quote($workingLanguage)
+				)
+			);
+
+		$deleteQuery = $db->getQuery(true);
+
+		$deleteQuery
+			->clear()
+			->delete('#__neno_content_element_translation_x_translation_methods')
+			->where('translation_id IN (' . (string) $translationQuery . ')');
+
+		$db->setQuery($deleteQuery);
+
+		// If everything has been executed properly, let's insert new translation methods
+		if ($db->execute() !== false)
+		{
+			$translationQuery
+				->select(
+					array(
+						'gtm.translation_method_id',
+						'gtm.ordering'
+					)
+				)
+				->innerJoin('#__neno_content_element_tables as t ON t.id = f.table_id')
+				->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
+				->leftJoin('#__neno_content_element_groups_x_translation_methods AS gtm ON gtm.group_id = g.id')
+				->where('gtm.lang = ' . $db->quote($workingLanguage));
+
+			$insertQuery = 'INSERT INTO #__neno_content_element_translation_x_translation_methods (translation_id, translation_method_id, ordering) ' . (string) $translationQuery;
+
+			$db->setQuery($insertQuery);
+			$db->execute();
+		}
 	}
 }

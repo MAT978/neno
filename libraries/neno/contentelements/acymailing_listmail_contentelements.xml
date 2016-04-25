@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>acymailing_listmail</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table acymailing_listmail</description><translate>0</translate><reference type="content"><table name="acymailing_listmail"><field type="referenceid" name="listid" translate="0">listid</field><field type="referenceid" name="mailid" translate="0">mailid</field></table></reference></neno>

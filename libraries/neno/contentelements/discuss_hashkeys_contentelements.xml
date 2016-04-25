@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>discuss_hashkeys</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table discuss_hashkeys</description><translate>0</translate><reference type="content"><table name="discuss_hashkeys"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="key" translate="0">key</field><field type="text" name="type" translate="0">type</field><field type="text" name="uid" translate="0">uid</field></table></reference></neno>

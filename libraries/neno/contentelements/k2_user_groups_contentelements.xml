@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>k2_user_groups</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table k2_user_groups</description><translate>1</translate><reference type="content"><table name="k2_user_groups"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="name" translate="1">name</field><field type="text" name="permissions" translate="1">permissions</field></table></reference></neno>

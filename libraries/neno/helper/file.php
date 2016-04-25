@@ -77,7 +77,7 @@ class NenoHelperFile
 	{
 		foreach ($strings as $key => $string)
 		{
-			$strings[ $key ] = str_replace('_QQ_', '"', $string);
+			$strings[ $key ] = str_replace('"_QQ_"', '"', $string);
 		}
 
 		return $strings;
@@ -94,7 +94,7 @@ class NenoHelperFile
 	{
 		foreach ($strings as $key => $string)
 		{
-			$strings[ $key ] = str_replace('"', '_QQ_', $string);
+			$strings[ $key ] = trim(str_replace('"', '"_QQ_"', $string));
 		}
 
 		return $strings;

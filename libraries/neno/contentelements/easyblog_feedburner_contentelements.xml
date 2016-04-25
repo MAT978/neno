@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>easyblog_feedburner</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table easyblog_feedburner</description><translate>0</translate><reference type="content"><table name="easyblog_feedburner"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="url" translate="0">url</field><field type="text" name="userid" translate="0">userid</field></table></reference></neno>

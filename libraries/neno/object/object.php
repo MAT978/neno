@@ -377,6 +377,10 @@ abstract class NenoObject
 		return $data;
 	}
 
+	public function toArray($allFields = false, $recursive = false, $convertToDatabase = true){
+		return get_object_vars($this->toObject($allFields, $recursive, $convertToDatabase));
+	}
+
 	/**
 	 * Get all the properties
 	 *

@@ -19,65 +19,55 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @var array
 	 */
 	public static $translatableFields = array(
-		'varchar',
-		'tinytext',
-		'text',
-		'mediumtext',
-		'longtext'
+	  'varchar',
+	  'tinytext',
+	  'text',
+	  'mediumtext',
+	  'longtext'
 	);
 	/**
 	 * @var
 	 */
 	private static $filterMapByFieldName = array(
-		'alias' => 'CMD',
-		'slug'  => 'CMD'
+	  'alias' => 'CMD',
+	  'slug'  => 'CMD'
 	);
-
 	/**
 	 * @var stdClass
 	 */
 	public $wordCount;
-
 	/**
 	 * @var array
 	 */
 	public $translationMethodUsed;
-
 	/**
 	 * @var NenoContentElementTable
 	 */
 	protected $table;
-
 	/**
 	 * @var string
 	 */
 	protected $fieldName;
-
 	/**
 	 * @var string
 	 */
 	protected $fieldType;
-
 	/**
 	 * @var boolean
 	 */
 	protected $translate;
-
 	/**
 	 * @var array|null
 	 */
 	protected $translations;
-
 	/**
 	 * @var string
 	 */
 	protected $filter;
-
 	/**
 	 * @var bool
 	 */
 	protected $discovered;
-
 	/**
 	 * @var string
 	 */
@@ -98,12 +88,12 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 		if ($loadParent)
 		{
-			$this->table = $data->get('table') == null
-				? NenoContentElementTable::load($data->get('tableId'), $loadExtraData, $loadParent)
-				: $data->get('table');
+			$this->table = $data->get('table') == NULL
+			  ? NenoContentElementTable::load($data->get('tableId'), $loadExtraData, $loadParent)
+			  : $data->get('table');
 		}
 
-		$this->translations = null;
+		$this->translations = NULL;
 
 		if (!$this->isNew() && $loadExtraData)
 		{
@@ -118,33 +108,33 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function getWordCount()
 	{
-		if ($this->wordCount === null)
+		if ($this->wordCount === NULL)
 		{
-			$cacheId   = NenoCache::getCacheId(get_called_class() . '.' . __FUNCTION__, array( $this->getId() ));
+			$cacheId   = NenoCache::getCacheId(get_called_class() . '.' . __FUNCTION__, array($this->getId()));
 			$cacheData = NenoCache::getCacheData($cacheId);
 
-			if ($cacheData === null)
+			if ($cacheData === NULL)
 			{
 				$db              = JFactory::getDbo();
 				$query           = $db->getQuery(true);
 				$workingLanguage = NenoHelper::getWorkingLanguage();
 
 				$query
-					->select(
-						array(
-							'SUM(word_counter) AS counter',
-							'tr.state'
-						)
+				  ->select(
+					array(
+					  'SUM(word_counter) AS counter',
+					  'tr.state'
 					)
-					->from('#__neno_content_element_translations AS tr')
-					->where(
-						array(
-							'tr.content_type = ' . $db->quote('db_string'),
-							'tr.language LIKE ' . $db->quote($workingLanguage),
-							'tr.content_id = ' . $this->getId()
-						)
+				  )
+				  ->from('#__neno_content_element_translations AS tr')
+				  ->where(
+					array(
+					  'tr.content_type = ' . $db->quote('db_string'),
+					  'tr.language LIKE ' . $db->quote($workingLanguage),
+					  'tr.content_id = ' . $this->getId()
 					)
-					->group('tr.state');
+				  )
+				  ->group('tr.state');
 
 				$db->setQuery($query);
 				$statistics = $db->loadAssocList('state');
@@ -271,7 +261,8 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function checkTranslatableStatusFromContentElementFile()
 	{
-		$filePath = NenoHelperFile::getContentElementFilePathBasedOnTableName($this->getTable()->getTableName());
+		$filePath = JPATH_NENO . '/contentelements/' . str_replace('#__', '', $this->getTable()
+			->getTableName()) . '_contentelements.xml';
 
 		// If the file exists, let's check what is there
 		if (file_exists($filePath))
@@ -375,7 +366,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function getTranslations()
 	{
-		if ($this->translations === null)
+		if ($this->translations === NULL)
 		{
 			$this->translations = NenoContentElementTranslation::getTranslations($this);
 		}
@@ -406,6 +397,12 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	public function applyFilter($string)
 	{
+		// If the string is empty, there's no need to filter it.
+		if (empty($string))
+		{
+			return $string;
+		}
+
 		$filter = JFilterInput::getInstance();
 		if (empty($this->filter))
 		{
@@ -447,20 +444,20 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	public function discoverElement()
 	{
 		NenoHelper::setSetupState(
-			JText::sprintf(
-				'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD',
-				$this->getTable()->getGroup()->getGroupName(),
-				$this->getTable()->getTableName(),
-				$this->getFieldName()
-			),
-			'3.1'
+		  JText::sprintf(
+			'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD',
+			$this->getTable()->getGroup()->getGroupName(),
+			$this->getTable()->getTableName(),
+			$this->getFieldName()
+		  ),
+		  '3.1'
 		);
 
 		if ($this->persistTranslations() === true)
 		{
 			$this
-				->setDiscovered(true)
-				->persist();
+			  ->setDiscovered(true)
+			  ->persist();
 		}
 	}
 
@@ -502,7 +499,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods)
 	{
 		$commonData['language'] = $language;
-		$commonData['string']   = $string['string'];
+		$commonData['string']   = $string['string'] === NULL ? '' : $string['string'];
 
 		// If the string is empty or is a number, let's mark as translated.
 		if (empty($string['string']) || is_numeric($string['string']))
@@ -522,12 +519,12 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		{
 			$field     = self::getFieldByTableAndFieldName($this->getTable(), $primaryKey);
 			$fieldData = array(
-				'field' => $field,
-				'value' => $string[ $primaryKey ]
+			  'field' => $field,
+			  'value' => $string[$primaryKey]
 			);
 
-			$sourceData[]                   = $fieldData;
-			$fieldBreakpoint[ $primaryKey ] = $string[ $primaryKey ];
+			$sourceData[]                 = $fieldData;
+			$fieldBreakpoint[$primaryKey] = $string[$primaryKey];
 		}
 
 		// Save breakpoint into the database
@@ -565,11 +562,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	{
 		$currentTranslationMethods = $translation->getTranslationMethods();
 
-		if (empty($currentTranslationMethods[ $language ]))
+		if (empty($currentTranslationMethods[$language]))
 		{
-			if (!empty($translationMethods[ $language ]))
+			if (!empty($translationMethods[$language]))
 			{
-				$translationMethodsTr = $translationMethods[ $language ];
+				$translationMethodsTr = $translationMethods[$language];
 
 				foreach ($translationMethodsTr as $translationMethodTr)
 				{
@@ -594,15 +591,15 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		if (!NenoSettings::get('installation_completed'))
 		{
 			NenoHelper::setSetupState(
-				JText::sprintf(
-					'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD_PROGRESS',
-					$this->getTable()->getGroup()->getGroupName(),
-					$this->getTable()->getTableName(),
-					$this->getFieldName(),
-					$progressCounters['processed'],
-					$progressCounters['total']
-				),
-				3
+			  JText::sprintf(
+				'COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD_PROGRESS',
+				$this->getTable()->getGroup()->getGroupName(),
+				$this->getTable()->getTableName(),
+				$this->getFieldName(),
+				$progressCounters['processed'],
+				$progressCounters['total']
+			  ),
+			  3
 			);
 		}
 	}
@@ -643,24 +640,24 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 *
 	 * @return bool True on success
 	 */
-	public function persistTranslations($recordId = null, $language = null)
+	public function persistTranslations($recordId = NULL, $language = NULL)
 	{
 		if ($this->translate)
 		{
 			$commonData = array(
-				'contentType' => NenoContentElementTranslation::DB_STRING,
-				'contentId'   => $this->getId(),
-				'content'     => $this,
-				'state'       => NenoContentElementTranslation::NOT_TRANSLATED_STATE,
-				'timeAdded'   => new DateTime,
-				'comment'     => $this->comment
+			  'contentType' => NenoContentElementTranslation::DB_STRING,
+			  'contentId'   => $this->getId(),
+			  'content'     => $this,
+			  'state'       => NenoContentElementTranslation::NOT_TRANSLATED_STATE,
+			  'timeAdded'   => new DateTime,
+			  'comment'     => $this->comment
 			);
 
-			if ($language !== null)
+			if ($language !== NULL)
 			{
 				$languageData            = new stdClass;
 				$languageData->lang_code = $language;
-				$languages               = array( $languageData );
+				$languages               = array($languageData);
 			}
 			else
 			{
@@ -680,7 +677,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 					$this->persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods);
 				}
 
-				NenoSettings::set('field_breakpoint', null);
+				NenoSettings::set('field_breakpoint', NULL);
 			}
 		}
 		else
@@ -688,11 +685,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$translationsCount = count($this->translations);
 			for ($i = 0; $i < $translationsCount; $i++)
 			{
-				$translation = $this->translations[ $i ];
+				$translation = $this->translations[$i];
 				/* @var $translation NenoContentElementTranslation */
 				$translation->refresh();
 
-				$this->translations[ $i ] = $translation;
+				$this->translations[$i] = $translation;
 			}
 		}
 
@@ -712,24 +709,24 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		$subqueryProcessed = $db->getQuery(true);
 
 		$subqueryTotal
-			->select('COUNT(*)')
-			->from($this->table->getTableName());
+		  ->select('COUNT(*)')
+		  ->from($this->table->getTableName());
 
 		$subqueryProcessed
-			->select('COUNT(*)')
-			->from($this->table->getTableName());
+		  ->select('COUNT(*)')
+		  ->from($this->table->getTableName());
 
 		$primaryKeyData = $this->getTable()->getPrimaryKey();
-		$breakpoint     = NenoSettings::get('field_breakpoint', null);
+		$breakpoint     = NenoSettings::get('field_breakpoint', NULL);
 
 		if (!empty($breakpoint))
 		{
 			$breakpoint = json_decode($breakpoint, true);
 			foreach ($primaryKeyData as $primaryKey)
 			{
-				if (!empty($breakpoint[ $primaryKey ]))
+				if (!empty($breakpoint[$primaryKey]))
 				{
-					$subqueryProcessed->where($db->quoteName($primaryKey) . ' < ' . $breakpoint[ $primaryKey ]);
+					$subqueryProcessed->where($db->quoteName($primaryKey) . ' < ' . $db->quote($breakpoint[$primaryKey]));
 				}
 			}
 		}
@@ -755,12 +752,12 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		}
 
 		$query
-			->select(
-				array(
-					'(' . (string) $subqueryTotal . ') AS total',
-					'(' . (string) $subqueryProcessed . ') AS processed'
-				)
-			);
+		  ->select(
+			array(
+			  '(' . (string) $subqueryTotal . ') AS total',
+			  '(' . (string) $subqueryProcessed . ') AS processed'
+			)
+		  );
 
 		$db->setQuery($query);
 		$progressCounters = $db->loadAssoc();
@@ -775,7 +772,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 *
 	 * @return array
 	 */
-	protected function getStrings($recordId = null)
+	protected function getStrings($recordId = NULL)
 	{
 		$rows       = array();
 		$primaryKey = $this->getTable()->getPrimaryKey();
@@ -788,7 +785,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$filtersApplied = false;
 
 			$primaryKeyData = $this->getTable()->getPrimaryKey();
-			$breakpoint     = NenoSettings::get('installation_completed') ? null : NenoSettings::get('field_breakpoint', null);
+			$breakpoint     = NenoSettings::get('installation_completed') ? NULL : NenoSettings::get('field_breakpoint', NULL);
 
 			if (!empty($breakpoint))
 			{
@@ -799,14 +796,14 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			{
 				$query->select($db->quoteName($primaryKey));
 
-				if (!empty($recordId[ $primaryKey ]))
+				if (!empty($recordId[$primaryKey]))
 				{
-					$query->where($db->quoteName($primaryKey) . ' = ' . $recordId[ $primaryKey ]);
+					$query->where($db->quoteName($primaryKey) . ' = ' . $recordId[$primaryKey]);
 					$filtersApplied = true;
 				}
-				elseif (!empty($breakpoint[ $primaryKey ]))
+				elseif (!empty($breakpoint[$primaryKey]))
 				{
-					$query->where($db->quoteName($primaryKey) . ' >= ' . $breakpoint[ $primaryKey ]);
+					$query->where($db->quoteName($primaryKey) . ' >= ' . $breakpoint[$primaryKey]);
 					$filtersApplied = true;
 				}
 
@@ -814,8 +811,8 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			}
 
 			$query
-				->select($db->quoteName($this->getFieldName(), 'string'))
-				->from($this->getTable()->getTableName());
+			  ->select($db->quoteName($this->getFieldName(), 'string'))
+			  ->from($this->getTable()->getTableName());
 
 			if ($this->getTable()->hasState())
 			{
@@ -856,7 +853,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	{
 		// Get fields related to this table
 		$fields = $table->getFields(false);
-		$field  = null;
+		$field  = NULL;
 
 		if (!empty($fields))
 		{
@@ -866,7 +863,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			for ($i = 0; $i < count($fields) && !$found; $i++)
 			{
 				/* @var $field NenoContentElementField */
-				$field = $fields[ $i ];
+				$field = $fields[$i];
 
 				if ($field->getFieldName() == $fieldName)
 				{
@@ -876,7 +873,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 			if ($found)
 			{
-				if ($field->getId() == null)
+				if ($field->getId() == NULL)
 				{
 					$field = self::getFieldDataFromDatabase($table->getId(), $fieldName);
 				}
@@ -902,7 +899,9 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 */
 	private static function getFieldDataFromDatabase($tableId, $fieldName)
 	{
-		$field = self::load(array( 'table_id' => $tableId, 'field_name' => $fieldName ));
+		$field = self::load(array('table_id'   => $tableId,
+		                          'field_name' => $fieldName
+		));
 
 		return $field;
 	}
@@ -919,9 +918,9 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$this->filter = 'RAW';
 
 			// If this field name has a established filter, let's set it
-			if (isset(self::$filterMapByFieldName[ strtolower($this->fieldName) ]))
+			if (isset(self::$filterMapByFieldName[strtolower($this->fieldName)]))
 			{
-				$this->filter = self::$filterMapByFieldName[ strtolower($this->fieldName) ];
+				$this->filter = self::$filterMapByFieldName[strtolower($this->fieldName)];
 			}
 		}
 

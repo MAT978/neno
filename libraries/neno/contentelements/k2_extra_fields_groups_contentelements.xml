@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>k2_extra_fields_groups</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table k2_extra_fields_groups</description><translate>0</translate><reference type="content"><table name="k2_extra_fields_groups"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="name" translate="0">name</field></table></reference></neno>

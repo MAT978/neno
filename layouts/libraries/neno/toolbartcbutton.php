@@ -10,11 +10,16 @@
 defined('_JEXEC') or die;
 
 ?>
+<scritp>
 
+</scritp>
 <div class="btn-wrapper pull-right">
 	<button class="neno-no-button">
 		<?php echo $displayData->button; ?>
 	</button>
-    
-    <a href="<?php echo JRoute::_('index.php?option=com_neno&view=externaltranslations'); ?>" class="btn btn-success"><?php echo JText::_('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_BUTTON'); ?></a>
+    <button onclick="location.href='<?php echo JRoute::_('index.php?option=com_neno&view=externaltranslations'); ?>'" class="btn btn-primary">
+		<span class="icon-cart"></span>
+		<?php echo JText::_('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_BUTTON'); ?>
+	</button>
+
 </div>

@@ -282,7 +282,7 @@ class NenoControllerInstallation extends JControllerAdmin
 					/* @var $field NenoContentElementField */
 					foreach ($fields as $key => $field)
 					{
-						if ($field->isTranslatableType($field->getFieldType()))
+						if (NenoContentElementField::isTranslatableType($field->getFieldType()))
 						{
 							$fields[ $key ] = $field->prepareDataForView();
 						}
@@ -432,6 +432,7 @@ class NenoControllerInstallation extends JControllerAdmin
 
 			if (!$this->isLeafLevel($level))
 			{
+				/* @var $element NenoContentElementTable */
 				$element = $this->getElementByLevel($level);
 
 				if ($element == null && $level == 0)
@@ -440,14 +441,13 @@ class NenoControllerInstallation extends JControllerAdmin
 					NenoHelperBackend::createDoNotTranslateGroup();
 					$finished = true;
 				}
-				elseif ($element == null && $level != 0)
+				elseif (($element == null || ($element instanceof NenoContentElementTable && !$element->isDiscovered())) && $level != 0)
 				{
 					$this->goingBackInTheHierarchy($level);
 				}
 				else
 				{
-					/* @var $element NenoContentElementGroup */
-					$element->discoverElement(false);
+					$element->discoverElement();
 				}
 			}
 			else
@@ -767,8 +767,7 @@ class NenoControllerInstallation extends JControllerAdmin
 			$languageString = NenoContentElementLanguageString::load(
 				array(
 					'discovered' => 0,
-					'_limit'     => 1,
-					'translate'  => 1
+					'_limit'     => 1
 				), false, true
 			);
 		}

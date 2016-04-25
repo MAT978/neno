@@ -44,3 +44,10 @@
     margin-right: 20px;
 }
 
+a.btn-working-lang {
+    width: 250px !important;
+    height: 140px;
+    margin-left: 0 !important;
+    margin-bottom: 30px !important;
+    margin-right: 30px !important;
+}

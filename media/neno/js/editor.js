@@ -48,7 +48,15 @@ function bindEditorButtons() {
 	jQuery('.copy-string-link').off().on('click', copy);
 	jQuery('.translate-string-link').off().on('click', translate);
 
-
+	jQuery(function($) {
+		SqueezeBox.initialize();
+		SqueezeBox.assign(jQuery('a.modal_jform_contenthistory').get(), {
+			parse: 'rel'
+		});
+	});
+	function jModalClose() {
+		SqueezeBox.close();
+	}
 }
 
 
@@ -185,20 +193,22 @@ function initCodemirror() {
 		var translation_id = getTranslationId(jQuery(this));
 		var modeLeft = 'htmlmixed';
 		var modeRight = 'htmlmixed';
+		var originalTextarea = jQuery('#original-content-' + translation_id);
+		var editorTextarea = jQuery('#translated-content-' + translation_id);
 
 		// If the string is JSON, let's specify the specific mode for JSON
-		if (isJSON(jQuery('#original-content-' + translation_id).val())) {
+		if (isJSON(originalTextarea.val())) {
 			modeLeft = 'application/ld+json';
 
-			jQuery('#original-content-' + translation_id).val(prettyJSON(jQuery('#original-content-' + translation_id).val()));
+			originalTextarea.val(prettyJSON(originalTextarea.val()));
 		}
 
-        // If the string is JSON, let's specify the specific mode for JSON
-        if (isJSON(jQuery('#translated-content-' + translation_id).val())) {
-            modeRight = 'application/ld+json';
+		// If the string is JSON, let's specify the specific mode for JSON
+		if (isJSON(editorTextarea.val())) {
+			modeRight = 'application/ld+json';
 
-            jQuery('#translated-content-' + translation_id).val(prettyJSON(jQuery('#translated-content-' + translation_id).val()));
-        }
+			editorTextarea.val(prettyJSON(editorTextarea.val()));
+		}
 
 		var editor = {};
 		editor.translation_id = translation_id;
@@ -212,16 +222,17 @@ function initCodemirror() {
 			mode          : modeRight,
 			lineWrapping  : true,
 			viewportMargin: 200,
-			matchTags     : {bothTags: true}
+			matchTags     : {bothTags: true},
+			readOnly      : typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false
 		});
 
 		if (modeLeft != 'application/ld+json') {
 			formatEditor(editor.left);
 		}
 
-        if (modeRight != 'application/ld+json') {
-            formatEditor(editor.right);
-        }
+		if (modeRight != 'application/ld+json') {
+			formatEditor(editor.right);
+		}
 
 		editors[translation_id] = editor;
 
@@ -233,8 +244,15 @@ function initCodemirror() {
 			editor.right.setSize(null, 350);
 		}
 
+		editor.right.markClean();
 	});
+}
 
+function toggleSavingButtons(disabled) {
+	jQuery('#copy-btn').attr('disabled', disabled ? true : false);
+	jQuery('#translate-btn').attr('disabled', disabled ? true : false);
+	jQuery('#draft-button').attr('disabled', disabled ? true : false);
+	jQuery('#save-next-button').attr('disabled', disabled ? true : false);
 }
 
 function isJSON(string) {
@@ -312,20 +330,20 @@ function addExtensions() {
 
 // Keeps left editor in same scroll position as right one
 function mirrorscroll(cm) {
-    
-    var translation_id = getTranslationId(jQuery(cm.getTextArea()));
-    
-    // If the left mirror has been hovered then disable mirror scroll for that element
-    // We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
-    jQuery('.main-translation-div[data-translation-id="'+translation_id+'"] .lefteditor-wrapper .CodeMirror').on('mouseover', function(){
-        editors[translation_id].left.disableMirrorScroll = true;
-    });
-    
-    // Set the left scroll to be the same as the right
-    if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
-        var scrollinfo = cm.getScrollInfo();
-        editors[translation_id].left.scrollTo(null, scrollinfo.top);
-    }
+
+	var translation_id = getTranslationId(jQuery(cm.getTextArea()));
+
+	// If the left mirror has been hovered then disable mirror scroll for that element
+	// We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
+	jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .lefteditor-wrapper .CodeMirror').on('mouseover', function () {
+		editors[translation_id].left.disableMirrorScroll = true;
+	});
+
+	// Set the left scroll to be the same as the right
+	if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
+		var scrollInfo = cm.getScrollInfo();
+		editors[translation_id].left.scrollTo(null, scrollInfo.top);
+	}
 
 }
 
@@ -347,6 +365,7 @@ function saveAllTranslationsAndNext() {
 	jQuery.each(editors, function (translation_id, editor) {
 		var string = {};
 		string.translation_id = translation_id;
+		formatEditor(editor.right);
 		string.text = editor.right.getValue();
 		strings.push(string);
 	});
@@ -394,10 +413,10 @@ function loadNextTranslation() {
 	var afterNextString = nextString.next('div').next('div');
 	if (nextString.length && !nextString.hasClass('no-results')) {
 		loadTranslation(nextString.data('id'));
-        if (!afterNextString.length) {
-            loadStrings();
-        }
-    }
+		if (!afterNextString.length) {
+			loadStrings();
+		}
+	}
 }
 
 /**
@@ -407,7 +426,7 @@ function loadNextTranslation() {
  */
 function updateEditorStringStatus(translation_id, new_status) {
 
-	jQuery('#elements-wrapper .string[data-id="' + translation_id + '"] .status')
+	jQuery('#elements-wrapper').find('.string[data-id="' + translation_id + '"] .status')
 		.removeClass('translated queued changed not-translated')
 		.addClass(new_status);
 
@@ -428,6 +447,8 @@ function showConsolidationModal(messages) {
 	// Add the message to the modal
 	jQuery('#consolidate-dynamic-content').html(modal_html);
 
+	var consolidateModal = jQuery('#consolidate-modal');
+
 	// Bind the click to save the modal
 	jQuery('#consolidate-button').off('click').on('click', function () {
 
@@ -447,12 +468,14 @@ function showConsolidationModal(messages) {
 				success: function () {
 
 					// When consolidated, hide the main modal
-					jQuery('#consolidate-modal').modal('hide');
+					consolidateModal.modal('hide');
+
+					var consolidateConfirmModal = jQuery('#consolidate-confirm-modal');
 
 					// And show the confirmation modal
-					jQuery('#consolidate-confirm-modal').modal('show');
+					consolidateConfirmModal.modal('show', {keyboard: true});
 
-					jQuery('#consolidate-confirm-modal').on('shown.bs.modal', function () {
+					consolidateConfirmModal.on('shown.bs.modal', function () {
 						jQuery('#consolidate-button-close').focus();
 					});
 
@@ -462,12 +485,10 @@ function showConsolidationModal(messages) {
 	});
 
 	// Show the modal and focus button
-	jQuery('#consolidate-modal').modal('show');
-	jQuery('#consolidate-modal').on('shown.bs.modal', function () {
+	consolidateModal.modal('show', {keyboard: true});
+	consolidateModal.on('shown.bs.modal', function () {
 		jQuery('#consolidate-button').focus();
 	});
-
-
 }
 
 /**
@@ -477,6 +498,7 @@ function saveAllAsDraft() {
 
 	jQuery.each(editors, function (translation_id, editor) {
 
+		formatEditor(editor.right);
 		var text = editor.right.getValue();
 
 		jQuery.ajax({
@@ -525,14 +547,14 @@ function loadTranslation(id) {
  */
 function selectStringInStringList(id) {
 	jQuery('.string-activated').removeClass('string-activated');
-	jQuery('#elements-wrapper .string[data-id=' + id + ']').addClass('string-activated');
+	jQuery('#elements-wrapper').find('.string[data-id=' + id + ']').addClass('string-activated');
 }
 
 
 /**
  * Check the structure of HTML in all editors and show a prompt if something is wrong
  * as well as shows an error below the field
- * @returns true if everthing is OK or if users confirm else returns false
+ * @returns true if everything is OK or if users confirm else returns false
  */
 function checkStructure() {
 
@@ -714,8 +736,9 @@ function loadNotesToTranslators(only_this_translation_id) {
 		jQuery.ajax({
 			url    : 'index.php?option=com_neno&task=editor.getTranslationNotes&id=' + translation_id,
 			success: function (data) {
-				jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.note-to-translators').html(data);
-				jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
+				var mainTranslationDiv = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']');
+				mainTranslationDiv.find('.note-to-translators').html(data);
+				mainTranslationDiv.find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
 				initTooltips();
 			}
 		});
@@ -750,6 +773,14 @@ function saveTranslatorsNote(event) {
 
 	if (checkbox.is(':checked')) {
 		data['alltranslations'] = 1;
+		data['contentId'] = checkbox.data('content-id');
+	}
+
+	// Chek if we should also set the note for all languages
+	var allLangs = jQuery('#comment-all-langs-' + translation_id);
+
+	if (allLangs.is(':checked')) {
+		data['allLangs'] = 1;
 		data['contentId'] = checkbox.data('content-id');
 	}
 
@@ -836,6 +867,7 @@ function hasEditorContentChanged() {
 		return false;
 	}
 	jQuery.each(editors, function (translation_id, editor) {
+
 		if (editor.right.isClean() === false) {
 			contentHasChanged = true;
 			return false;
@@ -847,7 +879,7 @@ function hasEditorContentChanged() {
 
 // Bind click event in order to load translations
 function bindStringsTranslationsLoading() {
-    jQuery('.string').unbind('click').bind('click', function () {
-        loadTranslation(jQuery(this).data('id'));
-    });
+	jQuery('.string').unbind('click').bind('click', function () {
+		loadTranslation(jQuery(this).data('id'));
+	});
 }

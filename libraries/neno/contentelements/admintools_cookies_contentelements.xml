@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>admintools_cookies</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table admintools_cookies</description><translate>0</translate><reference type="content"><table name="admintools_cookies"><field type="text" name="client_hash" translate="0">client_hash</field><field type="referenceid" name="series" translate="0">series</field><field type="text" name="valid_to" translate="0">valid_to</field></table></reference></neno>

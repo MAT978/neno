@@ -34,6 +34,15 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 	jQuery(document).ready(bindEvents);
 
+	function isLangReady(lang) {
+		jQuery.ajax({
+			url: 'index.php?option=com_neno&task=dashboard.toggleLanguage&language=' + lang,
+			complete: function (data) {
+				setTimeout(isLangReady, 5000);
+			}
+		});
+	}
+
 	function bindEvents() {
 		//Bind the loader into the new selector
 		loadMissingTranslationMethodSelectors();

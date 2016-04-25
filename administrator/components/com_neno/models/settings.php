@@ -21,7 +21,7 @@ class NenoModelSettings extends JModelList
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
 	 * @see        JController
 	 * @since      1.6
@@ -105,6 +105,7 @@ class NenoModelSettings extends JModelList
 					{
 						$item->setting_key = 0;
 					}
+
 					$values         = array(
 						array(
 							'value' => '0',
@@ -175,8 +176,8 @@ class NenoModelSettings extends JModelList
 	 *
 	 * Note. Calling getState in this method will result in recursion.
 	 *
-	 * @param   string $ordering  An optional ordering field.
-	 * @param   string $direction An optional direction (asc|desc).
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
 	 *
 	 * @return  void
 	 *
@@ -191,7 +192,7 @@ class NenoModelSettings extends JModelList
 	/**
 	 * This method takes care that all the default settings exist.
 	 *
-	 * @param array $items Setting items
+	 * @param   array  $items  Setting items
 	 *
 	 * @return array
 	 */
@@ -199,6 +200,7 @@ class NenoModelSettings extends JModelList
 	{
 		// Create a simple array with key value of settings
 		$settings = array();
+
 		foreach ($items as $item)
 		{
 			$settings[ $item->setting_key ] = $item->setting_value;
@@ -208,10 +210,38 @@ class NenoModelSettings extends JModelList
 		if (!isset($settings['load_related_content']))
 		{
 			NenoSettings::set('load_related_content', '0');
-			$items = $this->getItems(); // Refresh the items
+
+			// Refresh the items
+			$items = $this->getItems();
 		}
 
 		return $items;
 	}
 
+
+	public function saveNenoHistoryConfig($value)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$params = array(
+			'save_history' => $value,
+			'history_limit' => 10
+		);
+
+		$fields = array(
+			$db->quoteName('params') . ' = \'' . json_encode($params) . '\''
+		);
+
+		$query
+			->update($db->quoteName('#__extensions'))
+			->set($fields)
+			->where($db->quoteName('name') . ' = \'com_neno\' AND ' . $db->quoteName('type') . ' = \'component\'');
+
+		$db->setQuery($query);
+
+		$result = $db->execute();
+
+		return $result;
+	}
 }

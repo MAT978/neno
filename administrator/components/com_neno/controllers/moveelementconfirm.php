@@ -30,9 +30,9 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		// Overwrite the view
 		$input->set('view', 'moveelementconfirm');
 
-		$groups = $input->get('groups', array (), 'array');
-		$tables = $input->get('tables', array (), 'array');
-		$files  = $input->get('files', array (), 'files');
+		$groups = $input->get('groups', array(), 'array');
+		$tables = $input->get('tables', array(), 'array');
+		$files  = $input->get('files', array(), 'files');
 
 		// If a group is selected then load all the elements from that group
 		if (!empty($groups))
@@ -78,7 +78,7 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		{
 			foreach ($tables as $key => $table)
 			{
-				$tables[$key] = NenoContentElementTable::load($table);
+				$tables[ $key ] = NenoContentElementTable::load($table);
 			}
 		}
 
@@ -87,7 +87,7 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		{
 			foreach ($files as $key => $file)
 			{
-				$files[$key] = NenoContentElementLanguageFile::load($file);
+				$files[ $key ] = NenoContentElementLanguageFile::load($file);
 			}
 		}
 
@@ -97,7 +97,7 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		/* @var $view NenoViewMoveElementConfirm */
 		$view         = $this->getView('MoveElementConfirm', 'html');
 		$view->groups = NenoHelper::convertNenoObjectListToJobjectList(NenoHelper::getGroups());
-        
+
 		// Assign data from the model
 		$view->tables = NenoHelper::convertNenoObjectListToJobjectList($tables);
 		$view->files  = NenoHelper::convertNenoObjectListToJobjectList($files);
@@ -118,8 +118,8 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		$groupId = $input->getInt('group_id');
 		/* @var $group NenoContentElementGroup */
 		$group  = NenoContentElementGroup::load($groupId);
-		$tables = $input->get('tables', array (), 'array');
-		$files  = $input->get('files', array (), 'files');
+		$tables = $input->get('tables', array(), 'array');
+		$files  = $input->get('files', array(), 'files');
 
 		$url = JRoute::_('index.php?option=com_neno&view=groupselements', false);
 
@@ -147,8 +147,11 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 			{
 				/* @var $table NenoContentElementTable */
 				$table = NenoContentElementTable::load($tableId, true, true);
-				$table->setGroup($group);
-				$table->persist();
+				$table
+					->setGroup($group)
+					->persist();
+
+				$table->consolidateTranslateMethodsForTranslations();
 			}
 
 			$msg .= JText::sprintf('COM_NENO_VIEW_MOVELEMENTCONFIRM_X_TABLES_MOVED', count($tables));
@@ -162,8 +165,11 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 			{
 				/* @var $file NenoContentElementLanguageFile */
 				$file = NenoContentElementLanguageFile::load($fileId);
-				$file->setGroup($group);
-				$file->persist();
+				$file
+					->setGroup($group)
+					->persist();
+
+				$file->consolidateTranslateMethodsForTranslations();
 			}
 
 			$msg .= JText::sprintf('COM_NENO_VIEW_MOVELEMENTCONFIRM_X_FILES_MOVED', count($files));

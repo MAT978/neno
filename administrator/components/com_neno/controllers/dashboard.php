@@ -16,183 +16,247 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoControllerDashboard extends JControllerAdmin {
+class NenoControllerDashboard extends JControllerAdmin
+{
 
-    /**
-     * Toggle language
-     *
-     * @return void
-     */
-    public function toggleLanguage() {
-        $input = $this->input;
-        $language = $input->getString('language');
-        $db = JFactory::getDbo();
-        $query = $db->getQuery(true);
+	/**
+	 *
+	 */
+	public function isLanguageReady()
+	{
+		$lang = $this->input->getString('language');
 
-        $query
-                ->update('#__languages')
-                ->set('published = (published + 1) % 2')
-                ->where('lang_code = ' . $db->quote($language));
+		if(NenoHelper::isCompletelyInstall($lang))
+		{
+			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+		}
 
-        $db->setQuery($query);
-        $db->execute();
+		JFactory::getApplication()->close();
+	}
 
-        JFactory::getApplication()->close();
-    }
+	/**
+	 * Toggle language
+	 *
+	 * @return void
+	 */
+	public function toggleLanguage()
+	{
+		$input    = $this->input;
+		$language = $input->getString('language');
+		$db       = JFactory::getDbo();
+		$query    = $db->getQuery(true);
 
-    /**
-     * Task to delete a language
-     *
-     * @return void
-     */
-    public function deleteLanguage() {
-        $input = $this->input;
-        $language = $input->getString('language');
-        $db = JFactory::getDbo();
-        $query = $db->getQuery(true);
+		$query
+			->update('#__languages')
+			->set('published = (published + 1) % 2')
+			->where('lang_code = ' . $db->quote($language));
 
-        $query
-                ->select('*')
-                ->update('#__languages')
-                ->where('lang_code = ' . $db->quote($language));
+		$db->setQuery($query);
+		$db->execute();
 
-        $db->setQuery($query);
-        $languageData = $db->loadAssoc();
+		JFactory::getApplication()->close();
+	}
 
-        $languageErrors = NenoHelper::getLanguageErrors($languageData);
+	/**
+	 * Task to delete a language
+	 *
+	 * @return void
+	 */
+	public function deleteLanguage()
+	{
+		$input    = $this->input;
+		$language = $input->getString('language');
+		$db       = JFactory::getDbo();
+		$query    = $db->getQuery(true);
 
-        // Only execute this task if the language is error free
-        if (empty($languageErrors)) {
-            NenoHelper::deleteLanguage($language);
-        }
-    }
+		$query
+			->select('*')
+			->update('#__languages')
+			->where('lang_code = ' . $db->quote($language));
 
-    /**
-     * Task to get a confirmation language
-     *
-     * @return void
-     */
-    public function confirmationMessageForLanguageDeletion() {
-        $input = $this->input;
-        $language = $input->getString('language');
-        $db = JFactory::getDbo();
-        $query = $db->getQuery(true);
+		$db->setQuery($query);
+		$languageData = $db->loadAssoc();
 
-        $query
-                ->select('*')
-                ->update('#__languages')
-                ->where('lang_code = ' . $db->quote($language));
+		$languageErrors = NenoHelper::getLanguageErrors($languageData);
 
-        $db->setQuery($query);
-        $languageData = $db->loadAssoc();
+		// Only execute this task if the language is error free
+		if (empty($languageErrors))
+		{
+			NenoHelper::deleteLanguage($language);
+		}
+	}
 
-        $languageErrors = NenoHelper::getLanguageErrors($languageData);
-        $displayData = new stdClass;
-        $displayData->error = false;
-        $displayData->messages = $languageErrors;
+	/**
+	 * Task to get a confirmation language
+	 *
+	 * @return void
+	 */
+	public function confirmationMessageForLanguageDeletion()
+	{
+		$input    = $this->input;
+		$language = $input->getString('language');
+		$db       = JFactory::getDbo();
+		$query    = $db->getQuery(true);
 
-        if (empty($languageErrors)) {
-            // Calculate statistics
-            $query
-                    ->clear()
-                    ->select('COUNT(*)')
-                    ->from('#__neno_content_element_translations')
-                    ->where('language = ' . $db->quote($language));
+		$query
+			->select('*')
+			->update('#__languages')
+			->where('lang_code = ' . $db->quote($language));
 
-            $db->setQuery($query);
-            $counter = $db->loadResult();
+		$db->setQuery($query);
+		$languageData = $db->loadAssoc();
 
-            $displayData->messages[] = JText::sprintf('COM_NENO_DASHBOARD_DELETE_LANGUAGE', $counter);
-        } else {
-            $displayData->error = true;
-        }
+		$languageErrors        = NenoHelper::getLanguageErrors($languageData);
+		$displayData           = new stdClass;
+		$displayData->error    = false;
+		$displayData->messages = $languageErrors;
 
-        echo JLayoutHelper::render('messages', $displayData, JPATH_NENO_LAYOUTS);
-    }
+		if (empty($languageErrors))
+		{
+			// Calculate statistics
+			$query
+				->clear()
+				->select('COUNT(*)')
+				->from('#__neno_content_element_translations')
+				->where('language = ' . $db->quote($language));
 
-    /**
-     * Publish language switcher
-     *
-     * @throws Exception
-     *
-     * @return void
-     */
-    public function publishSwitcher() {
-        $input = $this->input;
-        $jform = $input->post->get('jform', array(), 'ARRAY');
-        $placement = $input->getWord('placement');
+			$db->setQuery($query);
+			$counter = $db->loadResult();
 
-        if (!empty($jform)) {
-            /* @var $model NenoModelDashboard */
-            $model = $this->getModel('Dashboard', 'NenoModel');
-            $db = JFactory::getDbo();
-            $query = $db->getQuery(true);
+			$displayData->messages[] = JText::sprintf('COM_NENO_DASHBOARD_DELETE_LANGUAGE', $counter);
+		}
+		else
+		{
+			$displayData->error = true;
+		}
 
-            if ($model->isSwitcherPublished(false)) {
-                $query
-                        ->select('*')
-                        ->from('#__modules')
-                        ->where('module = ' . $db->quote('mod_languages'));
-                $db->setQuery($query);
-                $module = $db->loadObject();
-            } else {
-                $module = new stdClass;
-                $module->id = 0;
-                $module->language = '*';
-                $module->published = 1;
-                $module->title = 'Language Switcher';
-                $module->module = 'mod_languages';
-                $module->access = '1';
-                $module->client_id = 0;
+		echo JLayoutHelper::render('messages', $displayData, JPATH_NENO_LAYOUTS);
+	}
 
-                $db->insertObject('#__modules', $module, 'id');
-            }
+	/**
+	 * Publish language switcher
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function publishSwitcher()
+	{
+		$input     = $this->input;
+		$jform     = $input->post->get('jform', array(), 'ARRAY');
+		$placement = $input->getWord('placement');
 
-            $module->position = $jform['position'];
-            $module->published = 1;
-            $db->updateObject('#__modules', $module, 'id');
+		if (!empty($jform))
+		{
+			/* @var $model NenoModelDashboard */
+			$model = $this->getModel('Dashboard', 'NenoModel');
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
 
-            // Assigning items
-            $query
-                    ->clear()
-                    ->insert('#__modules_menu')
-                    ->columns(
-                            array(
-                                'menuid',
-                                'moduleid'
-                            )
-                    )
-                    ->values('0, ' . $module->id);
-            $db->setQuery($query);
-            $db->execute();
-        }
+			if ($model->isSwitcherPublished(false))
+			{
+				$query
+					->select('*')
+					->from('#__modules')
+					->where('module = ' . $db->quote('mod_languages'));
+				$db->setQuery($query);
+				$module = $db->loadObject();
+			}
+			else
+			{
+				$module            = new stdClass;
+				$module->id        = 0;
+				$module->language  = '*';
+				$module->published = 1;
+				$module->title     = 'Language Switcher';
+				$module->module    = 'mod_languages';
+				$module->access    = '1';
+				$module->client_id = 0;
 
-        if ($placement == 'module') {
-            JFactory::getApplication()->redirect('index.php');
-        } else {
-            JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
-        }
-    }
+				$db->insertObject('#__modules', $module, 'id');
+			}
 
-    /**
-     * Publish language switcher
-     *
-     * @throws Exception
-     *
-     * @return void
-     */
-    public function doNotShowWarningMessage() {
-        $input = $this->input;
-        $placement = $input->getWord('placement');
-        
-        NenoSettings::set('show_language_switcher_warning', 0);
-        
-        if ($placement == 'module') {
-                    JFactory::getApplication()->redirect('index.php');
-                } else {
-                    JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
-                }
-     
-    }
+			$module->position  = $jform['position'];
+			$module->published = 1;
+			$db->updateObject('#__modules', $module, 'id');
+
+			// Assigning items
+			$query
+				->clear()
+				->insert('#__modules_menu')
+				->columns(
+					array(
+						'menuid',
+						'moduleid'
+					)
+				)
+				->values('0, ' . $module->id);
+			$db->setQuery($query);
+			$db->execute();
+		}
+
+		if ($placement == 'module')
+		{
+			JFactory::getApplication()->redirect('index.php');
+		}
+		else
+		{
+			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+		}
+	}
+
+	/**
+	 * Publish language switcher
+	 *
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function doNotShowWarningMessage()
+	{
+		$input     = $this->input;
+		$placement = $input->getWord('placement');
+
+		NenoSettings::set('show_language_switcher_warning', 0);
+
+		if ($placement == 'module')
+		{
+			JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+		}
+		else
+		{
+			JFactory::getApplication()->redirect('index.php');
+		}
+	}
+
+	/**
+	 * This method fixes content issue
+	 *
+	 * @throws Exception
+	 */
+	public function fixContentConfigurationIssue()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$languages = NenoHelper::getLanguages(false, false);
+
+		foreach ($languages as $language)
+		{
+			$destinationTable = $db->generateShadowTableName('#__content', $language->lang_code);
+
+			$query
+				->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
+				->set('c1.attribs = c2.attribs')
+				->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
+				->where('c1.id = c2.id');
+
+			$db->setQuery($query);
+			$db->execute();
+		}
+
+		JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+	}
 
 }

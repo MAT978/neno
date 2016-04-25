@@ -1,10 +1,10 @@
 <?php
 /**
- * @package     Neno
+ * @package    Neno
  *
- * @author      Jensen Technologies S.L. <info@notwebdesign.com>
- * @copyright   Copyright (C) 2014 Jensen Technologies S.L. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author     Jensen Technologies S.L. <info@notwebdesign.com>
+ * @copyright  Copyright (C) 2014 Jensen Technologies S.L. All rights reserved.
+ * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 // No direct access
@@ -20,7 +20,7 @@ class NenoTableGroupElement extends JTable
 	/**
 	 * Constructor
 	 *
-	 * @param   JDatabaseDriver $db A database connector object
+	 * @param   JDatabaseDriver  $db  A database connector object
 	 */
 	public function __construct($db)
 	{
@@ -30,9 +30,9 @@ class NenoTableGroupElement extends JTable
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @param   mixed $pk Primary key
+	 * @param   mixed  $pk  Primary key
 	 *
-	 * @return bool
+	 * @return  bool
 	 */
 	public function delete($pk = null)
 	{

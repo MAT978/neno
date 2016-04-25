@@ -74,6 +74,9 @@ class NenoHelperApi
 				}
 				else
 				{
+					// Get information from the user
+					$parameters = array_merge($parameters, self::getUserInformation());
+
 					$apiResponse = self::$httpClient->{$method}(
 						$apiEndpoint . $apiCall,
 						json_encode($parameters),
@@ -105,7 +108,23 @@ class NenoHelperApi
 	}
 
 	/**
-	 * Instanciate http client using Singleton approach
+	 * Get information about the domain, source language and target languages.
+	 *
+	 * @return array
+	 */
+	protected static function getUserInformation()
+	{
+		return array(
+			'user_information' => array(
+				'domain'           => JUri::root(),
+				'source_language'  => NenoSettings::get('source_language'),
+				'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
+			)
+		);
+	}
+
+	/**
+	 * Instantiate http client using Singleton approach
 	 *
 	 * @return void
 	 */
@@ -139,5 +158,24 @@ class NenoHelperApi
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Gets price per word for a particular language
+	 *
+	 * @param string $targetLanguage Target language (JISO format)
+	 *
+	 * @return float
+	 */
+	public static function getQuote($targetLanguage)
+	{
+		$data = array(
+			'source_language' => NenoSettings::get('source_language'),
+			'target_language' => $targetLanguage
+		);
+
+		list(, $response) = NenoHelperApi::makeApiCall('quote', 'POST', $data);
+
+		return array_values($response['response']);
 	}
 }

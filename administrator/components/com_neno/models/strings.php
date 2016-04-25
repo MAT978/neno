@@ -23,10 +23,10 @@ class NenoModelStrings extends JModelList
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
-	 * @see        JController
-	 * @since      1.6
+	 * @see     JController
+	 * @since   1.6
 	 */
 	public function __construct($config = array())
 	{
@@ -207,8 +207,8 @@ class NenoModelStrings extends JModelList
 	/**
 	 * Get and set current values of filters
 	 *
-	 * @param   string $ordering  Ordering field
-	 * @param   string $direction Direction field
+	 * @param   string  $ordering   Ordering field
+	 * @param   string  $direction  Direction field
 	 *
 	 * @return void
 	 */
@@ -223,198 +223,9 @@ class NenoModelStrings extends JModelList
 	}
 
 	/**
-	 * Build base query for database content querying
-	 *
-	 * @param string $workingLanguage Working Language
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getBaseDatabaseQueryStringQuery($workingLanguage)
-	{
-		$db        = JFactory::getDbo();
-		$dbStrings = parent::getListQuery();
-
-		// Create base query
-		$dbStrings
-			->select(
-				array(
-					'tr1.*',
-					'f.field_name AS `key`',
-					't.table_name AS element_name',
-					'g1.group_name AS `group`',
-					'CHAR_LENGTH(tr1.string) AS characters',
-					'g1.id AS group_id'
-				)
-			)
-			->from('`#__neno_content_element_translations` AS tr1')
-			->innerJoin('`#__neno_content_element_fields` AS f ON tr1.content_id = f.id')
-			->innerJoin('`#__neno_content_element_tables` AS t ON t.id = f.table_id')
-			->innerJoin('`#__neno_content_element_groups` AS g1 ON t.group_id = g1.id ')
-			->where(
-				array(
-					'tr1.language = ' . $db->quote($workingLanguage),
-					'tr1.content_type = ' . $db->quote('db_string'),
-					'f.translate = 1'
-				)
-			)
-			->group(
-				array(
-					'HEX(tr1.string)',
-					'tr1.state'
-				)
-			)
-			->order('tr1.id');
-
-		return $dbStrings;
-	}
-
-	/**
-	 * Get Database Query for Database content
-	 *
-	 * @param   string $workingLanguage Working language
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function buildDatabaseStringQuery($workingLanguage)
-	{
-		$db        = JFactory::getDbo();
-		$dbStrings = $this->getBaseDatabaseQueryStringQuery($workingLanguage);
-
-		$queryWhereDb = array();
-
-		/* @var $groups array */
-		/* @var $element array */
-		/* @var $field array */
-		/* @var $file array */
-		/* @var $method array */
-		list($groups, $element, $field, $file, $method,) = $this->getFilterByElements();
-
-		if (!empty($groups) && !in_array('none', $groups))
-		{
-			$queryWhereDb[] = 't.group_id IN (' . implode(', ', $db->quote($groups)) . ')';
-		}
-
-		if (!empty($element))
-		{
-			$queryWhereDb[] = 't.id IN (' . implode(', ', $db->quote($element)) . ')';
-		}
-
-		if (!empty($field))
-		{
-			$queryWhereDb[] = 'f.id IN (' . implode(', ', $db->quote($field)) . ')';
-		}
-
-		if (!empty($file) && empty($field) && empty($element))
-		{
-			$queryWhereDb[] = 'f.id = 0 AND t.id = 0';
-		}
-
-		if (count($queryWhereDb))
-		{
-			$dbStrings->where('(' . implode(' OR ', $queryWhereDb) . ')');
-		}
-
-		if (!empty($method) && !in_array('none', $method))
-		{
-			$dbStrings
-				->where('tr_x_tm1.translation_method_id IN ("' . implode('", "', $db->quote($method)) . '")')
-				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
-		}
-
-		return $dbStrings;
-	}
-
-	/**
-	 * Build base query for language file content querying
-	 *
-	 * @param string $workingLanguage Working Language
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getBaseLanguageFileQuery($workingLanguage)
-	{
-		$db                  = JFactory::getDbo();
-		$languageFileStrings = parent::getListQuery();
-
-		// Create base query
-		$languageFileStrings
-			->select(
-				array(
-					'tr2.*',
-					'ls.constant AS `key`',
-					'lf.filename AS element_name',
-					'g2.group_name AS `group`',
-					'CHAR_LENGTH(tr2.string) AS characters',
-					'g2.id AS group_id'
-				)
-			)
-			->from('`#__neno_content_element_translations` AS tr2')
-			->innerJoin('`#__neno_content_element_language_strings` AS ls ON tr2.content_id = ls.id')
-			->innerJoin('`#__neno_content_element_language_files` AS lf ON lf.id = ls.languagefile_id')
-			->innerJoin('`#__neno_content_element_groups` AS g2 ON lf.group_id = g2.id ')
-			->where(
-				array(
-					'tr2.language = ' . $db->quote($workingLanguage),
-					'tr2.content_type = ' . $db->quote('lang_string')
-				)
-			)
-			->group(
-				array(
-					'HEX(tr2.string)',
-					'tr2.state'
-				)
-			)
-			->order('tr2.id');
-	}
-
-	/**
-	 * Get Database Query for Language file content
-	 *
-	 * @param   string $workingLanguage Working language
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function buildLanguageFileQuery($workingLanguage)
-	{
-		$db                  = JFactory::getDbo();
-		$languageFileStrings = $this->getBaseLanguageFileQuery($workingLanguage);
-
-		/* @var $groups array */
-		/* @var $element array */
-		/* @var $field array */
-		/* @var $file array */
-		/* @var $method array */
-		/* @var $status array */
-		list($groups, $element, $field, $file, $method,) = $this->getFilterByElements();
-
-		if (!empty($groups) && !in_array('none', $groups))
-		{
-			$languageFileStrings->where('lf.group_id IN (' . implode(', ', $db->quote($groups)) . ')');
-		}
-
-		if (!empty($file))
-		{
-			$languageFileStrings->where('lf.id IN (' . implode(',', $db->quote($file)) . ')');
-		}
-		elseif (!empty($field) || (empty($file) && !empty($element)))
-		{
-			$languageFileStrings->where('lf.id = 0');
-		}
-
-		if (!empty($method) && !in_array('none', $method))
-		{
-			$languageFileStrings
-				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $method) . '")')
-				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
-		}
-
-		return $languageFileStrings;
-	}
-
-	/**
 	 * Build an SQL query to load the list data.
 	 *
-	 * @return    JDatabaseQuery
+	 * @return   JDatabaseQuery
 	 *
 	 * @since    1.6
 	 */
@@ -422,19 +233,10 @@ class NenoModelStrings extends JModelList
 	{
 		$db              = JFactory::getDbo();
 		$workingLanguage = NenoHelper::getWorkingLanguage();
+		list($groups, $tables, $fields, $files, $translationMethods, $translationStatuses, $search) = $this->getFilterByElements();
 
 		// Create a new query object.
-		$dbStrings           = $this->buildDatabaseStringQuery($workingLanguage);
-		$languageFileStrings = $this->buildLanguageFileQuery($workingLanguage);
-		$query               = parent::getListQuery();
-
-		$query
-			->select('DISTINCT a.*')
-			->from('((' . (string) $dbStrings . ') UNION (' . (string) $languageFileStrings . ')) AS a')
-			->group('id')
-			->order('a.id ASC');
-
-		$search = $this->getState('filter.search');
+		$query = NenoContentElementTranslation::buildTranslationQuery($workingLanguage, $groups, $tables, $fields, $files, $translationMethods);
 
 		if (!empty($search))
 		{
@@ -445,14 +247,12 @@ class NenoModelStrings extends JModelList
 		// Hide empty strings if the user wants to do that
 		if (NenoSettings::get('hide_empty_strings', true))
 		{
-			$languageFileStrings->where('a.original_text <> ' . $db->quote(''));
+			$query->where('a.original_text <> ' . $db->quote(''));
 		}
 
-		list(, , , , , $status) = $this->getFilterByElements();
-
-		if (!empty($status) && $status[0] !== '' && !in_array('none', $status))
+		if (!empty($translationStatuses) && $translationStatuses[0] !== '' && !in_array('none', $translationStatuses))
 		{
-			$dbStrings->where('a.state IN (' . implode(', ', $status) . ')');
+			$query->where('a.state IN (' . implode(', ', $translationStatuses) . ')');
 		}
 
 		return $query;
@@ -465,18 +265,19 @@ class NenoModelStrings extends JModelList
 	 */
 	protected function getFilterByElements()
 	{
-		$groups  = $this->getState('filter.group_id', array());
-		$element = $this->getState('filter.element', array());
-		$field   = $this->getState('filter.field', array());
-		$file    = $this->getState('filter.files', array());
-		$method  = (array) $this->getState('filter.translator_type', array());
-		$status  = (array) $this->getState('filter.translation_status', array());
+		$groups              = $this->getState('filter.group_id', array());
+		$elements            = $this->getState('filter.element', array());
+		$fields              = $this->getState('filter.field', array());
+		$files               = $this->getState('filter.files', array());
+		$translationMethods  = (array) $this->getState('filter.translator_type', array());
+		$translationStatuses = (array) $this->getState('filter.translation_status', array());
+		$search              = $this->getState('filter.search');
 
 		if (!is_array($groups))
 		{
 			$groups = array( $groups );
 		}
 
-		return array( $groups, $element, $field, $file, $method, $status );
+		return array( $groups, $elements, $fields, $files, $translationMethods, $translationStatuses, $search );
 	}
 }

@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>easyblog_configs</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table easyblog_configs</description><translate>0</translate><reference type="content"><table name="easyblog_configs"><field type="text" name="name" translate="0">name</field><field type="text" name="params" translate="0">params</field></table></reference></neno>

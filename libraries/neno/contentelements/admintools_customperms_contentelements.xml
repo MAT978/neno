@@ -1,2 +1,0 @@
-<?xml version="1.0"?>
-<neno type="contentelement"><name>admintools_customperms</name><author>Neno - http://www.neno-translate.com</author><version>1.0.0</version><description>Definition of the table admintools_customperms</description><translate>0</translate><reference type="content"><table name="admintools_customperms"><field type="referenceid" name="id" translate="0">id</field><field type="text" name="path" translate="0">path</field><field type="text" name="perms" translate="0">perms</field></table></reference></neno>

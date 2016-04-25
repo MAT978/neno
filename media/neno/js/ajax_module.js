@@ -1,8 +1,13 @@
 jQuery(document).ready(function () {
-	setTimeout(function () {
-		jQuery.ajax({
-			url: 'index.php?option=com_neno&task=processTaskQueue'
-		});
-	}, 10000)
 
+	function processTaskQueue() {
+		jQuery.ajax({
+			url: 'index.php?option=com_neno&task=processTaskQueue',
+			complete: function () {
+				setTimeout(processTaskQueue, 10000);
+			}
+		});
+	}
+
+	setTimeout(processTaskQueue, 10000);
 });

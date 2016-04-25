@@ -23,10 +23,10 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
-	 * @see        JController
-	 * @since      1.6
+	 * @see     JController
+	 * @since   1.6
 	 */
 	public function __construct($config = array ())
 	{
@@ -41,9 +41,9 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Consolidate Translation
 	 *
-	 * @param   int $translationId Translation id
+	 * @param   int  $translationId  Translation id
 	 *
-	 * @return bool True on success
+	 * @return  bool True on success
 	 */
 	public function consolidateTranslations($translationId)
 	{
@@ -61,7 +61,9 @@ class NenoModelEditor extends NenoModelStrings
 						'_condition' => '<>',
 						'_value'     => $translation->getId()
 					)
-				),false,true
+				),
+				false,
+				true
 			);
 
 			// Making sure that is an array
@@ -86,9 +88,9 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Get the amount of translations that contains the same text
 	 *
-	 * @param   int    $translationId       Translation Id
-	 * @param   string $translationLanguage Translation language
-	 * @param   string $translationText     Translation Text
+	 * @param   int     $translationId        Translation Id
+	 * @param   string  $translationLanguage  Translation language
+	 * @param   string  $translationText      Translation Text
 	 *
 	 * @return int
 	 */

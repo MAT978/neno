@@ -15,6 +15,7 @@ JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
 JHtml::_('behavior.keepalive');
+JHtml::_('behavior.modal', 'a.modal_jform_contenthistory');
 
 // Joomla Component Creator code to allow adding non select list filters
 if (!empty($this->extraSidebar))
@@ -108,7 +109,7 @@ if (NenoSettings::get('load_related_content'))
 					<button id="translate-btn" class="btn btn-big" type="button">
 						<span class="icon-comments-2 big-icon"></span>
                         <span
-	                        class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_AND_TRANSLATE_BUTTON' . $all); ?></span>
+							class="normal-text"><?php echo JText::_('COM_NENO_EDITOR_COPY_AND_TRANSLATE_BUTTON' . $all); ?></span>
 						<span class="small-text">Ctrl + Shift + <span class="arrow">&rArr;</span></span>
 					</button>
 					<button id="skip-button" class="btn btn-big" type="button"

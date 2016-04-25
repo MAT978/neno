@@ -51,24 +51,53 @@ $translation = $displayData;
 
         <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=externaltranslations&open=comment'), $translation->language, JRoute::_('index.php?option=com_neno&view=dashboard')); ?></p>
 
-        <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_POST', NenoSettings::get('source_language'), $translation->language); ?></p>
+        <div class="one-lang">
+            <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_POST', NenoSettings::get('source_language'), $translation->language); ?></p>
+        </div>
+
+        <div class="all-lang">
+            <p class="text-danger"><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_BODY_POST', NenoSettings::get('source_language')); ?></p>
+        </div>
 
         <p><textarea class="comment-to-translator"><?php echo empty($translation->comment) ? '' : $translation->comment; ?></textarea></p>
     </div>
     <div class="modal-footer">
         <p>
+            <input type="checkbox" id="comment-all-langs-<?php echo $translation->id; ?>" class="comment-check-all"
+                   data-content-id="<?php echo $translation->content_id; ?>"/>
+            <label for="comment-all-langs-<?php echo $translation->id; ?>">
+                <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_ALL_LANGS_CHECK'); ?>
+            </label>
             <input type="checkbox" id="comment-check-<?php echo $translation->id; ?>" class="comment-check"
                    data-content-id="<?php echo $translation->content_id; ?>"/>
-            <label
-                for="comment-check-<?php echo $translation->id; ?>"><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_MODAL_CHECK_LABEL'); ?></label>
-            <label for="comment-check-<?php echo $translation->id; ?>"
-                   class="comment-breadcrumbs"><?php echo implode(' &gt; ', $translation->breadcrumbs); ?></label>
+            <label for="comment-check-<?php echo $translation->id; ?>">
+                <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_MODAL_CHECK_LABEL'); ?>
+            </label>
+            <label for="comment-check-<?php echo $translation->id; ?>" class="comment-breadcrumbs">
+                <?php echo implode(' &gt; ', $translation->breadcrumbs); ?>
+            </label>
         </p>
-        <a href="#" class="btn" data-dismiss="modal"
-           aria-hidden="true"><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_BTN_CLOSE'); ?></a>
-        <a href="#"
-           class="btn btn-primary save-translation-comment"
-           data-translation="<?php echo $translation->id; ?>"><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_BTN_SAVE'); ?></a>
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">
+            <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_BTN_CLOSE'); ?>
+        </a>
+        <a href="#" class="btn btn-primary save-translation-comment" data-translation="<?php echo $translation->id; ?>">
+            <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_BTN_SAVE'); ?>
+        </a>
     </div>
 </div>
+<script>
+    jQuery(document).ready(function(){
+        jQuery('.all-lang').hide();
 
+        jQuery('.comment-check-all').change(function(){
+            if (jQuery(this).prop('checked') == true) {
+                jQuery('.one-lang').hide();
+                jQuery('.all-lang').show();
+            }
+            else {
+                jQuery('.all-lang').hide();
+                jQuery('.one-lang').show();
+            }
+        });
+    });
+</script>
