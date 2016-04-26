@@ -3862,7 +3862,7 @@ class NenoHelper
 	 *
 	 * @return \JDatabaseQuery
 	 */
-	protected function  generateModulesQuery()
+	protected function generateModulesQuery()
 	{
 		$db            = JFactory::getDbo();
 		$query         = $db->getQuery(true);
@@ -3904,7 +3904,8 @@ class NenoHelper
 			  'IF(EXISTS(' . (string) $queryAll . '), \'all\', IF(NOT EXISTS(' . (string) $queryNone . '), \'none\', IF(EXISTS(' . (string) $querySelected . ') ,\'selected\', \'not_selected\'))) AS assignment_type'
 			)
 		  )
-		  ->from('#__modules AS m');
+		  ->from('#__modules AS m')
+		  ->where('m.published IN (0,1)');
 
 		return $query;
 	}

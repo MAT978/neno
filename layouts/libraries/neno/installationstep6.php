@@ -43,7 +43,9 @@ JHtml::_('bootstrap.tooltip');
 		<div id="database-tables-wrapper">
 			<h1><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_TITLE'); ?></h1>
 
-			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SUBTITLE'); ?></p>
+			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SUBTITLE_1'); ?></p>
+			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SUBTITLE_2'); ?></p>
+			<p><?php echo JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SUBTITLE_3'); ?></p>
 			<table class="table">
 				<tr>
 					<th><?php echo JText::sprintf('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_SOURCE_LANGUAGE'); ?></th>
@@ -59,7 +61,14 @@ JHtml::_('bootstrap.tooltip');
 							(<?php echo $module->module; ?>)
 						</td>
 						<?php foreach ($displayData->languages as $language): ?>
-							<td><?php echo JHtml::_('select.genericlist', $module->languageModules[$language->lang_code]['modules'], '', '', 'id', 'title', $module->languageModules[$language->lang_code]['similar']->id); ?></td>
+							<td>
+								<?php echo JHtml::_(
+								  'select.genericlist',
+								  $module->languageModules[$language->lang_code]['modules'],
+								  '', '', 'id', 'title',
+								  (empty($module->languageModules[$language->lang_code]['similar'])) ? 'create' : $module->languageModules[$language->lang_code]['similar']->id
+								); ?>
+							</td>
 						<?php endforeach; ?>
 
 					</tr>
@@ -67,13 +76,12 @@ JHtml::_('bootstrap.tooltip');
 			</table>
 		</div>
 
-		<button type="button" class="btn no-data" id="proceed-button"
-		        disabled>
-			<?php echo JText::_('COM_NENO_INSTALLATION_WARNING_MESSAGE_PROCEED_BUTTON'); ?>
+		<button type="button" class="btn no-data" id="proceed-button">
+			<?php echo JText::_('COM_NENO_INSTALLATION_PROCEED_BUTTON'); ?>
 		</button>
 	</div>
 
-	<?php echo JLayoutHelper::render('installationbottom', 4, JPATH_NENO_LAYOUTS); ?>
+	<?php echo JLayoutHelper::render('installationbottom', 5, JPATH_NENO_LAYOUTS); ?>
 </div>
 
 <script>

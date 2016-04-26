@@ -240,9 +240,16 @@ class NenoControllerInstallation extends JControllerAdmin
 	 */
 	public function getDataForStep6()
 	{
-		$data      = new stdClass;
-		$modules   = NenoHelper::getModulesInSourceLanguage();
-		$languages = NenoHelper::getLanguages(false, false);
+		$data                      = new stdClass;
+		$modules                   = NenoHelper::getModulesInSourceLanguage();
+		$languages                 = NenoHelper::getLanguages(false, false);
+		$createNew                 = new stdClass;
+		$createNew->id             = 'create';
+		$createNew->title          = JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_DROPDOWN_CREATE');
+		$doNothing                 = new stdClass;
+		$doNothing->id             = 'nothing';
+		$doNothing->title          = JText::_('COM_NENO_INSTALLATION_INSTALLATION_STEP_6_DROPDOWN_DO_NOTHING');
+		$defaultOptionsForDropdown = array($createNew, $doNothing);
 
 		foreach ($modules as $module)
 		{
@@ -252,7 +259,7 @@ class NenoControllerInstallation extends JControllerAdmin
 			
 			foreach ($languages as $language)
 			{
-				$module->languageModules[$language->lang_code]['modules'] = NenoHelper::getSimilarModulesToModule($module, $language->lang_code);
+				$module->languageModules[$language->lang_code]['modules'] = array_merge($defaultOptionsForDropdown, NenoHelper::getSimilarModulesToModule($module, $language->lang_code));
 				$module->languageModules[$language->lang_code]['similar'] = NenoHelper::getMostSimilarModuleForLanguage($module, $language->lang_code, $callback);
 			}
 		}
