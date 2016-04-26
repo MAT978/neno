@@ -549,46 +549,41 @@ class NenoControllerInstallation extends JControllerAdmin
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db       = JFactory::getDbo();
 		$query    = $db->getQuery(true);
-		$finished = NenoSettings::get('installation_completed') == 1;
+		$finished = false;
 
-		if (!$finished)
+		// Get all the fields that haven't been discovered already
+		$element = $this->getLeafElement(self::FIELD_LEVEL);
+
+		if ($element === NULL)
 		{
-			// Get all the fields that haven't been discovered already
-			$element = $this->getLeafElement(self::FIELD_LEVEL);
+			$element = $this->getLeafElement(self::LANGUAGE_STRING_LEVEL);
+		}
 
-			if ($element === NULL)
-			{
-				$element = $this->getLeafElement(self::LANGUAGE_STRING_LEVEL);
-			}
+		if ($element == NULL)
+		{
+			// Let's publish language plugins
+			$query
+			  ->clear()
+			  ->update('#__extensions')
+			  ->set('enabled = 1')
+			  ->where(
+				array(
+				  'element LIKE ' . $db->quote('languagecode'),
+				  'element LIKE ' . $db->quote('languagefilter')
+				), 'OR'
+			  );
 
-			if ($element == NULL)
-			{
-				// Let's publish language plugins
-				$query
-				  ->clear()
-				  ->update('#__extensions')
-				  ->set('enabled = 1')
-				  ->where(
-					array(
-					  'element LIKE ' . $db->quote('languagecode'),
-					  'element LIKE ' . $db->quote('languagefilter')
-					), 'OR'
-				  );
+			$db->setQuery($query);
+			$db->execute();
 
-				$db->setQuery($query);
-				$db->execute();
-
-				// Let's create menu structure
-				NenoHelper::createMenuStructure();
-
-				NenoSettings::set('installation_completed', 1);
-				$finished = true;
-			}
-			else
-			{
-				/* @var $element NenoContentElementGroup */
-				$element->discoverElement();
-			}
+			// Let's create menu structure
+			NenoHelper::createMenuStructure();
+			$finished = true;
+		}
+		else
+		{
+			/* @var $element NenoContentElementGroup */
+			$element->discoverElement();
 		}
 
 		if ($finished)
@@ -927,7 +922,6 @@ class NenoControllerInstallation extends JControllerAdmin
 	{
 		$input          = $this->input;
 		$sourceLanguage = $input->post->get('source_language');
-		$app            = JFactory::getApplication();
 
 		if (!empty($sourceLanguage))
 		{
@@ -952,8 +946,6 @@ class NenoControllerInstallation extends JControllerAdmin
 				{
 					if (!NenoHelper::installLanguage($updateId))
 					{
-						$app->enqueueMessage('There was an error install language. Please try again later.', 'error');
-
 						return false;
 					}
 				}
@@ -974,8 +966,6 @@ class NenoControllerInstallation extends JControllerAdmin
 			return true;
 		}
 
-		$app->enqueueMessage('Error getting source language', 'error');
-
 		return false;
 	}
 
@@ -987,8 +977,6 @@ class NenoControllerInstallation extends JControllerAdmin
 	protected function validateStep2()
 	{
 		$input = $this->input;
-		$app   = JFactory::getApplication();
-
 		$jform = $input->post->get('jform', array(), 'ARRAY');
 
 		if (!empty($jform['translation_methods']))
@@ -1001,9 +989,40 @@ class NenoControllerInstallation extends JControllerAdmin
 			return true;
 		}
 
-		$app->enqueueMessage('', 'error');
-
 		return false;
+	}
+
+	/**
+	 * Validate installation step 3
+	 *
+	 * @return bool
+	 */
+	protected function validateStep6()
+	{
+		$input = $this->input;
+		$jform = $input->post->get('jform', array(), 'ARRAY');
+
+		foreach ($jform as $moduleKey => $moduleAction)
+		{
+			list(, $sourceModuleId, $languageTag) = explode('_', $moduleKey);
+
+			switch ($moduleAction)
+			{
+				// Let's create the module
+				case 'create':
+					NenoHelper::replicateModule($sourceModuleId, $languageTag);
+					break;
+				// If the user choose to do nothing or a module has been selected
+				case'nothing':
+				default:
+					// Empty case
+					break;
+			}
+		}
+
+		NenoSettings::set('installation_completed', 1);
+
+		return true;
 	}
 
 	/**
