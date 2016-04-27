@@ -1633,12 +1633,12 @@ class NenoHelper
 		  ->where('m.id = ' . $db->quote($moduleId));
 
 		$db->setQuery($query);
-		$module           = $db->loadObject();
-		$previousId       = $module->id;
-		$previousTitle    = $module->title;
+		$sourceModule     = $db->loadObject();
+		$module           = clone $sourceModule;
 		$module->id       = 0;
-		$module->title    = $previousTitle . ' (' . $languageTag . ')';
+		$module->title    = $sourceModule->title . ' (' . $languageTag . ')';
 		$module->language = $languageTag;
+		$module           = self::setParamsForModule($module);
 
 		// If the module has been inserted correctly, let's assign it
 		if ($db->insertObject('#__modules', $module, 'id'))
@@ -1662,7 +1662,7 @@ class NenoHelper
 			  ->from('#__modules_menu')
 			  ->where(
 				array(
-				  'moduleid = ' . $previousId,
+				  'moduleid = ' . $sourceModule->id,
 				  'menuid = 0'
 				)
 			  );
@@ -1697,7 +1697,7 @@ class NenoHelper
 					  'm2.client_id = 0',
 					  'm2.level <> 0',
 					  'm2.published <> -2',
-					  'mm.moduleid = ' . $previousId,
+					  'mm.moduleid = ' . $sourceModule->id,
 					  'm1.language = ' . $db->quote($defaultLanguage),
 					  'm2.language = ' . $db->quote($languageTag)
 					)
@@ -1723,6 +1723,29 @@ class NenoHelper
 				$db->execute();
 			}
 		}
+	}
+
+	/**
+	 * Depends of the module type, it will set special params for this module
+	 *
+	 * @param stdClass $module
+	 *
+	 * @return stdClass
+	 */
+	protected static function setParamsForModule($module)
+	{
+		$moduleSourceParams = json_decode($module->params);
+		switch ($module->module)
+		{
+			case 'mod_menu':
+				$menusRelated                 = NenoHelper::getMenusRelated($moduleSourceParams->menutype);
+				$moduleSourceParams->menutype = $menusRelated[$module->language];
+				break;
+		}
+
+		$module->params = json_encode($moduleSourceParams);
+
+		return $module;
 	}
 
 	/**
@@ -3999,6 +4022,8 @@ class NenoHelper
 	}
 
 	/**
+	 * Check whether or not two menu types are related
+	 *
 	 * @param string $menuTypeA
 	 * @param string $menuTypeB
 	 *
@@ -4011,28 +4036,52 @@ class NenoHelper
 			return true;
 		}
 
+		$menusRelated = self::getMenusRelated($menuTypeA);
+
+		return in_array($menuTypeB, $menusRelated);
+	}
+
+	/**
+	 * Get all the menu relates to a menu given
+	 *
+	 * @param string $menuType
+	 *
+	 * @return array
+	 */
+	public static function getMenusRelated($menuType)
+	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select('DISTINCT 1')
+		  ->select(
+			array(
+			  'DISTINCT m2.menutype',
+			  'm2.language'
+			)
+		  )
 		  ->from('#__menu AS m1')
 		  ->leftJoin('#__associations AS a1 ON m1.id = a1.id')
 		  ->leftJoin('#__associations AS a2 ON a2.`key` = a2.`key`')
 		  ->leftJoin('#__menu AS m2 ON a2.id = m2.id')
 		  ->where(
 			array(
-			  'm1.menutype = ' . $db->quote($menuTypeA),
-			  'm2.menutype = ' . $db->quote($menuTypeB),
+			  'm1.menutype = ' . $db->quote($menuType),
 			  'a1.context = ' . $db->quote('com_menus.item'),
 			  'a2.context = ' . $db->quote('com_menus.item'),
 			)
 		  );
 
 		$db->setQuery($query);
-		$result = $db->loadResult();
+		$menus  = $db->loadAssocList();
+		$result = array();
 
-		return !empty($result);
+		foreach ($menus as $menu)
+		{
+			$result[$menu['language']] = $menu['menutype'];
+		}
+
+		return $result;
 	}
 
 	/**
