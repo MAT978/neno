@@ -701,7 +701,7 @@ class NenoHelper
 	/**
 	 * Converts a table name to the Joomla table naming convention: #__table_name
 	 *
-	 * @param   string      $tableName Table name
+	 * @param   string $tableName Table name
 	 *
 	 * @return mixed
 	 */
@@ -1576,6 +1576,7 @@ class NenoHelper
 		$db->setQuery($query);
 		$db->execute();
 
+		// Set to source language all the modules that manage content
 		$query
 		  ->clear()
 		  ->update('#__modules')
@@ -1583,7 +1584,7 @@ class NenoHelper
 		  ->where(
 			array(
 			  'published = 1',
-			  'module = ' . $db->quote('mod_menu'),
+			  'module IN  ( ' . $db->quote(self::getModuleTypesNeedToBeDuplicated()) . ')',
 			  'client_id = 0',
 			  'language  = ' . $db->quote('*')
 			)
@@ -1609,136 +1610,142 @@ class NenoHelper
 	}
 
 	/**
-	 * Replicate modules
+	 * Replicate module for a particular language
+	 *
+	 * @param integer $moduleId    Module ID
+	 * @param string  $languageTag Language tag
 	 *
 	 * @return void
 	 *
 	 * @throws Exception
 	 */
-	protected static function replicateModules()
+	public static function replicateModule($moduleId, $languageTag)
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db              = JFactory::getDbo();
 		$query           = $db->getQuery(true);
 		$defaultLanguage = NenoSettings::get('source_language');
-		$languages       = self::getTargetLanguages();
 
 		// Get all the modules with the language as default
 		$query
-		  ->clear()
 		  ->select('m.*')
 		  ->from('#__modules AS m')
-		  ->where('m.language = ' . $db->quote($defaultLanguage));
+		  ->where('m.id = ' . $db->quote($moduleId));
 
 		$db->setQuery($query);
-		$modules = $db->loadObjectList();
+		$sourceModule     = $db->loadObject();
+		$module           = clone $sourceModule;
+		$module->id       = 0;
+		$module->title    = $sourceModule->title . ' (' . $languageTag . ')';
+		$module->language = $languageTag;
+		$module           = self::setParamsForModule($module);
 
-		foreach ($modules as $module)
+		// If the module has been inserted correctly, let's assign it
+		if ($db->insertObject('#__modules', $module, 'id'))
 		{
-			foreach ($languages as $language)
+			$insert      = false;
+			$insertQuery = $db->getQuery(true);
+			$insertQuery
+			  ->clear()
+			  ->insert('#__modules_menu')
+			  ->columns(
+				array(
+				  'moduleid',
+				  'menuid'
+				)
+			  );
+
+			// Check if the previous module is assigned to all
+			$query
+			  ->clear()
+			  ->select('1')
+			  ->from('#__modules_menu')
+			  ->where(
+				array(
+				  'moduleid = ' . $sourceModule->id,
+				  'menuid = 0'
+				)
+			  );
+
+			$db->setQuery($query);
+			$result = $db->loadResult();
+
+			if ($result == 1)
 			{
-				if ($language->lang_code != $defaultLanguage)
+				$insertQuery->values($module->id . ', 0');
+				$insert = true;
+			}
+			else
+			{
+				// Check if the module has assigned selected
+				$query
+				  ->clear()
+				  ->select('DISTINCT m2.id')
+				  ->from('#__modules_menu AS mm')
+				  ->innerJoin('#__menu AS m1 ON mm.menuid = m1.id')
+				  ->innerJoin('#__associations AS a1 ON a1.id = m1.id')
+				  ->innerJoin('#__associations AS a2 ON a1.key = a2.key')
+				  ->innerJoin('#__menu AS m2 ON a2.id = m2.id')
+				  ->where(
+					array(
+					  'a1.context = ' . $db->quote('com_menus.item'),
+					  'a2.context = ' . $db->quote('com_menus.item'),
+					  'a1.id <> a2.id',
+					  'm1.client_id = 0',
+					  'm1.level <> 0',
+					  'm1.published <> -2',
+					  'm2.client_id = 0',
+					  'm2.level <> 0',
+					  'm2.published <> -2',
+					  'mm.moduleid = ' . $sourceModule->id,
+					  'm1.language = ' . $db->quote($defaultLanguage),
+					  'm2.language = ' . $db->quote($languageTag)
+					)
+				  );
+
+				$db->setQuery($query);
+				$menuIds = $db->loadArray();
+
+				if (!empty($menuIds))
 				{
-					if (!isset(self::$menuModuleReplicated[$language->lang_code]))
+					$insert = true;
+
+					foreach ($menuIds as $menuId)
 					{
-						self::$menuModuleReplicated[$language->lang_code] = array();
-					}
-					if (!in_array($module->id, self::$menuModuleReplicated[$language->lang_code]))
-					{
-						self::$menuModuleReplicated[] = $module->id;
-						$previousId                   = $module->id;
-						$previousTitle                = $module->title;
-						$module->id                   = 0;
-						$module->title                = $previousTitle . ' (' . $language->lang_code . ')';
-						$module->language             = $language->lang_code;
-
-						// If the module has been inserted correctly, let's assign it
-						if ($db->insertObject('#__modules', $module, 'id'))
-						{
-							$insert      = false;
-							$insertQuery = $db->getQuery(true);
-							$insertQuery
-							  ->clear()
-							  ->insert('#__modules_menu')
-							  ->columns(
-								array(
-								  'moduleid',
-								  'menuid'
-								)
-							  );
-
-							// Check if the previous module is assigned to all
-							$query
-							  ->clear()
-							  ->select('1')
-							  ->from('#__modules_menu')
-							  ->where(
-								array(
-								  'moduleid = ' . $previousId,
-								  'menuid = 0'
-								)
-							  );
-
-							$db->setQuery($query);
-							$result = $db->loadResult();
-
-							if ($result == 1)
-							{
-								$insertQuery->values($module->id . ', 0');
-								$insert = true;
-							}
-							else
-							{
-								// Check if the module has assigned selected
-								$query
-								  ->clear()
-								  ->select('DISTINCT m2.id')
-								  ->from('#__modules_menu AS mm')
-								  ->innerJoin('#__menu AS m1 ON mm.menuid = m1.id')
-								  ->innerJoin('#__associations AS a1 ON a1.id = m1.id')
-								  ->innerJoin('#__associations AS a2 ON a1.key = a2.key')
-								  ->innerJoin('#__menu AS m2 ON a2.id = m2.id')
-								  ->where(
-									array(
-									  'a1.context = ' . $db->quote('com_menus.item'),
-									  'a2.context = ' . $db->quote('com_menus.item'),
-									  'a1.id <> a2.id',
-									  'm1.client_id = 0',
-									  'm1.level <> 0',
-									  'm1.published <> -2',
-									  'm2.client_id = 0',
-									  'm2.level <> 0',
-									  'm2.published <> -2',
-									  'mm.moduleid = ' . $previousId,
-									  'm1.language = ' . $db->quote($defaultLanguage),
-									  'm2.language = ' . $db->quote($language->lang_code)
-									)
-								  );
-
-								$db->setQuery($query);
-								$menuIds = $db->loadArray();
-
-								if (!empty($menuIds))
-								{
-									$insert = true;
-
-									foreach ($menuIds as $menuId)
-									{
-										$insertQuery->values($module->id . ',' . $menuId);
-									}
-								}
-							}
-
-							if ($insert)
-							{
-								$db->setQuery($insertQuery);
-								$db->execute();
-							}
-						}
+						$insertQuery->values($module->id . ',' . $menuId);
 					}
 				}
 			}
+
+			if ($insert)
+			{
+				$db->setQuery($insertQuery);
+				$db->execute();
+			}
 		}
+	}
+
+	/**
+	 * Depends of the module type, it will set special params for this module
+	 *
+	 * @param stdClass $module
+	 *
+	 * @return stdClass
+	 */
+	protected static function setParamsForModule($module)
+	{
+		$moduleSourceParams = json_decode($module->params);
+		switch ($module->module)
+		{
+			case 'mod_menu':
+				$menusRelated                 = NenoHelper::getMenusRelated($moduleSourceParams->menutype);
+				$moduleSourceParams->menutype = $menusRelated[$module->language];
+				break;
+		}
+
+		$module->params = json_encode($moduleSourceParams);
+
+		return $module;
 	}
 
 	/**
@@ -2175,9 +2182,6 @@ class NenoHelper
 		{
 			self::duplicateMenuItem($menuItem);
 		}
-
-		// Init modules
-		self::replicateModules();
 
 		// Fixing levels issue
 		self::fixLanguagesLevel();
@@ -3787,5 +3791,320 @@ class NenoHelper
 	public static function cleanLanguageTag($languageTag)
 	{
 		return strtolower(str_replace(array('-'), array(''), $languageTag));
+	}
+
+	/**
+	 * Get all the front-end modules in the source language
+	 *
+	 * @return array
+	 */
+	public static function getModulesInSourceLanguage()
+	{
+		$sourceLanguage = NenoSettings::get('source_language');
+		$db             = JFactory::getDbo();
+		$query          = $query = self::generateModulesQuery();;
+
+		$query
+		  ->where(
+			array(
+			  'client_id = 0',
+			  'language = ' . $db->quote($sourceLanguage)
+			)
+		  );
+
+		$db->setQuery($query);
+		$modules = $db->loadObjectList();
+
+		return $modules;
+	}
+
+	/**
+	 * Get a list of modules should be replicated
+	 *
+	 * @return array
+	 */
+	public static function getModuleTypesNeedToBeDuplicated()
+	{
+		return array(
+		  'mod_custom',
+		  'mod_menu'
+		);
+	}
+
+	/**
+	 * Get similar modules to the provided one.
+	 *
+	 * @param stdClass $module   Module object
+	 * @param string   $language Language string
+	 *
+	 * @return array
+	 */
+	public static function getSimilarModulesToModule($module, $language)
+	{
+		$db    = JFactory::getDbo();
+		$query = self::generateModulesQuery();
+
+		$query
+		  ->where(
+			array(
+			  'position = ' . $db->quote($module->position),
+			  'ordering = ' . $db->quote($module->ordering),
+			  'language = ' . $db->quote($language),
+			  'module = ' . $db->quote($module->module)
+			)
+		  );
+
+		$db->setQuery($query);
+		$modules = $db->loadObjectList();
+
+		return $modules;
+	}
+
+	/**
+	 * Generates common query part for modules (it includes the menu assignment type)
+	 *
+	 * @return \JDatabaseQuery
+	 */
+	protected function generateModulesQuery()
+	{
+		$db            = JFactory::getDbo();
+		$query         = $db->getQuery(true);
+		$queryAll      = $db->getQuery(true);
+		$querySelected = $db->getQuery(true);
+		$queryNone     = $db->getQuery(true);
+
+		// This query checks if the
+		$queryAll
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where(
+			array(
+			  'mm.moduleid = m.id',
+			  'mm.menuid = 0'
+			)
+		  );
+
+		$querySelected
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where(
+			array(
+			  'mm.moduleid = m.id',
+			  'mm.menuid > 0'
+			)
+		  );
+
+		$queryNone
+		  ->select(1)
+		  ->from('#__modules_menu AS mm')
+		  ->where('mm.moduleid = m.id');
+
+
+		$query
+		  ->select(
+			array(
+			  'm.*',
+			  'IF(EXISTS(' . (string) $queryAll . '), \'all\', IF(NOT EXISTS(' . (string) $queryNone . '), \'none\', IF(EXISTS(' . (string) $querySelected . ') ,\'selected\', \'not_selected\'))) AS assignment_type'
+			)
+		  )
+		  ->from('#__modules AS m')
+		  ->where('m.published IN (0,1)');
+
+		return $query;
+	}
+
+	/**
+	 * Get the most similar
+	 *
+	 * @param stdClass      $module   Module object
+	 * @param string        $language Language tag
+	 * @param null|callable $callback Function that will be executed with the candidates left
+	 *
+	 * @return bool|stdClass False if there's no similar module, module object otherwise
+	 */
+	public static function getMostSimilarModuleForLanguage($module, $language, $callback = NULL)
+	{
+		$modules = self::getSimilarModulesToModule($module, $language);
+
+		if (!empty($modules))
+		{
+			// Get only the modules that have associated the same configuration for menu items assignment
+			$similarModules = array();
+			foreach ($modules as $possibleSimilarModule)
+			{
+				// Check if both modules have the same assignment type
+				if ($possibleSimilarModule->assignment_type === $module->assignment_type)
+				{
+					// If the assignment type is ALL or NONE, it's one of the similar
+					if (in_array(
+					  $possibleSimilarModule->assignment_type,
+					  array(
+						'all',
+						'none'
+					  )
+					))
+					{
+						$similarModules[] = $possibleSimilarModule;
+					}
+					else
+					{
+						// Check if the selected or not selected items are associated.
+						$db    = JFactory::getDbo();
+						$query = $db->getQuery(true);
+
+						$query->select('DISTINCT 1')
+						  ->from('#__modules_menu AS mm1')
+						  ->innerJoin('#__associations AS a1 ON a1.id = mm1.menuid')
+						  ->innerJoin('#__associations AS a2 ON a1.`key` = a2.`key`')
+						  ->innerJoin('#__modules_menu AS mm2 ON a2.id = mm2.menuid')
+						  ->where(
+							array(
+							  'mm1.moduleid = ' . $possibleSimilarModule->id,
+							  'mm2.moduleid = ' . $module->id,
+							  'a1.context = ' . $db->quote('com_menus.item'),
+							  'a2.context = ' . $db->quote('com_menus.item')
+							)
+						  );
+
+						$db->setQuery($query);
+						$result = $db->loadResult();
+
+						if (!empty($result))
+						{
+							$similarModules[] = $possibleSimilarModule;
+						}
+					}
+				}
+			}
+
+			if ($callback !== NULL)
+			{
+				$module = call_user_func_array($callback, array(
+				  $module,
+				  $similarModules
+				));
+			}
+
+			return $module;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Filter similar modules for mod_menu module
+	 *
+	 * @param stdClass $module
+	 * @param array    $similarModules
+	 *
+	 * @return stdClass|null
+	 */
+	public static function filterSimilarModulesForModMenu($module, $similarModules)
+	{
+		$moduleData = json_decode($module->params);
+
+		foreach ($similarModules as $similarModule)
+		{
+			$similarModuleData = json_decode($similarModule->params);
+
+			if (
+			  $similarModuleData->startLevel == $moduleData->startLevel &&
+			  $similarModuleData->endLevel == $moduleData->endLevel &&
+			  $similarModuleData->showAllChildren == $moduleData->showAllChildren &&
+			  self::areMenusRelated($moduleData->menutype, $similarModuleData->menutype)
+			)
+			{
+				return $similarModule;
+			}
+		}
+
+		return $similarModules;
+	}
+
+	/**
+	 * Check whether or not two menu types are related
+	 *
+	 * @param string $menuTypeA
+	 * @param string $menuTypeB
+	 *
+	 * @return bool
+	 */
+	public static function areMenusRelated($menuTypeA, $menuTypeB)
+	{
+		if ($menuTypeA === $menuTypeB)
+		{
+			return true;
+		}
+
+		$menusRelated = self::getMenusRelated($menuTypeA);
+
+		return in_array($menuTypeB, $menusRelated);
+	}
+
+	/**
+	 * Get all the menu relates to a menu given
+	 *
+	 * @param string $menuType
+	 *
+	 * @return array
+	 */
+	public static function getMenusRelated($menuType)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select(
+			array(
+			  'DISTINCT m2.menutype',
+			  'm2.language'
+			)
+		  )
+		  ->from('#__menu AS m1')
+		  ->leftJoin('#__associations AS a1 ON m1.id = a1.id')
+		  ->leftJoin('#__associations AS a2 ON a2.`key` = a2.`key`')
+		  ->leftJoin('#__menu AS m2 ON a2.id = m2.id')
+		  ->where(
+			array(
+			  'm1.menutype = ' . $db->quote($menuType),
+			  'a1.context = ' . $db->quote('com_menus.item'),
+			  'a2.context = ' . $db->quote('com_menus.item'),
+			)
+		  );
+
+		$db->setQuery($query);
+		$menus  = $db->loadAssocList();
+		$result = array();
+
+		foreach ($menus as $menu)
+		{
+			$result[$menu['language']] = $menu['menutype'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Return callback for a particular menu type to be applied on module filtering
+	 *
+	 * @param string $moduleType
+	 *
+	 * @return callable|null
+	 */
+	public static function getCallbackForModulesFilteringByModuleType($moduleType)
+	{
+		$callback = NULL;
+
+		switch ($moduleType)
+		{
+			case 'mod_menu':
+				$callback = array(
+				  'NenoHelper',
+				  'filterSimilarModulesForModMenu'
+				);
+				break;
+		}
+
+		return $callback;
 	}
 }
