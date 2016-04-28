@@ -27,18 +27,6 @@ $table = $displayData;
 		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_BUTTON'); ?>
 	</label>
 
-	<!-- Translate some -->
-	<input class="check-toggle-translate-table-radio" type="radio"
-		id="check-toggle-translate-table-<?php echo $table->id; ?>-2"
-		name="jform[check-toggle-translate-table]"
-		value="2" <?php echo ($table->translate == 2) ? 'checked="checked"' : ''; ?>>
-	<label for="check-toggle-translate-table-<?php echo $table->id; ?>-2"
-		class="btn btn-small <?php echo ($table->translate == 2) ? 'active btn-warning' : ''; ?>"
-		data-toogle="tooltip"
-		title="<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON_TOOLTIP'); ?>">
-		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON'); ?>
-	</label>
-
 	<!-- Do not translate -->
 	<input class="check-toggle-translate-table-radio" type="radio"
 		id="check-toggle-translate-table-<?php echo $table->id; ?>-0"
@@ -50,5 +38,17 @@ $table = $displayData;
 		title="<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_DO_NOT_TRANSLATE_BUTTON_TOOLTIP'); ?>"
 	>
 		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_DO_NOT_TRANSLATE_BUTTON'); ?>
+	</label>
+
+	<!-- Translate some -->
+	<input class="check-toggle-translate-table-radio" type="radio"
+	       id="check-toggle-translate-table-<?php echo $table->id; ?>-2"
+	       name="jform[check-toggle-translate-table]"
+	       value="2" <?php echo ($table->translate == 2) ? 'checked="checked"' : ''; ?>>
+	<label for="check-toggle-translate-table-<?php echo $table->id; ?>-2"
+	       class="btn btn-small <?php echo ($table->translate == 2) ? 'active btn-warning' : ''; ?>"
+	       data-toogle="tooltip"
+	       title="<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON_TOOLTIP'); ?>">
+		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON'); ?>
 	</label>
 </fieldset>
