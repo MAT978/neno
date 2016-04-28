@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 JHtml::_('behavior.keepalive');
 JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
+JHtml::_('formbehavior.chosen');
 
 // Include the CSS file
 $version = NenoHelperBackend::getNenoVersion();

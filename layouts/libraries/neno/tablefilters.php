@@ -10,8 +10,6 @@
 // No direct access
 defined('_JEXEC') or die;
 
-JHtml::_('formbehavior.chosen', 'select');
-
 $step = $displayData;
 
 ?>

@@ -42,3 +42,8 @@ $step = $displayData;
 		</div>
 	</td>
 </tr>
+<script>
+	if (jQuery('select.filter-value[multiple]').length) {
+		jQuery('select.filter-value[multiple]').chosen();
+	}
+</script>
