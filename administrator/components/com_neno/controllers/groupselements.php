@@ -160,6 +160,22 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$app->close();
 	}
 
+	public function generateFieldFilterOutput()
+	{
+		$app         = JFactory::getApplication();
+		$field       = $app->input->getInt('field');
+		$tableId     = $app->input->getInt('table');
+
+		$filter = array(
+			'field' => $field,
+			'value' => ''
+		);
+
+		echo NenoHelperBackend::renderTableFilter($tableId, $filter);
+
+		$app->close();
+	}
+
 
 	protected static function getFilterAttributesBasedOnFilterType($contentElementFilePath, $fieldName, $filterType)
 	{
