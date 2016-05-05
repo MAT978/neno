@@ -112,8 +112,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		background-color : white;
 	}
 
-	input.hidden,
-	label.hidden {
+	.hidden {
 		display: none;
 	}
 

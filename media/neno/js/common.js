@@ -282,6 +282,13 @@ function changeTranslateState() {
 	var id = jQuery(this).parent('fieldset').attr('data-field');
 	var type = jQuery(this).parent('fieldset').attr('data-type');
 	var status = parseInt(jQuery(this).val());
+
+	if (status == 0) {
+		jQuery('#filter-rows-table-'+id).hide();
+	} else {
+		jQuery('#filter-rows-table-'+id).show();
+	}
+
 	markLabelAsActiveByStatus(id, type, status, status == 2);
 	setTranslateStatus(id, type, status);
 }

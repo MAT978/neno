@@ -39,14 +39,18 @@ $table = $displayData;
 	>
 		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_DO_NOT_TRANSLATE_BUTTON'); ?>
 	</label>
+</fieldset>
 
+<fieldset id="filter-rows-table-<?php echo $table->id; ?>"
+          class="radio btn-group <?php echo ($table->translate == 0) ? 'hidden' : ''; ?>"
+          data-field="<?php echo $table->id; ?>" data-type="table">
 	<!-- Translate some -->
-	<input class="check-toggle-translate-table-radio <?php echo ($table->translate == 0) ? 'hidden' : ''; ?>" type="radio"
+	<input class="check-toggle-translate-table-radio" type="radio"
 	       id="check-toggle-translate-table-<?php echo $table->id; ?>-2"
 	       name="jform[check-toggle-translate-table]"
 	       value="2" <?php echo ($table->translate == 2) ? 'checked="checked"' : ''; ?>>
 	<label for="check-toggle-translate-table-<?php echo $table->id; ?>-2"
-	       class="btn btn-small <?php echo ($table->translate == 2) ? 'active btn-warning' : ''; ?> <?php echo ($table->translate == 0) ? 'hidden' : ''; ?>"
+	       class="btn btn-small <?php echo ($table->translate == 2) ? 'active btn-warning' : ''; ?>"
 	       data-toogle="tooltip"
 	       title="<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON_TOOLTIP'); ?>">
 		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_SOME_BUTTON'); ?>
