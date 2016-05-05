@@ -112,6 +112,11 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		background-color : white;
 	}
 
+	input.hidden,
+	label.hidden {
+		display: none;
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -329,7 +334,6 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 			//Submit as normal
 			originalJoomla.apply(this, arguments);
 		}
-
 	}
 
 </script>
