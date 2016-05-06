@@ -1397,6 +1397,34 @@ class NenoHelperBackend
 	}
 
 	/**
+	 * Render a message for table fixing results
+	 *
+	 * @param   string   $table    Table name
+	 *
+	 * @param   boolean  $success  Query result
+	 * 
+	 * @return  string  The message
+	 */
+	public static function renderTableFixingMessage($table, $success)
+	{		
+		$item         = new stdClass;
+		$item->result = $success;
+		
+		if ($success)
+		{
+			$item->message = JText::_('COM_NENO_DASHBOARD_FIXING_CONTENT_TABLE_SUCCESS');
+		}
+		else
+		{
+			$item->message = JText::_('COM_NENO_DASHBOARD_FIXING_CONTENT_TABLE_FAILED');
+		}
+		
+		$item->message .= ' ' . $table;
+
+		return JLayoutHelper::render('fixcontentoutput', $item, JPATH_NENO_LAYOUTS);
+	}
+
+	/**
 	 * Render infobox
 	 *
 	 * @return string
