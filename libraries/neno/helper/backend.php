@@ -1412,11 +1412,11 @@ class NenoHelperBackend
 		
 		if ($success)
 		{
-			$item->message = JText::_('COM_NENO_DASHBOARD_FIXING_CONTENT_TABLE_SUCCESS');
+			$item->message = JText::_('COM_NENO_FIX_CONTENT_TABLE_SUCCESS');
 		}
 		else
 		{
-			$item->message = JText::_('COM_NENO_DASHBOARD_FIXING_CONTENT_TABLE_FAILED');
+			$item->message = JText::_('COM_NENO_FIX_CONTENT_TABLE_FAILED');
 		}
 		
 		$item->message .= ' ' . $table;
