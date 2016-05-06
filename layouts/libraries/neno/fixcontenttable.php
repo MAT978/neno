@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 JHtml::_('bootstrap.tooltip');
 
 ?>
-	<li class="text-<?php echo ($displayData->result) ? 'success' : 'error'; ?>">
+	<li class="alert alert-<?php echo ($displayData->result) ? 'success' : 'error'; ?>">
 		<?php echo $displayData->message; ?>
 	</li>
 	

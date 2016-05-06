@@ -237,8 +237,9 @@ class NenoControllerDashboard extends JControllerAdmin
 	public function fixContentConfigurationIssue()
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
+		$db     = JFactory::getDbo();
+		$query  = $db->getQuery(true);
+		$tables = array();
 
 		$languages = NenoHelper::getLanguages(false, false);
 
@@ -253,10 +254,13 @@ class NenoControllerDashboard extends JControllerAdmin
 				->where('c1.id = c2.id');
 
 			$db->setQuery($query);
-			$db->execute();
+
+			$res      = $db->execute();
+			$tables[] = NenoHelperBackend::renderTableFixingMessage($destinationTable, $res);
 		}
 
-		JFactory::getApplication()->redirect('index.php?option=com_neno&dashboard');
+		$view         = $this->getView('FixContent', 'html');
+		$view->tables = $tables;
+		$view->display();
 	}
-
 }

@@ -1421,7 +1421,7 @@ class NenoHelperBackend
 		
 		$item->message .= ' ' . $table;
 
-		return JLayoutHelper::render('fixcontentoutput', $item, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('fixcontenttable', $item, JPATH_NENO_LAYOUTS);
 	}
 
 	/**

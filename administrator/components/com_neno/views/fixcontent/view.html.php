@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewDashboard extends JViewLegacy
+class NenoViewFixContent extends JViewLegacy
 {
 	/**
 	 * @var array
@@ -39,16 +39,6 @@ class NenoViewDashboard extends JViewLegacy
 	protected $extraSidebar;
 
 	/**
-	 * @var bool
-	 */
-	protected $isLanguageSwitcherPublished;
-
-	/**
-	 * @var JForm
-	 */
-	protected $positionField;
-
-	/**
 	 * Display the view
 	 *
 	 * @param   string $tpl Template
@@ -63,37 +53,22 @@ class NenoViewDashboard extends JViewLegacy
 	{
 		$this->state                       = $this->get('State');
 		$this->items                       = $this->get('Items');
-		$this->isLanguageSwitcherPublished = $this->getModel()->IsSwitcherPublished();
-
-		if (!$this->isLanguageSwitcherPublished)
-		{
-			$this->positionField = $this->get('PositionField');
-		}
-
-
+		
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
 		{
 			throw new Exception(implode("\n", $errors));
 		}
 
-		NenoHelperBackend::addSubmenu('dashboard');
+		NenoHelperBackend::addSubmenu();
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 
-		JToolbarHelper::custom('fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
-
-		JToolbarHelper::custom('dashboard.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
-
-		JToolbarHelper::custom('fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
-
-		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
+		JToolbarHelper::title(JText::_('COM_NENO_FIX_CONTENT_TITLE'), 'screen');
 
 		$this->sidebar = JHtmlSidebar::render();
-
-		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('dashboard');
 
 		parent::display($tpl);
 	}
