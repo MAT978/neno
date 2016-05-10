@@ -289,6 +289,7 @@ function changeTranslateState() {
 		jQuery('#filter-rows-table-'+id).show();
 	}
 
+	bindEvents();
 	markLabelAsActiveByStatus(id, type, status, status == 2);
 	setTranslateStatus(id, type, status);
 }
