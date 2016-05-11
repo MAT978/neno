@@ -927,10 +927,12 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 
 		// Assign default methods
 		$db    = JFactory::getDbo();
+
+		/* @var $query NenoDatabaseQueryMysqlx */
 		$query = $db->getQuery(true);
 
 		$query
-			->insert('#__neno_content_element_groups_x_translation_methods')
+			->insertIgnore('#__neno_content_element_groups_x_translation_methods')
 			->columns(
 				array(
 					'group_id',

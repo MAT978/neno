@@ -70,4 +70,30 @@ class NenoDatabaseQueryMysqlx extends CommonQuery
 
 		return $this;
 	}
+
+	/**
+	 * Add a table name to the INSERT IGNORE clause of the query.
+	 *
+	 * Note that you must not mix insert, update, delete and select method calls when building a query.
+	 *
+	 * Usage:
+	 * $query->insert('#__a')->set('id = 1');
+	 * $query->insert('#__a')->columns('id, title')->values('1,2')->values('3,4');
+	 * $query->insert('#__a')->columns('id, title')->values(array('1,2', '3,4'));
+	 *
+	 * @param   mixed    $table           The name of the table to insert data into.
+	 * @param   boolean  $incrementField  The name of the field to auto increment.
+	 *
+	 * @return  JDatabaseQuery  Returns this object to allow chaining.
+	 *
+	 * @since   11.1
+	 */
+	public function insertIgnore($table, $incrementField=false)
+	{
+		$this->type = 'insert';
+		$this->insert = new JDatabaseQueryElement('INSERT IGNORE INTO', $table);
+		$this->autoIncrementField = $incrementField;
+
+		return $this;
+	}
 }
