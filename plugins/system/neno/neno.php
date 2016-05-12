@@ -276,7 +276,7 @@ class PlgSystemNeno extends JPlugin
 				/* @var $field NenoContentElementField */
 				foreach ($fields as $field)
 				{
-					if ($oldValue->{$field->getFieldName()} != $newValue->{$field->getFieldName()})
+					if ($oldValue[$field->getFieldName()] != $newValue[$field->getFieldName()])
 					{
 						if ($field->isTranslatable())
 						{
