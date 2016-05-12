@@ -228,39 +228,4 @@ class NenoControllerDashboard extends JControllerAdmin
 			JFactory::getApplication()->redirect('index.php');
 		}
 	}
-
-	/**
-	 * This method fixes content issue
-	 *
-	 * @throws Exception
-	 */
-	public function fixContentConfigurationIssue()
-	{
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db     = JFactory::getDbo();
-		$query  = $db->getQuery(true);
-		$tables = array();
-
-		$languages = NenoHelper::getLanguages(false, false);
-
-		foreach ($languages as $language)
-		{
-			$destinationTable = $db->generateShadowTableName('#__content', $language->lang_code);
-
-			$query
-				->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
-				->set('c1.attribs = c2.attribs')
-				->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
-				->where('c1.id = c2.id');
-
-			$db->setQuery($query);
-
-			$res      = $db->execute();
-			$tables[] = NenoHelperBackend::renderTableFixingMessage($destinationTable, $res);
-		}
-
-		$view         = $this->getView('FixContent', 'html');
-		$view->tables = $tables;
-		$view->display();
-	}
 }
