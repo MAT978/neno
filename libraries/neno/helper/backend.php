@@ -1397,6 +1397,20 @@ class NenoHelperBackend
 	}
 
 	/**
+	 * Render a message for menu fixing results
+	 * 
+	 * @param   bool    $fixed  Flag for fixed item
+	 * 
+	 * @param   string  $menu   Menu name
+	 *
+	 * @return  string  The message
+	 */
+	public static function renderMenuFixingMessage($fixed, $menu = null)
+	{
+		return ($fixed) ? sprintf(JText::_('COM_NENO_FIX_CONTENT_MENU_SUCCESS'), $menu) : JText::_('COM_NENO_FIX_CONTENT_MENU_NOTHING');
+	}
+
+	/**
 	 * Render a message for table fixing results
 	 *
 	 * @param   string   $table    Table name

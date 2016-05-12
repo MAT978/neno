@@ -2145,9 +2145,11 @@ class NenoHelper
 	/**
 	 * Create menu structure
 	 *
-	 * @return void
+	 * @param   string  $event  Event which triggered the method
+	 *
+	 * @return  mixed   True if no event, a menu list if event == fixMenus
 	 */
-	public static function createMenuStructure()
+	public static function createMenuStructure($event = '')
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
@@ -2189,6 +2191,8 @@ class NenoHelper
 		// Once we finish restructuring menus, let's rebuild them
 		$menuTable = new JTableMenu($db);
 		$menuTable->rebuild();
+
+		return ($event == 'fixMenus') ? $nonAssociatedMenuItems : true;
 	}
 
 	/**

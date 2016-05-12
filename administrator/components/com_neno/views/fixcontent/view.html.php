@@ -70,6 +70,12 @@ class NenoViewFixContent extends JViewLegacy
 
 		$this->sidebar = JHtmlSidebar::render();
 
+		if ($tpl == 'tables' || $tpl == 'menus')
+		{
+			$this->setLayout($tpl);
+			$tpl = null;
+		}
+
 		parent::display($tpl);
 	}
 }
