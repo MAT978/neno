@@ -1407,7 +1407,16 @@ class NenoHelperBackend
 	 */
 	public static function renderMenuFixingMessage($fixed, $menu = null)
 	{
-		return ($fixed) ? sprintf(JText::_('COM_NENO_FIX_CONTENT_MENU_SUCCESS'), $menu) : JText::_('COM_NENO_FIX_CONTENT_MENU_NOTHING');
+		$item          = new stdClass;
+		$item->result  = true;
+		$item->message = JText::_('COM_NENO_FIX_CONTENT_MENU_NOTHING');
+		
+		if ($fixed)
+		{
+			$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_MENU_SUCCESS'), $menu);
+		}
+		
+		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
 	}
 
 	/**
@@ -1433,9 +1442,9 @@ class NenoHelperBackend
 			$item->message = JText::_('COM_NENO_FIX_CONTENT_TABLE_FAILED');
 		}
 		
-		$item->message .= ' ' . $table;
+		$item->message .= ' <b>' . $table . '</b>';
 
-		return JLayoutHelper::render('fixcontenttable', $item, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
 	}
 
 	/**
