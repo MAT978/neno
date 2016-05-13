@@ -45,9 +45,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 	<ul class="fix-content">
 		<?php if ($this->item != null) : ?>
 			<?php foreach ($this->item as $element) : ?>
-				<li class="alert alert-success">
 					<?php echo $element; ?>
-				</li>
 			<?php endforeach; ?>
 		<?php else : ?>
 			<li class="alert alert-success">
