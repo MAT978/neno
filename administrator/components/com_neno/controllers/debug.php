@@ -19,7 +19,7 @@ defined('_JEXEC') or die;
 class NenoControllerDebug extends JControllerAdmin
 {
 	/**
-	 * 
+	 * Fix non associated menus
 	 */
 	public function fixMenus()
 	{
@@ -79,7 +79,7 @@ class NenoControllerDebug extends JControllerAdmin
 	}
 
 	/**
-	 * This methhod
+	 * This method fix all old null issues on translations
 	 *
 	 * @return void
 	 *
@@ -91,18 +91,21 @@ class NenoControllerDebug extends JControllerAdmin
 		$query = $db->getQuery(true);
 
 		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translation AS tr')
+			->select($db->quoteName(array('tr.id', 'f.field_name')))
+			->from($db->quoteName('#__neno_content_element_translations', 'tr'))
+			->join('left', $db->quoteName('#__neno_content_element_fields', 'f') . 'ON (' . $db->quoteName('tr.content_id') . ' = ' . $db->quoteName('f.id') .')')
+			->where('tr.content_type = \'db_string\'')
 			->where('tr.string = ' . $db->quote('null'));
 
 		$db->setQuery($query);
-		$translationsWithNull = $db->loadColumn();
+		$translationsWithNull = $db->loadObjectList();
 		$result               = null;
 
 		foreach ($translationsWithNull as $translationWithNull)
 		{
 			/* @var $translation NenoContentElementTranslation */
-			$translation = NenoContentElementTranslation::load($translationWithNull, false, true);
+			$translation = NenoContentElementTranslation::load($translationWithNull->id, false, true);
+
 
 			if (!empty($translation))
 			{
@@ -111,18 +114,25 @@ class NenoControllerDebug extends JControllerAdmin
 				// Only replace strings that has null in it
 				if ($translation->getString() === 'null')
 				{
-					$translation
-						->setString($translation->getOriginalText())
-						->persist();
+					$ok = $translation
+							->setString($translation->getOriginalText())
+							->persist();
 
-					$result[] = $translation->getOriginalText();
+					$item        = new stdClass;
+					$item->text  = $translation->getOriginalText();
+					$item->table = $translation->getDbTable();
+					$item->field = $translationWithNull->field_name;
+					$item->lang  = $translation->getLanguage();
+					$item->res   = $ok;
+
+					$result[] = NenoHelperBackend::renderNullFixingMessage($item);
+					unset($item);
 				}
 			}
 		}
 
-
 		$view        = $this->getView('FixContent', 'html');
-		$view->item = $result;
+		$view->item  = $result;
 		$view->display('nullissue');
 	}
 }
