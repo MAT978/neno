@@ -1398,6 +1398,28 @@ class NenoHelperBackend
 
 	/**
 	 * Render a message for menu fixing results
+	 *
+	 * @param   bool    $fixed  Flag for fixed item
+	 *
+	 * @param   string  $menu   Menu name
+	 *
+	 * @return  string  The message
+	 */
+	public static function renderNullFixingMessage($element)
+	{
+		$item          = new stdClass;
+		$item->result  = $element->res;
+		$item->message = JText::_('COM_NENO_FIX_CONTENT_MENU_NOTHING');
+
+		$str = ($element->res) ? 'SUCCESS' : 'ERROR';
+
+		$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_NULL_' . $str), $element->lang, $element->table, $element->field);
+
+		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
+	}
+
+	/**
+	 * Render a message for menu fixing results
 	 * 
 	 * @param   bool    $fixed  Flag for fixed item
 	 * 
@@ -1435,14 +1457,12 @@ class NenoHelperBackend
 		
 		if ($success)
 		{
-			$item->message = JText::_('COM_NENO_FIX_CONTENT_TABLE_SUCCESS');
+			$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_TABLE_SUCCESS'), $table);
 		}
 		else
 		{
-			$item->message = JText::_('COM_NENO_FIX_CONTENT_TABLE_FAILED');
+			$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_TABLE_FAILED'), $table);
 		}
-		
-		$item->message .= ' <b>' . $table . '</b>';
 
 		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
 	}

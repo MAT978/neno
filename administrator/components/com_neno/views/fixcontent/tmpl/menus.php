@@ -47,10 +47,12 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 			<?php foreach ($this->menus as $menu) : ?>
 				<?php echo $menu; ?>
 			<?php endforeach; ?>
+		<?php else : ?>
+			<?php echo $this->menus; ?>
 		<?php endif; ?>
 	</ul>
 
-	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=dashboard'); ?>" class="btn btn-primary">
+	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=debug'); ?>" class="btn btn-primary">
 		<?php echo JText::_('COM_NENO_FIX_CONTENT_DONE'); ?>
 	</a>
 </div>
