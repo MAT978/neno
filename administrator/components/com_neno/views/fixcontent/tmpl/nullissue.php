@@ -43,9 +43,17 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 <div id="j-main-container" class="span10">
 	<h2><?php echo JText::_('COM_NENO_FIX_CONTENT_RESULTS'); ?></h2>
 	<ul class="fix-content">
-		<?php foreach ($this->tables as $table) : ?>
-			<?php echo $table; ?>
-		<?php endforeach; ?>
+		<?php if ($this->item != null) : ?>
+			<?php foreach ($this->item as $element) : ?>
+				<li class="alert alert-success">
+					<?php echo $element; ?>
+				</li>
+			<?php endforeach; ?>
+		<?php else : ?>
+			<li class="alert alert-success">
+				<?php echo JText::_('COM_NENO_FIX_CONTENT_NULL_NOTHING'); ?>
+			</li>
+		<?php endif; ?>
 	</ul>
 
 	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=debug'); ?>" class="btn btn-primary">

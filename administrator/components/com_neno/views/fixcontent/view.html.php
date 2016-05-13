@@ -60,17 +60,16 @@ class NenoViewFixContent extends JViewLegacy
 			throw new Exception(implode("\n", $errors));
 		}
 
-		NenoHelperBackend::addSubmenu();
-
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
 
 		JToolbarHelper::title(JText::_('COM_NENO_FIX_CONTENT_TITLE'), 'screen');
 
+		NenoHelperBackend::addSubmenu('debug');
 		$this->sidebar = JHtmlSidebar::render();
 
-		if ($tpl == 'tables' || $tpl == 'menus')
+		if ($tpl == 'tables' || $tpl == 'menus' || $tpl == 'nullissue')
 		{
 			$this->setLayout($tpl);
 			$tpl = null;
