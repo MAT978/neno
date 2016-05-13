@@ -12,6 +12,7 @@
 defined('_JEXEC') or die;
 
 JHtml::_('behavior.keepalive');
+
 ?>
 <script>
 	jQuery(document).ready(function () {
@@ -57,7 +58,7 @@ JHtml::_('behavior.keepalive');
 				</div>
 				<div id="copy-help-text">Press CTRL+C to copy</div>
 			</div>
-			<H2>Debug report</h2>
+			<h2>Debug report</h2>
 		</div>
 
 		<div class="controls">
@@ -65,4 +66,9 @@ JHtml::_('behavior.keepalive');
 		</div>
 	</div>
 </div>
+
+<form action="index.php?option=com_neno&view=debug" method="post" name="adminForm"
+      id="adminForm">
+	<input type="hidden" name="task" value="" />
+</form>
 <?php echo NenoHelperBackend::renderVersionInfoBox(); ?>
