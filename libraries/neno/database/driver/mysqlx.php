@@ -181,7 +181,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	protected function isInstallationCompleted()
 	{
-		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 6;
+		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 7;
 	}
 
 	/**
