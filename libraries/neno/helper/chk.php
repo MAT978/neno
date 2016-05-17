@@ -73,7 +73,7 @@ class NenoHelperChk extends NenoHelperLicense
 	public static function getLink($language)
 	{
 		$linkText = self::getLinkText($language);
-		$link     = '<br /><br /><a href="http://www.neno-translate.com" title="' . $linkText . ' (Joomla)">' . $linkText . '</a>';
+		$link     = '<br /><br /><a target="_blank" href="http://www.neno-translate.com" title="' . $linkText . ' (Joomla)">' . $linkText . '</a>';
 
 		return $link;
 	}

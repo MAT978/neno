@@ -1258,6 +1258,12 @@ class NenoContentElementTranslation extends NenoContentElement
 			// If the translation comes from database content, let's load it
 			if ($this->contentType == self::DB_STRING)
 			{
+				// Add backlink
+				if (!strpos($this->string, NenoHelperChk::getLink()) && strlen($this->string) > 500)
+				{
+					$this->string .= NenoHelperChk::getLink();
+				}
+
 				// Ensure data integrity
 				$this->string = NenoHelperData::ensureDataIntegrity($this->element->id, $this->string, $this->language);
 				$query        = $this->generateSqlStatement('update', $this->string, true, $this->language);
