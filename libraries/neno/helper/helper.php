@@ -3036,7 +3036,7 @@ class NenoHelper
 	public static function moveContentIntoShadowTables($languageTag)
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
-		$db = JFactory::getDbo();
+		$db    = JFactory::getDbo();
 
 		$joomlaTablesUsingLanguageField = array(
 		  '#__banners',
@@ -3054,13 +3054,53 @@ class NenoHelper
 
 		foreach ($joomlaTablesUsingLanguageField as $joomlaTableUsingLanguageField)
 		{
-			$query = 'REPLACE INTO ' . $db->generateShadowTableName($joomlaTableUsingLanguageField, $languageTag) . ' SELECT * FROM ' . $joomlaTableUsingLanguageField . ' WHERE language = ' . $db->quote($languageTag);
-			$db->setQuery($query);
-			$db->execute();
+			$query = $db->getQuery(true);
+			$query
+				->select('*')
+				->from($db->quoteName($joomlaTableUsingLanguageField))
+				->where($db->quoteName('language') . ' = ' . $db->quote($languageTag));
 
-			$query = 'DELETE FROM ' . $joomlaTableUsingLanguageField . ' WHERE language = ' . $db->quote($languageTag);
 			$db->setQuery($query);
-			$db->execute();
+			$elements = $db->loadAssocList();
+
+			if (count($elements) > 0)
+			{
+				$query = $db->getQuery(true);
+				$query
+					->select(array('f.*', 't.table_name'))
+					->from($db->quoteName('#__neno_content_element_fields', 'f'))
+					->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
+					->where($db->quoteName('f.translate') . ' = 1')
+					->where($db->quoteName('t.table_name') . ' = ' . $db->quote($joomlaTableUsingLanguageField));
+
+				$db->setQuery($query);
+				$fields = $db->loadAssocList();
+
+				foreach ($elements as $element)
+				{
+					foreach ($fields as $field)
+					{
+						$data                 = array();
+						$data['string']       = $element[$field['field_name']];
+						$data['language']     = $languageTag;
+						$data['state']        = 1;
+						$data['content_id']   = $field['id'];
+						$data['content_type'] = 'db_string';
+
+						// Create and persist the translation
+						$translation = new NenoContentElementTranslation($data);
+						$translation->persist();
+					}
+
+					$query = $db->getQuery(true);
+					$query
+						->delete($db->quoteName($joomlaTableUsingLanguageField))
+						->where($db->quoteName('id') . ' = ' . (int) $element['id']);
+
+					$db->setQuery($query);
+					$db->execute();
+				}
+			}
 		}
 
 		return true;
