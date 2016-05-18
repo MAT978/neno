@@ -223,7 +223,8 @@ function initCodemirror() {
 			lineWrapping  : true,
 			viewportMargin: 200,
 			matchTags     : {bothTags: true},
-			readOnly      : typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false
+			readOnly      : typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false,
+			extraKeys 	  : {Home: "goLineLeft", End: "goLineRight"}
 		});
 
 		if (modeLeft != 'application/ld+json') {
