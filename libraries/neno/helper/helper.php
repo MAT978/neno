@@ -2344,7 +2344,7 @@ class NenoHelper
 			);
 		}
 
-		if (self::isCompletelyInstall($language['lang_code']))
+		if (NenoSettings::get('installation_completed'))
 		{
 			$contentCounter = self::contentCountInOtherLanguages($language['lang_code']);
 
