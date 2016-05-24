@@ -2145,7 +2145,7 @@ class NenoHelper
 	/**
 	 * Create menu structure
 	 *
-	 * @param   string  $event  Event which triggered the method
+	 * @param   string $event Event which triggered the method
 	 *
 	 * @return  mixed   True if no event, a menu list if event == fixMenus
 	 */
@@ -2351,13 +2351,13 @@ class NenoHelper
 			if ($contentCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
-					array(
-						'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
-						'language' => $language['lang_code'],
-						'issue'    => 'content_out_of_neno'
-					),
-					JPATH_NENO_LAYOUTS
+				  'fixitbutton',
+				  array(
+					'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
+					'language' => $language['lang_code'],
+					'issue'    => 'content_out_of_neno'
+				  ),
+				  JPATH_NENO_LAYOUTS
 				);
 			}
 		}
@@ -3039,7 +3039,7 @@ class NenoHelper
 	public static function moveContentIntoShadowTables($languageTag)
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
+		$db = JFactory::getDbo();
 
 		$joomlaTablesUsingLanguageField = array(
 		  '#__banners',
@@ -3059,9 +3059,9 @@ class NenoHelper
 		{
 			$query = $db->getQuery(true);
 			$query
-				->select('*')
-				->from($db->quoteName($joomlaTableUsingLanguageField))
-				->where($db->quoteName('language') . ' = ' . $db->quote($languageTag));
+			  ->select('*')
+			  ->from($db->quoteName($joomlaTableUsingLanguageField))
+			  ->where($db->quoteName('language') . ' = ' . $db->quote($languageTag));
 
 			$db->setQuery($query);
 			$elements = $db->loadAssocList();
@@ -3070,11 +3070,11 @@ class NenoHelper
 			{
 				$query = $db->getQuery(true);
 				$query
-					->select(array('f.*', 't.table_name'))
-					->from($db->quoteName('#__neno_content_element_fields', 'f'))
-					->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
-					->where($db->quoteName('f.translate') . ' = 1')
-					->where($db->quoteName('t.table_name') . ' = ' . $db->quote($joomlaTableUsingLanguageField));
+				  ->select(array('f.*', 't.table_name'))
+				  ->from($db->quoteName('#__neno_content_element_fields', 'f'))
+				  ->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
+				  ->where($db->quoteName('f.translate') . ' = 1')
+				  ->where($db->quoteName('t.table_name') . ' = ' . $db->quote($joomlaTableUsingLanguageField));
 
 				$db->setQuery($query);
 				$fields = $db->loadAssocList();
@@ -3097,8 +3097,8 @@ class NenoHelper
 
 					$query = $db->getQuery(true);
 					$query
-						->delete($db->quoteName($joomlaTableUsingLanguageField))
-						->where($db->quoteName('id') . ' = ' . (int) $element['id']);
+					  ->delete($db->quoteName($joomlaTableUsingLanguageField))
+					  ->where($db->quoteName('id') . ' = ' . (int) $element['id']);
 
 					$db->setQuery($query);
 					$db->execute();
@@ -4153,5 +4153,72 @@ class NenoHelper
 		}
 
 		return $callback;
+	}
+
+	/**
+	 * Make a word plural
+	 *
+	 * @param $word
+	 *
+	 * @return string
+	 */
+	public static function makeItPlural($word)
+	{
+		$specialNouns = array(
+		  'woman'      => 'women',
+		  'man'        => 'men',
+		  'child'      => 'children',
+		  'tooth'      => 'teeth',
+		  'foot'       => 'feet',
+		  'person'     => 'people',
+		  'leaf'       => 'leaves',
+		  'mouse'      => 'mice',
+		  'goose'      => 'geese',
+		  'half'       => 'halves',
+		  'knife'      => 'knives',
+		  'wife'       => 'wives',
+		  'life'       => 'lives',
+		  'elf'        => 'elves',
+		  'loaf'       => 'leaves',
+		  'potato'     => 'potatoes',
+		  'tomato'     => 'tomatoes',
+		  'cactus'     => 'cacti',
+		  'focus'      => 'foci',
+		  'fungus'     => 'fungi',
+		  'nucleus'    => 'nuclei',
+		  'syllabus'   => 'syllabi',
+		  'analysis'   => 'analyses',
+		  'diagnosis'  => 'diagnoses',
+		  'oasis'      => 'oases',
+		  'thesis'     => 'theses',
+		  'crisis'     => 'crises',
+		  'phenomenon' => 'phenomena',
+		  'criterion'  => 'criteria',
+		  'datums'     => 'data',
+		  'sheep'      => 'sheep',
+		  'fish'       => 'fish',
+		  'deer'       => 'deer',
+		  'species'    => 'species',
+		  'aircraft'   => 'aircraft'
+		);
+
+		if (self::endsWith($word, 's') || self::endsWith($word, 'x') || self::endsWith($word, 'z') || self::endsWith($word, 'ch') || self::endsWith($word, 'sh'))
+		{
+			$word = $word . 'es';
+		}
+		elseif (self::endsWith($word, 'y'))
+		{
+			$word = substr($word, 0, strlen($word) - 1) . 'ies';
+		}
+		elseif (isset($specialNouns[$word]))
+		{
+			$word = $specialNouns[$word];
+		}
+		else
+		{
+			$word = $word . 's';
+		}
+
+		return $word;
 	}
 }
