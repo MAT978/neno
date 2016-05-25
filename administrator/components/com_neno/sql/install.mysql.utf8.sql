@@ -377,6 +377,21 @@ CREATE TABLE IF NOT EXISTS `#__neno_translation_states` (
   `description` VARCHAR(255) NULL,
   PRIMARY KEY (`id`));
 
+
+--
+-- Table structure for table `#__neno_content_issues`
+--
+CREATE TABLE `#__neno_content_issues` (
+  `id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `discovered`  DATETIME    NOT NULL,
+  `error_code`  VARCHAR(45) NOT NULL,
+  `info`        TEXT        NOT NULL,
+  `fixed`       DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `fixed_by`    INT         NOT NULL
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
 --
 -- Values for translation states
 --
