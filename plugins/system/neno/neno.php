@@ -121,10 +121,10 @@ class PlgSystemNeno extends JPlugin
 		  ->select('*')
 		  ->from('#__extensions')
 		  ->where(
-			array(
-			  'extension_id = ' . (int) $extensionId,
-			  'type IN (' . implode(',', $extensions) . ')',
-			)
+			  array(
+				  'extension_id = ' . (int) $extensionId,
+				  'type IN (' . implode(',', $extensions) . ')',
+			  )
 		  );
 
 		$db->setQuery($query);
@@ -156,12 +156,45 @@ class PlgSystemNeno extends JPlugin
 	 */
 	public function onBeforeRender()
 	{
+		$app      = JFactory::getApplication();
 		$document = JFactory::getDocument();
 		$document->addScript(JUri::root() . '/media/neno/js/common.js?v=' . NenoHelperBackend::getNenoVersion());
 
 		if (NenoSettings::get('schedule_task_option', 'ajax') == 'ajax' && NenoSettings::get('installation_completed') == 1)
 		{
 			$document->addScript(JUri::root() . '/media/neno/js/ajax_module.js');
+		}
+
+		// Check if there's some issue on the item
+		if ($app->input->get('option') == 'com_content')
+		{
+			$issued = json_decode($app->getUserState('com_content.issue'));
+			$app->setUserState('com_content.issue', null);
+
+			if ($issued != null)
+			{
+				$associations = JLanguageAssociations::getAssociations('com_content', '#__content', 'com_content.item', $issued->id);
+				$parentItem   = $associations[NenoSettings::get('source_language')];
+
+				$info        = new stdClass;
+				$info->lang  = $issued->lang;
+
+				if ($parentItem)
+				{
+					$code         = 'TRANSLATED_OUT_NENO';
+					$info->parent = (int) substr($parentItem->id, 0, strpos($parentItem->id, ':'));
+				}
+				else
+				{
+					$code = 'NOT_SOURCE_LANG_CONTENT';
+				}
+
+				if (NenoHelper::generateIssue($code, $issued->id, 'com_content', $info))
+				{
+					$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
+					$app->enqueueMessage($message, 'warning');
+				}
+			}
 		}
 	}
 
@@ -222,23 +255,14 @@ class PlgSystemNeno extends JPlugin
 						}
 					}
 
-					// Only do that if the translation is new.
-					if ($isNew)
+					// Check if
+					if ($content->language != NenoSettings::get('source_language'))
 					{
-						$languages       = NenoHelper::getLanguages(false);
-						$defaultLanguage = NenoSettings::get('source_language');
+						$issue       = new stdClass;
+						$issue->id   = $content->id;
+						$issue->lang = $content->language;
 
-						foreach ($languages as $language)
-						{
-							if ($language->lang_code != $defaultLanguage)
-							{
-								$shadowTable = $db->generateShadowTableName($tableName, $language->lang_code);
-								$properties  = $content->getProperties();
-								$query       = 'REPLACE INTO ' . $db->quoteName($shadowTable) . ' (' . implode(',', $db->quoteName(array_keys($properties))) . ') VALUES(' . implode(',', $db->quote($properties)) . ')';
-								$db->setQuery($query);
-								$db->execute();
-							}
-						}
+						JFactory::getApplication()->setUserState('com_content.issue', json_encode($issue));
 					}
 				}
 			}
