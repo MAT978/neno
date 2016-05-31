@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewFixContent extends JViewLegacy
+class NenoViewIssues extends JViewLegacy
 {
 	/**
 	 * @var array
@@ -69,7 +69,7 @@ class NenoViewFixContent extends JViewLegacy
 		NenoHelperBackend::addSubmenu('debug');
 		$this->sidebar = JHtmlSidebar::render();
 
-		if ($tpl == 'tables' || $tpl == 'menus' || $tpl == 'nullissue')
+		if ($tpl == 'list')
 		{
 			$this->setLayout($tpl);
 			$tpl = null;

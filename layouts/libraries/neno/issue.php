@@ -13,7 +13,25 @@ defined('_JEXEC') or die;
 JHtml::_('bootstrap.tooltip');
 
 ?>
-	<li class="alert alert-<?php echo ($displayData->result) ? 'success' : 'error'; ?>">
-		<?php echo $displayData->message; ?>
+<?php if ($displayData->fixed) : ?>
+	<li class="alert alert-success">
+
 	</li>
-	
+<?php else : ?>
+	<li class="alert alert-error">
+		<h4><?php echo $displayData->details->message; ?></h4>
+		<p>
+			<?php echo $displayData->details->description; ?>
+		</p>
+		<p>
+			<?php echo JText::_('COM_NENO_ISSUE_MESSAGE_DISCOVERED') . ': ' . $displayData->discovered; ?>
+		</p>
+		<?php if ($displayData->fixable) { ?>
+			<a href="#" class="btn btn-small btn-success">
+				<?php echo JText::_('COM_NENO_ISSUE_FIX'); ?>
+			</a>
+		<?php } else { ?>
+			<?php echo JText::_('COM_NENO_ISSUE_NOT_FIXABLE'); ?>
+		<?php } ?>
+	</li>
+<?php endif; ?>

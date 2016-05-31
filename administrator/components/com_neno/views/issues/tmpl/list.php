@@ -31,7 +31,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 ?>
 
 <style>
-	ul.fix-content {
+	ul.issue-list {
 		margin: 20px auto;
 		list-style: none;
 	}
@@ -41,14 +41,24 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 	<?php echo $this->sidebar; ?>
 </div>
 <div id="j-main-container" class="span10">
-	<h2><?php echo JText::_('COM_NENO_FIX_CONTENT_RESULTS'); ?></h2>
-	<ul class="fix-content">
-		<?php if (is_array($this->menus)) : ?>
-			<?php foreach ($this->menus as $menu) : ?>
-				<?php echo $menu; ?>
+	<h2><?php echo JText::_('COM_NENO_PENDING_ISSUES'); ?></h2>
+	<ul id="pending-issues" class="issue-list">
+		<?php if (is_array($this->pending)) : ?>
+			<?php foreach ($this->pending as $issue) : ?>
+				<?php echo NenoHelperIssue::renderIssue($issue); ?>
 			<?php endforeach; ?>
 		<?php else : ?>
-			<?php echo $this->menus; ?>
+			<?php echo $this->issues; ?>
+		<?php endif; ?>
+	</ul>
+
+	<ul id="solved-issues" class="issue-list">
+		<?php if (is_array($this->solved)) : ?>
+			<?php foreach ($this->solved as $issue) : ?>
+				<?php echo NenoHelperIssue::renderIssue($issue); ?>
+			<?php endforeach; ?>
+		<?php else : ?>
+			<?php echo $this->issues; ?>
 		<?php endif; ?>
 	</ul>
 
