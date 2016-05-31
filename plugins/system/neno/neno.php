@@ -26,6 +26,14 @@ class PlgSystemNeno extends JPlugin
 	protected static $recordsApprovedToSave = array();
 
 	/**
+	 * Load the language file on instantiation.
+	 *
+	 * @var    boolean
+	 * @since  3.1
+	 */
+	protected $autoloadLanguage = true;
+
+	/**
 	 * Method to register a custom database driver
 	 *
 	 * @return void
