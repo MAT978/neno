@@ -18,6 +18,16 @@ defined('_JEXEC') or die;
  */
 class NenoControllerDebug extends JControllerAdmin
 {
+
+	public function listIssues()
+	{
+		$view          = $this->getView('issues', 'html');
+		$view->pending = NenoHelperIssue::getList();
+		$view->solved  = NenoHelperIssue::getList(true);
+		$view->display('list');
+	}
+
+
 	/**
 	 * Fix non associated menus
 	 */
