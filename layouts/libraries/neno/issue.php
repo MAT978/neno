@@ -15,7 +15,10 @@ JHtml::_('bootstrap.tooltip');
 ?>
 <?php if ($displayData->fixed) : ?>
 	<li class="alert alert-success">
-
+		<h4><?php echo $displayData->details->message; ?></h4>
+		<p>
+			<?php echo $displayData->details->description; ?>
+		</p>
 	</li>
 <?php else : ?>
 	<li class="alert alert-error">

@@ -41,24 +41,29 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 	<?php echo $this->sidebar; ?>
 </div>
 <div id="j-main-container" class="span10">
-	<h2><?php echo JText::_('COM_NENO_PENDING_ISSUES'); ?></h2>
+	<h2><?php echo JText::_('COM_NENO_ISSUE_PENDING_LIST'); ?></h2>
 	<ul id="pending-issues" class="issue-list">
-		<?php if (is_array($this->pending)) : ?>
+		<?php if (count($this->pending) > 0) : ?>
 			<?php foreach ($this->pending as $issue) : ?>
 				<?php echo NenoHelperIssue::renderIssue($issue); ?>
 			<?php endforeach; ?>
 		<?php else : ?>
-			<?php echo $this->issues; ?>
+			<li class="alert alert-success">
+				<?php echo JText::_('COM_NENO_ISSUES_NO_ISSUES_TO_SHOW') ?>
+			</li>
 		<?php endif; ?>
 	</ul>
 
+	<h2><?php echo JText::_('COM_NENO_ISSUE_SOLVED_LIST'); ?></h2>
 	<ul id="solved-issues" class="issue-list">
-		<?php if (is_array($this->solved)) : ?>
+		<?php if (count($this->solved) > 0) : ?>
 			<?php foreach ($this->solved as $issue) : ?>
 				<?php echo NenoHelperIssue::renderIssue($issue); ?>
 			<?php endforeach; ?>
 		<?php else : ?>
-			<?php echo $this->issues; ?>
+			<li class="alert alert-success">
+				<?php echo JText::_('COM_NENO_ISSUES_NO_ISSUES_TO_SHOW') ?>
+			</li>
 		<?php endif; ?>
 	</ul>
 
