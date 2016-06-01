@@ -41,7 +41,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 	<?php echo $this->sidebar; ?>
 </div>
 <div id="j-main-container" class="span10">
-	<h2><?php echo JText::_('COM_NENO_ISSUE_PENDING_LIST'); ?></h2>
+	<h2><?php echo JText::_('COM_NENO_ISSUE_PENDING_LIST'); ?> <?php echo ($this->lang !== null) ? $this->lang : ''; ?></h2>
 	<ul id="pending-issues" class="issue-list">
 		<?php if (count($this->pending) > 0) : ?>
 			<?php foreach ($this->pending as $issue) : ?>

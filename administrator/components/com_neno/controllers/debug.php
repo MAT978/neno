@@ -25,9 +25,13 @@ class NenoControllerDebug extends JControllerAdmin
 	 */
 	public function listIssues()
 	{
+		$app = JFactory::getApplication();
+		$lang = $app->input->get('lang');
+		
 		$view          = $this->getView('issues', 'html');
-		$view->pending = NenoHelperIssue::getList();
-		$view->solved  = NenoHelperIssue::getList(false);
+		$view->pending = NenoHelperIssue::getList($lang);
+		$view->solved  = NenoHelperIssue::getList($lang, false);
+		$view->lang    = $lang;
 		$view->display('list');
 	}
 

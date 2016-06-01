@@ -26,13 +26,38 @@ class NenoHelperIssue
 	}
 
 	/**
+	 * Gets the number of issues
+	 *
+	 * @param   string  $extension  The extension
+	 *
+	 * @param   string  $lang       Lang code
+	 *
+	 * @return  int|null  The number
+	 */
+	public static function getIssuesNumber($extension, $lang)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('COUNT(' . $db->quoteName('id') . ')')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('extension') . ' = ' . $db->quote($extension))
+			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+
+		$db->setQuery($query);
+
+		return $db->loadResult();
+	}
+
+	/**
 	 * Gets a list of issues
 	 * 
 	 * @param   bool  $pending  If true, it gets not solved issues
 	 *                          
 	 * @return array  The list                         
 	 */
-	public static function getList($pending = true)
+	public static function getList($lang, $pending = true)
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -44,7 +69,12 @@ class NenoHelperIssue
 			->select('*')
 			->from($db->quoteName('#__neno_content_issues'))
 			->where($db->quoteName('fixed') . $comp . $db->quote('0000-00-00 00:00:00'));
-		
+
+		if ($lang != null)
+		{
+			$query->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+		}
+
 		$db->setQuery($query);
 		
 		return $db->loadObjectList();
@@ -64,6 +94,7 @@ class NenoHelperIssue
 		$displayData->discovered = self::formatDate($issue->discovered);
 		$displayData->error_code = $issue->error_code;
 		$displayData->item_id    = $issue->item_id;
+		$displayData->lang       = $issue->lang;
 		$displayData->extension  = $issue->extension;
 		$displayData->info       = json_decode($issue->info, true);
 		$displayData->fixed      = ($issue->fixed == '0000-00-00 00:00:00') ? false : self::formatDate($issue->fixed);
@@ -81,10 +112,9 @@ class NenoHelperIssue
 		switch ($issue->extension)
 		{
 			case 'com_content' :
-				$lang                 = json_decode($issue->info, true)['lang'];
 				$item                 = self::getItemDetails($issue);
 				$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->extension) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
-				$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $lang, NenoSettings::get('source_language'));
+				$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
 				break;
 		}
 		

@@ -2416,9 +2416,9 @@ class NenoHelper
 
 		if (NenoSettings::get('installation_completed'))
 		{
-			$contentCounter = self::contentCountInOtherLanguages($language['lang_code']);
+			$issuesCounter = NenoHelperIssue::getIssuesNumber('com_content', $language['lang_code']);
 
-			if ($contentCounter !== 0)
+			if ($issuesCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
 					'fixitbutton',
