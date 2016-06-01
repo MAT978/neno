@@ -2304,7 +2304,6 @@ class NenoHelper
 		}
 
 		return NenoCache::getCacheData($cacheId);
-
 	}
 
 	/**

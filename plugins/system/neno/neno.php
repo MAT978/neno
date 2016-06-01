@@ -184,7 +184,7 @@ class PlgSystemNeno extends JPlugin
 				$associations = JLanguageAssociations::getAssociations('com_content', '#__content', 'com_content.item', $issued->id);
 				$parentItem   = $associations[NenoSettings::get('source_language')];
 
-				$info        = new stdClass;
+				$info = new stdClass;
 
 				if ($parentItem)
 				{
@@ -262,14 +262,23 @@ class PlgSystemNeno extends JPlugin
 						}
 					}
 
-					// Check if
-					if ($content->language != NenoSettings::get('source_language'))
+					// Check if language is not source/all
+					if ($content->language != NenoSettings::get('source_language') && $content->language != '*')
 					{
 						$issue       = new stdClass;
 						$issue->id   = $content->id;
 						$issue->lang = $content->language;
 
 						JFactory::getApplication()->setUserState('com_content.issue', json_encode($issue));
+					}
+					else
+					{
+						$wasIsued = NenoHelperIssue::isIssued($content->id);
+						
+						if ($wasIsued && $wasIsued->error_code == 'NOT_SOURCE_LANG_CONTENT')
+						{
+							NenoHelperIssue::removeIssue($content->id);
+						}
 					}
 				}
 			}

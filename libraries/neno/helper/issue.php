@@ -210,4 +210,47 @@ class NenoHelperIssue
 
 		return $result;
 	}
+
+	/**
+	 * Removes an issue according to its id
+	 *
+	 * @param   int  $pk  The id
+	 *
+	 * @return  mixed
+	 */
+	public static function removeIssue($pk)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->delete($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk);
+
+		$db->setQuery($query);
+
+		return $db->execute();
+	}
+
+	/**
+	 * Check if an item is issued
+	 *
+	 * @param   int  $pk  The item_id
+	 *
+	 * @return stdClass The issue id & error_code
+	 */
+	public static function isIssued($pk)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select($db->quoteName(array('id', 'error_code')))
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk);
+
+		$db->setQuery($query);
+
+		return $db->loadObject();
+	}
 }
