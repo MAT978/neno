@@ -29,12 +29,12 @@ JHtml::_('bootstrap.tooltip');
 		<p>
 			<?php echo JText::_('COM_NENO_ISSUE_MESSAGE_DISCOVERED') . ': ' . $displayData->discovered; ?>
 		</p>
-		<?php if ($displayData->fixable) { ?>
-			<a href="#" class="btn btn-small btn-success">
+		<?php if ($displayData->fixable) : ?>
+			<a href="<?php echo JRoute::_('index.php?option=com_neno&task=debugIssue&id=' . (int) $displayData->id); ?>" class="btn btn-small btn-success">
 				<?php echo JText::_('COM_NENO_ISSUE_FIX'); ?>
 			</a>
-		<?php } else { ?>
+		<?php else : ?>
 			<?php echo JText::_('COM_NENO_ISSUE_NOT_FIXABLE'); ?>
-		<?php } ?>
+		<?php endif; ?>
 	</li>
 <?php endif; ?>

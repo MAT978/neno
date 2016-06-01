@@ -54,7 +54,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		<?php endif; ?>
 	</ul>
 
-	<h2><?php echo JText::_('COM_NENO_ISSUE_SOLVED_LIST'); ?></h2>
+	<h2><?php echo JText::_('COM_NENO_ISSUE_SOLVED_LIST'); ?> <?php echo ($this->lang !== null) ? $this->lang : ''; ?></h2>
 	<ul id="solved-issues" class="issue-list">
 		<?php if (count($this->solved) > 0) : ?>
 			<?php foreach ($this->solved as $issue) : ?>
