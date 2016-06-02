@@ -39,9 +39,11 @@ class NenoHelperIssue
 	 *
 	 * @param   string  $lang       Lang code
 	 *
+	 * @param   bool    $pending    Flag to count just the pending issues
+	 *
 	 * @return  int|null  The number
 	 */
-	public static function getIssuesNumber($extension, $lang)
+	public static function getIssuesNumber($extension, $lang, $pending = true)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -51,6 +53,11 @@ class NenoHelperIssue
 			->from($db->quoteName('#__neno_content_issues'))
 			->where($db->quoteName('extension') . ' = ' . $db->quote($extension))
 			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+
+		if ($pending)
+		{
+			$query->where($db->quoteName('fixed') . ' = ' . $query->quote('0000-00-00 00:00:00'));
+		}
 
 		$db->setQuery($query);
 
@@ -169,6 +176,11 @@ class NenoHelperIssue
 		return $result;
 	}
 
+	private static function isFixed($issue)
+	{
+		return ($issue->fixed != '0000-00-00 00:00:00');
+	}
+
 	/**
 	 * Render a single issue 
 	 * 
@@ -189,7 +201,7 @@ class NenoHelperIssue
 		$displayData->viewLang   = $viewLang;
 		$displayData->extension  = $issue->extension;
 		$displayData->info       = json_decode($issue->info, true);
-		$displayData->fixed      = ($issue->fixed == '0000-00-00 00:00:00') ? false : self::formatDate($issue->fixed);
+		$displayData->fixed      = (self::isFixed($issue)) ? self::formatDate($issue->fixed) : false;
 		$displayData->fixed_by   = $issue->fixed_by;
 		$displayData->fixable    = self::isFixable($issue);
 		$displayData->details    = self::getIssueDetails($issue);
@@ -211,9 +223,20 @@ class NenoHelperIssue
 		switch ($issue->extension)
 		{
 			case 'com_content' :
-				$item                 = self::getItemDetails($issue);
-				$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->extension) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
-				$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
+
+				if (self::isFixed($issue))
+				{
+					$user = JFactory::getUser($issue->fixed_by);
+					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->extension);
+					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
+				}
+				else
+				{
+					$item                 = self::getItemDetails($issue);
+					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->extension) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
+				}
+
 				break;
 		}
 		

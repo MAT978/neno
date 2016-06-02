@@ -3536,7 +3536,6 @@ class NenoHelper
 
 				$items[] = $languagesData;
 			}
-
 		}
 
 		return $items;
@@ -3659,7 +3658,28 @@ class NenoHelper
 		$chunks[] = $string;
 
 		return $chunks;
+	}
 
+	/**
+	 * Gets the language details from a given code
+	 * 
+	 * @param   string  $code  The lang code
+	 *                         
+	 * @return  stdClass The language details
+	 */
+	public static function getLanguageByCode($code)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('*')
+			->from($db->quoteName('#__languages'))
+			->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
+
+		$db->setQuery($query);
+
+		return $db->loadObject();
 	}
 
 	/**
