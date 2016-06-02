@@ -2330,17 +2330,20 @@ class NenoHelper
 			);
 		}
 
-		if (!self::hasContentCreated($language['lang_code']))
+		if (NenoSettings::get('installation_completed'))
 		{
-			$errors[] = JLayoutHelper::render(
-			  'fixitbutton',
-			  array(
-				'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
-				'language' => $language['lang_code'],
-				'issue'    => 'content_missing'
-			  ),
-			  JPATH_NENO_LAYOUTS
-			);
+			if (!self::hasContentCreated($language['lang_code']))
+			{
+				$errors[] = JLayoutHelper::render(
+					'fixitbutton',
+					array(
+						'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
+						'language' => $language['lang_code'],
+						'issue'    => 'content_missing'
+					),
+					JPATH_NENO_LAYOUTS
+				);
+			}
 		}
 
 		if (NenoSettings::get('installation_completed'))
