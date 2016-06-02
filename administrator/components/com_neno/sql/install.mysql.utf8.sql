@@ -385,7 +385,7 @@ CREATE TABLE `#__neno_content_issues` (
   `discovered`  DATETIME      NOT NULL,
   `error_code`  VARCHAR(45)   NOT NULL,
   `item_id`     VARCHAR(11)   DEFAULT NULL,
-  `extension`   VARCHAR(255)  DEFAULT NULL,
+  `table_name`  VARCHAR(255)  DEFAULT NULL,
   `lang`        VARCHAR(8)    DEFAULT NULL,
   `info`        TEXT          NOT NULL,
   `fixed`       DATETIME      NOT NULL DEFAULT '0000-00-00 00:00:00',

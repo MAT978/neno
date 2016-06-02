@@ -35,7 +35,7 @@ class NenoHelperIssue
 	/**
 	 * Gets the number of issues
 	 *
-	 * @param   string  $extension  The extension
+	 * @param   string  $table      The table
 	 *
 	 * @param   string  $lang       Lang code
 	 *
@@ -43,7 +43,7 @@ class NenoHelperIssue
 	 *
 	 * @return  int|null  The number
 	 */
-	public static function getIssuesNumber($extension, $lang, $pending = true)
+	public static function getIssuesNumber($table, $lang, $pending = true)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -51,7 +51,7 @@ class NenoHelperIssue
 		$query
 			->select('COUNT(' . $db->quoteName('id') . ')')
 			->from($db->quoteName('#__neno_content_issues'))
-			->where($db->quoteName('extension') . ' = ' . $db->quote($extension))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
 			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
 
 		if ($pending)
@@ -199,7 +199,7 @@ class NenoHelperIssue
 		$displayData->item_id    = $issue->item_id;
 		$displayData->lang       = $issue->lang;
 		$displayData->viewLang   = $viewLang;
-		$displayData->extension  = $issue->extension;
+		$displayData->extension  = $issue->table_name;
 		$displayData->info       = json_decode($issue->info, true);
 		$displayData->fixed      = (self::isFixed($issue)) ? self::formatDate($issue->fixed) : false;
 		$displayData->fixed_by   = $issue->fixed_by;
@@ -220,20 +220,20 @@ class NenoHelperIssue
 	{
 		$details = new stdClass;
 
-		switch ($issue->extension)
+		switch ($issue->table_name)
 		{
-			case 'com_content' :
+			case '#__content' :
 
 				if (self::isFixed($issue))
 				{
 					$user = JFactory::getUser($issue->fixed_by);
-					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->extension);
+					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->table_name);
 					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
 				}
 				else
 				{
 					$item                 = self::getItemDetails($issue);
-					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->extension) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->table_name) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
 					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
 				}
 
@@ -257,7 +257,7 @@ class NenoHelperIssue
 
 		$query
 			->select($db->quoteName(array('id', 'title')))
-			->from($db->quoteName('#__' . substr($issue->extension, 4)))
+			->from($db->quoteName($issue->table_name))
 			->where($db->quoteName('id') . ' = ' . (int) $issue->item_id);
 
 		$db->setQuery($query);
@@ -284,13 +284,13 @@ class NenoHelperIssue
 	 *
 	 * @param   int     $item       Item id
 	 *
-	 * @param   string  $extension  Extension name
+	 * @param   string  $table      Table name
 	 *
 	 * @param   string  $opt        Json options string
 	 *
 	 * @return  bool
 	 */
-	public static function generateIssue($code, $item, $extension, $lang, $opt)
+	public static function generateIssue($code, $item, $table, $lang, $opt)
 	{
 		$info   = json_encode($opt);
 		$db     = JFactory::getDbo();
@@ -300,7 +300,7 @@ class NenoHelperIssue
 		$query
 			->select($db->quoteName(array('id', 'item_id', 'error_code', 'lang', 'fixed')))
 			->from($db->quoteName('#__neno_content_issues'))
-			->where($db->quoteName('extension') . ' = ' . $db->quote($extension))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
 			->where($db->quoteName('item_id') . ' = ' . (int) $item)
 			->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
@@ -314,8 +314,8 @@ class NenoHelperIssue
 
 			$query
 				->insert($db->quoteName('#__neno_content_issues'))
-				->columns(array('discovered', 'error_code', 'item_id', 'extension', 'lang', 'info'))
-				->values('NOW(), ' . $db->quote($code) . ', ' . $db->quote($item) . ', ' . $db->quote($extension) . ', ' . $db->quote($lang) . ', ' . $db->quote($info));
+				->columns(array('discovered', 'error_code', 'item_id', 'table_name', 'lang', 'info'))
+				->values('NOW(), ' . $db->quote($code) . ', ' . $db->quote($item) . ', ' . $db->quote($table) . ', ' . $db->quote($lang) . ', ' . $db->quote($info));
 
 			$db->setQuery($query);
 			$result = $db->execute();
@@ -339,7 +339,7 @@ class NenoHelperIssue
 
 				if ($result)
 				{
-					$result = self::generateIssue($code, $item, $extension, $lang, $opt);
+					$result = self::generateIssue($code, $item, $table, $lang, $opt);
 				}
 			}
 		}
@@ -399,15 +399,13 @@ class NenoHelperIssue
 	 */
 	private static function moveContentIntoShadowTables($opt)
 	{
-		$table = '#__' . substr($opt->extension, 4);
-
 		/** @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
 
 		$query = $db->getQuery(true);
 		$query
 			->select('*')
-			->from($db->quoteName($table))
+			->from($db->quoteName($opt->table_name))
 			->where($db->quoteName('language') . ' = ' . $db->quote($opt->lang));
 
 		$db->setQuery($query);
@@ -421,7 +419,7 @@ class NenoHelperIssue
 				->from($db->quoteName('#__neno_content_element_fields', 'f'))
 				->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
 				->where($db->quoteName('f.translate') . ' = 1')
-				->where($db->quoteName('t.table_name') . ' = ' . $db->quote($table));
+				->where($db->quoteName('t.table_name') . ' = ' . $db->quote($opt->table_name));
 
 			$db->setQuery($query);
 			$fields = $db->loadAssocList();
@@ -456,7 +454,7 @@ class NenoHelperIssue
 
 				$query = $db->getQuery(true);
 				$query
-					->delete($db->quoteName($table))
+					->delete($db->quoteName($opt->table_name))
 					->where($db->quoteName('id') . ' = ' . (int) $element['id']);
 
 				$db->setQuery($query);

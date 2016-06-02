@@ -196,7 +196,7 @@ class PlgSystemNeno extends JPlugin
 					$code = 'NOT_SOURCE_LANG_CONTENT';
 				}
 
-				if (NenoHelperIssue::generateIssue($code, $issued->id, 'com_content',  $issued->lang, $info))
+				if (NenoHelperIssue::generateIssue($code, $issued->id, '#__content',  $issued->lang, $info))
 				{
 					$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
 					$app->enqueueMessage($message, 'warning');

@@ -2348,7 +2348,7 @@ class NenoHelper
 
 		if (NenoSettings::get('installation_completed'))
 		{
-			$issuesCounter = NenoHelperIssue::getIssuesNumber('com_content', $language['lang_code']);
+			$issuesCounter = NenoHelperIssue::getIssuesNumber('#__content', $language['lang_code']);
 
 			if ($issuesCounter !== 0)
 			{
