@@ -45,7 +45,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 	<ul id="pending-issues" class="issue-list">
 		<?php if (count($this->pending) > 0) : ?>
 			<?php foreach ($this->pending as $issue) : ?>
-				<?php echo NenoHelperIssue::renderIssue($issue); ?>
+				<?php echo NenoHelperIssue::renderIssue($issue, $this->lang); ?>
 			<?php endforeach; ?>
 		<?php else : ?>
 			<li class="alert alert-success">

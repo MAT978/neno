@@ -30,7 +30,8 @@ JHtml::_('bootstrap.tooltip');
 			<?php echo JText::_('COM_NENO_ISSUE_MESSAGE_DISCOVERED') . ': ' . $displayData->discovered; ?>
 		</p>
 		<?php if ($displayData->fixable) : ?>
-			<a href="<?php echo JRoute::_('index.php?option=com_neno&task=debugIssue&id=' . (int) $displayData->id); ?>" class="btn btn-small btn-success">
+			<?php $lang = ($displayData->viewLang == null) ? '' : '&lang=' . $displayData->viewLang; ?>
+			<a href="<?php echo JRoute::_('index.php?option=com_neno&task=debug.fixIssue&id=' . (int) $displayData->id . $lang); ?>" class="btn btn-small btn-success">
 				<?php echo JText::_('COM_NENO_ISSUE_FIX'); ?>
 			</a>
 		<?php else : ?>
