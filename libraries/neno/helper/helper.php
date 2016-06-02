@@ -2640,9 +2640,6 @@ class NenoHelper
 					}
 				}
 				break;
-			case 'content_out_of_neno':
-				$result = self::moveContentIntoShadowTables($language);
-				break;
 		}
 
 		return $result;
@@ -3026,86 +3023,6 @@ class NenoHelper
 		$db->setQuery($query);
 
 		return $db->loadResult() == 1;
-	}
-
-	/**
-	 * Move content to shadow tables
-	 *
-	 * @param   string $languageTag Language tag
-	 *
-	 * @return bool
-	 */
-	public static function moveContentIntoShadowTables($languageTag)
-	{
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-
-		$joomlaTablesUsingLanguageField = array(
-		  '#__banners',
-		  '#__categories',
-		  '#__contact_details',
-		  '#__content',
-		  '#__finder_links',
-		  '#__finder_terms',
-		  '#__finder_terms_common',
-		  '#__finder_tokens',
-		  '#__finder_tokens_aggregate',
-		  '#__newsfeeds',
-		  '#__tags'
-		);
-
-		foreach ($joomlaTablesUsingLanguageField as $joomlaTableUsingLanguageField)
-		{
-			$query = $db->getQuery(true);
-			$query
-				->select('*')
-				->from($db->quoteName($joomlaTableUsingLanguageField))
-				->where($db->quoteName('language') . ' = ' . $db->quote($languageTag));
-
-			$db->setQuery($query);
-			$elements = $db->loadAssocList();
-
-			if (count($elements) > 0)
-			{
-				$query = $db->getQuery(true);
-				$query
-					->select(array('f.*', 't.table_name'))
-					->from($db->quoteName('#__neno_content_element_fields', 'f'))
-					->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
-					->where($db->quoteName('f.translate') . ' = 1')
-					->where($db->quoteName('t.table_name') . ' = ' . $db->quote($joomlaTableUsingLanguageField));
-
-				$db->setQuery($query);
-				$fields = $db->loadAssocList();
-
-				foreach ($elements as $element)
-				{
-					foreach ($fields as $field)
-					{
-						$data                 = array();
-						$data['string']       = $element[$field['field_name']];
-						$data['language']     = $languageTag;
-						$data['state']        = 1;
-						$data['content_id']   = $field['id'];
-						$data['content_type'] = 'db_string';
-
-						// Create and persist the translation
-						$translation = new NenoContentElementTranslation($data);
-						$translation->persist();
-					}
-
-					$query = $db->getQuery(true);
-					$query
-						->delete($db->quoteName($joomlaTableUsingLanguageField))
-						->where($db->quoteName('id') . ' = ' . (int) $element['id']);
-
-					$db->setQuery($query);
-					$db->execute();
-				}
-			}
-		}
-
-		return true;
 	}
 
 	/**
