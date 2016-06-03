@@ -707,7 +707,53 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 		return true;
 	}
+	
+	public function convertContentToTranslation($record, $asocId, $lang)
+	{
+		if ($this->translate)
+		{
+			$commonData = array(
+				'contentType' => NenoContentElementTranslation::DB_STRING,
+				'contentId'   => $this->getId(),
+				'content'     => $this,
+				'state'       => NenoContentElementTranslation::TRANSLATED_STATE,
+				'timeAdded'   => new DateTime,
+				'comment'     => $this->comment
+			);
 
+			$languageData            = new stdClass;
+			$languageData->lang_code = $lang;
+			$languages               = array($languageData);
+
+			$defaultLanguage               = NenoSettings::get('source_language');
+			$this->translations            = array();
+			$primaryKeyData                = $this->getTable()->getPrimaryKey();
+			$string                        = $this->getStrings($record);
+			$string[0][$primaryKeyData[0]] = $asocId;
+
+			$translationMethods = NenoHelper::getTranslationMethodsByTableId($this->table->getId());
+
+			if (!empty($string))
+			{
+				$this->persistString($string[0], $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods);
+			}
+		}
+		else
+		{
+			$translationsCount = count($this->translations);
+			for ($i = 0; $i < $translationsCount; $i++)
+			{
+				$translation = $this->translations[$i];
+				/* @var $translation NenoContentElementTranslation */
+				$translation->refresh();
+
+				$this->translations[$i] = $translation;
+			}
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Get installation progress counters
 	 *
