@@ -160,7 +160,7 @@ class NenoHelperIssue
 				case 'TRANSLATED_OUT_NENO' :
 					$issue->parent = json_decode($issue->info)->parent;
 
-					if (self::moveContentIntoShadowTables($issue) && self::solveIssue($pk))
+					if (self::moveContentIntoShadowTables($issue))// && self::solveIssue($pk))
 					{
 						$result = 1;
 					}
@@ -428,7 +428,12 @@ class NenoHelperIssue
 			{
 				foreach ($fields as $field)
 				{
-					$data                 = array();
+					/* @var $f NenoContentElementField */
+					$f = NenoContentElementField::load($field['id'], true, true);
+
+					$f->convertContentToTranslation(array('id' => $element['id']), $opt->parent, $opt->lang);
+
+				/*	$data                 = array();
 					$data['string']       = $element[$field['field_name']];
 					$data['language']     = $opt->lang;
 					$data['state']        = 1;
@@ -450,6 +455,8 @@ class NenoHelperIssue
 						$db->setQuery($query);
 						$db->execute();
 					}
+
+				*/
 				}
 
 				$query = $db->getQuery(true);
@@ -458,7 +465,7 @@ class NenoHelperIssue
 					->where($db->quoteName('id') . ' = ' . (int) $element['id']);
 
 				$db->setQuery($query);
-				$db->execute();
+				//$db->execute();
 			}
 		}
 
