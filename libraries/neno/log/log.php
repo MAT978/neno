@@ -41,10 +41,6 @@ class NenoLog extends JLog
 	 */
 	const ACTION_MOVE_TRANSLATION = 'move_translation';
 	/**
-	 * Extension discovered action
-	 */
-	const ACTION_EXTENSION_DISCOVERED = 'extension_discovered';
-	/**
 	 * Content discovered action
 	 */
 	const ACTION_CONTENT_DISCOVERED = 'content_discovered';
@@ -52,6 +48,79 @@ class NenoLog extends JLog
 	 * Language installed action
 	 */
 	const ACTION_LANGUAGE_INSTALLED = 'language_installed';
+	/**
+	 *
+	 */
+	const ACTION_INSTALLATION_STEP_COMPLETED = 'installation_step_completed';
+	/**
+	 *
+	 */
+	const ACTION_ISSUE_CREATED = 'issue_created';
+	/**
+	 *
+	 */
+	const ACTION_ISSUE_FIXED = 'issue_fixed';
+	/**
+	 *
+	 */
+	const ACTION_FIX_BATCH_CONTENT = 'fix_batch_content';
+	/**
+	 *
+	 */
+	const ACTION_TRANSLATION_JOB_SENT = 'translation_job_sent';
+	/**
+	 *
+	 */
+	const ACTION_TRANSLATION_JOB_RECEIVED = 'translation_job_received';
+	/**
+	 *
+	 */
+	const ACTION_LANGUAGE_UNINSTALLED = 'language_uninstalled';
+	/**
+	 *
+	 */
+	const ACTION_SETTING_CHANGED = 'setting_changed';
+	/**
+	 *
+	 */
+	const ACTION_LANGUAGE_SETTINGS_CHANGED = 'language_settings_changed';
+	/**
+	 *
+	 */
+	const ACTION_NENO_UPDATED = 'neno_updated';
+	/**
+	 *
+	 */
+	const ACTION_TRANSLATION_CONSOLIDATED = 'translation_consolidated';
+	/**
+	 *
+	 */
+	const ACTION_TRANSLATION_ADDED_CONTENT_AFTER_SAVE = 'translation_added_content_after_save';
+	/**
+	 *
+	 */
+	const ACTION_TRANSLATION_STATUS_CHANGED_ON_CONTENT_ELEMENTS = 'translation_status_changed_on_content_elements';
+	/**
+	 * Actions priorities
+	 */
+	protected static $ACTION_PRIORITIES = array(
+	  'ACTION_MOVE_TRANSLATION'                               => self::PRIORITY_INFO,
+	  'ACTION_LANGUAGE_INSTALLED'                             => self::PRIORITY_INFO,
+	  'ACTION_CONTENT_DISCOVERED'                             => self::PRIORITY_INFO,
+	  'ACTION_INSTALLATION_STEP_COMPLETED'                    => self::PRIORITY_INFO,
+	  'ACTION_ISSUE_CREATED'                                  => self::PRIORITY_WARNING,
+	  'ACTION_ISSUE_FIXED'                                    => self::PRIORITY_INFO,
+	  'ACTION_FIX_BATCH_CONTENT'                              => self::PRIORITY_INFO,
+	  'ACTION_TRANSLATION_JOB_SENT'                           => self::PRIORITY_INFO,
+	  'ACTION_TRANSLATION_JOB_RECEIVED'                       => self::PRIORITY_INFO,
+	  'ACTION_LANGUAGE_UNINSTALLED'                           => self::PRIORITY_INFO,
+	  'ACTION_SETTING_CHANGED'                                => self::PRIORITY_VERBOSE,
+	  'ACTION_LANGUAGE_SETTINGS_CHANGED'                      => self::PRIORITY_INFO,
+	  'ACTION_NENO_UPDATED'                                   => self::PRIORITY_INFO,
+	  'ACTION_TRANSLATION_CONSOLIDATED'                       => self::PRIORITY_INFO,
+	  'ACTION_TRANSLATION_ADDED_CONTENT_AFTER_SAVE'           => self::PRIORITY_INFO,
+	  'ACTION_TRANSLATION_STATUS_CHANGED_ON_CONTENT_ELEMENTS' => self::PRIORITY_INFO,
+	);
 
 	/**
 	 * A static method that allows logging of errors and messages
@@ -66,7 +135,7 @@ class NenoLog extends JLog
 	 */
 	public static function log($string, $action, $trigger = 0, $level = self::PRIORITY_INFO, $displayMessage = false)
 	{
-		$entry = self::generateNenoEntry($string, $level, NULL, $action, $trigger);
+		$entry = self::generateNenoEntry($string, self::getActionLogLevel($action, $level), NULL, $action, $trigger);
 
 		// Add the log entry
 		self::add($entry);
@@ -74,10 +143,25 @@ class NenoLog extends JLog
 		if ($displayMessage === true)
 		{
 			JFactory::getApplication()
-			  ->enqueueMessage($string, self::getAppMessageLevelByLogPriority($level));
+			  ->enqueueMessage($string, self::getAppMessageLevelByLogPriority(self::getActionLogLevel($action, $level)));
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get level for actions.
+	 *
+	 * @param string $action @see constant
+	 * @param int $default @see constant
+	 *
+	 * @return int
+	 */
+	protected static function getActionLogLevel($action, $default)
+	{
+		$constantName = 'ACTION_' . strtoupper($action);
+
+		return isset(self::$ACTION_PRIORITIES[$constantName]) ? self::$ACTION_PRIORITIES[$constantName] : $default;
 	}
 
 	/**
