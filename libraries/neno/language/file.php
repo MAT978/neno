@@ -19,12 +19,10 @@ class NenoLanguageFile
 	 * @var array
 	 */
 	protected $strings;
-
 	/**
 	 * @var string
 	 */
 	protected $language;
-
 	/**
 	 * @var string
 	 */
@@ -37,7 +35,7 @@ class NenoLanguageFile
 	 * @param   string  $extension   Extension that owns the file
 	 * @param   boolean $loadStrings If the strings related to this file will be loaded
 	 */
-	public function __construct($language, $extension = null, $loadStrings = false)
+	public function __construct($language, $extension = NULL, $loadStrings = false)
 	{
 		$this->language  = $language;
 		$this->extension = $extension;
@@ -73,7 +71,7 @@ class NenoLanguageFile
 				// Loop through all the strings and index them creating the key
 				foreach ($strings as $key => $string)
 				{
-					$this->strings[ $this->extension . '.ini:' . $key ] = $string;
+					$this->strings[$this->extension . '.ini:' . $key] = $string;
 				}
 
 				return true;
@@ -127,7 +125,7 @@ class NenoLanguageFile
 		else
 		{
 			$language  = $fileParts[0];
-			$extension = null;
+			$extension = NULL;
 		}
 
 		$languageFile = new NenoLanguageFile($language, $extension, true);
@@ -221,9 +219,9 @@ class NenoLanguageFile
 		// Making sure the constant is uppercase
 		$constant = strtoupper($constant);
 
-		if (isset($this->strings[ $constant ]))
+		if (isset($this->strings[$constant]))
 		{
-			return $this->strings[ $constant ];
+			return $this->strings[$constant];
 		}
 
 		return false;
@@ -239,7 +237,7 @@ class NenoLanguageFile
 	public static function getLanguagesFilesBasedOnLanguage($language)
 	{
 		$files   = array();
-		$folders = self::getLanguageFileFolders(null, $language);
+		$folders = self::getLanguageFileFolders(NULL, $language);
 
 		if (!empty($folders))
 		{
@@ -250,7 +248,7 @@ class NenoLanguageFile
 		}
 
 		// Debug
-		NenoLog::log('Found ' . count($files) . ' language files in ' . $language . '', 3);
+		NenoLog::log('Found ' . count($files) . ' language files in ' . $language, '', 0, NenoLog::PRIORITY_VERBOSE);
 
 		if (!empty($files))
 		{
@@ -268,7 +266,7 @@ class NenoLanguageFile
 	 *
 	 * @return array
 	 */
-	protected static function getLanguageFileFolders($extension = null, $language = null)
+	protected static function getLanguageFileFolders($extension = NULL, $language = NULL)
 	{
 		$folders = array();
 
@@ -337,7 +335,7 @@ class NenoLanguageFile
 	 *
 	 * @return array
 	 */
-	protected static function getLanguageFilesInPath($path, $language = null, $recursive = true, $ignoreJoomlaCore = true)
+	protected static function getLanguageFilesInPath($path, $language = NULL, $recursive = true, $ignoreJoomlaCore = true)
 	{
 		if (NenoHelper::endsWith($path, '/'))
 		{
@@ -355,8 +353,6 @@ class NenoLanguageFile
 			$filter = '^' . $language . '.*\.ini$';
 		}
 
-		NenoLog::log('Looking for language files in [' . $language . '] inside: ' . $path, 3);
-
 		// Load list
 		$files = JFolder::files($path, $filter, $recursive, true);
 
@@ -364,15 +360,6 @@ class NenoLanguageFile
 		if ($ignoreJoomlaCore === true && !empty($files))
 		{
 			$files = self::removeCoreLanguageFilesFromArray($files, $language);
-		}
-
-		// Debug
-		if (!empty($files))
-		{
-			foreach ($files as $file)
-			{
-				NenoLog::log('Found file: ' . $file, 3);
-			}
 		}
 
 		return $files === false ? array() : $files;
@@ -391,189 +378,189 @@ class NenoLanguageFile
 		$coreFiles = array(
 
 			// Core components language files
-			$lang . '.com_ajax.ini'
+		  $lang . '.com_ajax.ini'
 		,
-			$lang . '.com_config.ini'
+		  $lang . '.com_config.ini'
 		,
-			$lang . '.com_contact.ini'
+		  $lang . '.com_contact.ini'
 		,
-			$lang . '.com_content.ini'
+		  $lang . '.com_content.ini'
 		,
-			$lang . '.com_finder.ini'
+		  $lang . '.com_finder.ini'
 		,
-			$lang . '.com_neno.ini'
+		  $lang . '.com_neno.ini'
 		,
-			$lang . '.com_mailto.ini'
+		  $lang . '.com_mailto.ini'
 		,
-			$lang . '.com_media.ini'
+		  $lang . '.com_media.ini'
 		,
-			$lang . '.com_messages.ini'
+		  $lang . '.com_messages.ini'
 		,
-			$lang . '.com_newsfeeds.ini'
+		  $lang . '.com_newsfeeds.ini'
 		,
-			$lang . '.com_search.ini'
+		  $lang . '.com_search.ini'
 		,
-			$lang . '.com_tags.ini'
+		  $lang . '.com_tags.ini'
 		,
-			$lang . '.com_users.ini'
+		  $lang . '.com_users.ini'
 		,
-			$lang . '.com_weblinks.ini'
+		  $lang . '.com_weblinks.ini'
 		,
-			$lang . '.com_wrapper.ini'
+		  $lang . '.com_wrapper.ini'
 		,
-			$lang . '.files_joomla.sys.ini'
+		  $lang . '.files_joomla.sys.ini'
 		,
-			$lang . '.finder_cli.ini'
+		  $lang . '.finder_cli.ini'
 
 			// Main language file
 		,
-			$lang . '.ini'
+		  $lang . '.ini'
 
 			// Libraries language files
 		,
-			$lang . '.lib_fof.sys.ini'
+		  $lang . '.lib_fof.sys.ini'
 		,
-			$lang . '.lib_idna_convert.sys.ini'
+		  $lang . '.lib_idna_convert.sys.ini'
 		,
-			$lang . '.lib_joomla.ini'
+		  $lang . '.lib_joomla.ini'
 		,
-			$lang . '.lib_joomla.sys.ini'
+		  $lang . '.lib_joomla.sys.ini'
 		,
-			$lang . '.lib_phpass.sys.ini'
+		  $lang . '.lib_phpass.sys.ini'
 		,
-			$lang . '.lib_phpmailer.sys.ini'
+		  $lang . '.lib_phpmailer.sys.ini'
 		,
-			$lang . '.lib_phputf8.sys.ini'
+		  $lang . '.lib_phputf8.sys.ini'
 		,
-			$lang . '.lib_simplepie.sys.ini'
+		  $lang . '.lib_simplepie.sys.ini'
 
 			// Modules language files
 		,
-			$lang . '.mod_articles_archive.ini'
+		  $lang . '.mod_articles_archive.ini'
 		,
-			$lang . '.mod_articles_archive.sys.ini'
+		  $lang . '.mod_articles_archive.sys.ini'
 		,
-			$lang . '.mod_articles_categories.ini'
+		  $lang . '.mod_articles_categories.ini'
 		,
-			$lang . '.mod_articles_categories.sys.ini'
+		  $lang . '.mod_articles_categories.sys.ini'
 		,
-			$lang . '.mod_articles_category.ini'
+		  $lang . '.mod_articles_category.ini'
 		,
-			$lang . '.mod_articles_category.sys.ini'
+		  $lang . '.mod_articles_category.sys.ini'
 		,
-			$lang . '.mod_articles_latest.ini'
+		  $lang . '.mod_articles_latest.ini'
 		,
-			$lang . '.mod_articles_latest.sys.ini'
+		  $lang . '.mod_articles_latest.sys.ini'
 		,
-			$lang . '.mod_articles_news.ini'
+		  $lang . '.mod_articles_news.ini'
 		,
-			$lang . '.mod_articles_news.sys.ini'
+		  $lang . '.mod_articles_news.sys.ini'
 		,
-			$lang . '.mod_articles_popular.ini'
+		  $lang . '.mod_articles_popular.ini'
 		,
-			$lang . '.mod_articles_popular.sys.ini'
+		  $lang . '.mod_articles_popular.sys.ini'
 		,
-			$lang . '.mod_banners.ini'
+		  $lang . '.mod_banners.ini'
 		,
-			$lang . '.mod_banners.sys.ini'
+		  $lang . '.mod_banners.sys.ini'
 		,
-			$lang . '.mod_breadcrumbs.ini'
+		  $lang . '.mod_breadcrumbs.ini'
 		,
-			$lang . '.mod_breadcrumbs.sys.ini'
+		  $lang . '.mod_breadcrumbs.sys.ini'
 		,
-			$lang . '.mod_custom.ini'
+		  $lang . '.mod_custom.ini'
 		,
-			$lang . '.mod_custom.sys.ini'
+		  $lang . '.mod_custom.sys.ini'
 		,
-			$lang . '.mod_feed.ini'
+		  $lang . '.mod_feed.ini'
 		,
-			$lang . '.mod_feed.sys.ini'
+		  $lang . '.mod_feed.sys.ini'
 		,
-			$lang . '.mod_finder.ini'
+		  $lang . '.mod_finder.ini'
 		,
-			$lang . '.mod_finder.sys.ini'
+		  $lang . '.mod_finder.sys.ini'
 		,
-			$lang . '.mod_footer.ini'
+		  $lang . '.mod_footer.ini'
 		,
-			$lang . '.mod_footer.sys.ini'
+		  $lang . '.mod_footer.sys.ini'
 		,
-			$lang . '.mod_languages.ini'
+		  $lang . '.mod_languages.ini'
 		,
-			$lang . '.mod_languages.sys.ini'
+		  $lang . '.mod_languages.sys.ini'
 		,
-			$lang . '.mod_login.ini'
+		  $lang . '.mod_login.ini'
 		,
-			$lang . '.mod_login.sys.ini'
+		  $lang . '.mod_login.sys.ini'
 		,
-			$lang . '.mod_menu.ini'
+		  $lang . '.mod_menu.ini'
 		,
-			$lang . '.mod_menu.sys.ini'
+		  $lang . '.mod_menu.sys.ini'
 		,
-			$lang . '.mod_random_image.ini'
+		  $lang . '.mod_random_image.ini'
 		,
-			$lang . '.mod_random_image.sys.ini'
+		  $lang . '.mod_random_image.sys.ini'
 		,
-			$lang . '.mod_related_items.ini'
+		  $lang . '.mod_related_items.ini'
 		,
-			$lang . '.mod_related_items.sys.ini'
+		  $lang . '.mod_related_items.sys.ini'
 		,
-			$lang . '.mod_search.ini'
+		  $lang . '.mod_search.ini'
 		,
-			$lang . '.mod_search.sys.ini'
+		  $lang . '.mod_search.sys.ini'
 		,
-			$lang . '.mod_stats.ini'
+		  $lang . '.mod_stats.ini'
 		,
-			$lang . '.mod_stats.sys.ini'
+		  $lang . '.mod_stats.sys.ini'
 		,
-			$lang . '.mod_syndicate.ini'
+		  $lang . '.mod_syndicate.ini'
 		,
-			$lang . '.mod_syndicate.sys.ini'
+		  $lang . '.mod_syndicate.sys.ini'
 		,
-			$lang . '.mod_tags_popular.ini'
+		  $lang . '.mod_tags_popular.ini'
 		,
-			$lang . '.mod_tags_popular.sys.ini'
+		  $lang . '.mod_tags_popular.sys.ini'
 		,
-			$lang . '.mod_tags_similar.ini'
+		  $lang . '.mod_tags_similar.ini'
 		,
-			$lang . '.mod_tags_similar.sys.ini'
+		  $lang . '.mod_tags_similar.sys.ini'
 		,
-			$lang . '.mod_users_latest.ini'
+		  $lang . '.mod_users_latest.ini'
 		,
-			$lang . '.mod_users_latest.sys.ini'
+		  $lang . '.mod_users_latest.sys.ini'
 		,
-			$lang . '.mod_weblinks.ini'
+		  $lang . '.mod_weblinks.ini'
 		,
-			$lang . '.mod_weblinks.sys.ini'
+		  $lang . '.mod_weblinks.sys.ini'
 		,
-			$lang . '.mod_whosonline.ini'
+		  $lang . '.mod_whosonline.ini'
 		,
-			$lang . '.mod_whosonline.sys.ini'
+		  $lang . '.mod_whosonline.sys.ini'
 		,
-			$lang . '.mod_wrapper.ini'
+		  $lang . '.mod_wrapper.ini'
 		,
-			$lang . '.mod_wrapper.sys.ini'
+		  $lang . '.mod_wrapper.sys.ini'
 
 			// Template language files
 		,
-			$lang . '.tpl_beezsss3.ini'
+		  $lang . '.tpl_beezsss3.ini'
 		,
-			$lang . '.tpl_beez3.sys.ini'
+		  $lang . '.tpl_beez3.sys.ini'
 		,
-			$lang . '.tpl_beez3.ini'
+		  $lang . '.tpl_beez3.ini'
 		,
-			$lang . '.tpl_protostar.ini'
+		  $lang . '.tpl_protostar.ini'
 		,
-			$lang . '.tpl_protostar.sys.ini'
+		  $lang . '.tpl_protostar.sys.ini'
 
 			// Template overrides that should be ignored
 		,
-			$lang . '.tpl_hathor.ini'
+		  $lang . '.tpl_hathor.ini'
 		,
-			$lang . '.tpl_hathor.sys.ini'
+		  $lang . '.tpl_hathor.sys.ini'
 		,
-			$lang . '.tpl_isis.ini'
+		  $lang . '.tpl_isis.ini'
 		,
-			$lang . '.tpl_isis.sys.ini'
+		  $lang . '.tpl_isis.sys.ini'
 		);
 
 		$validFiles = array();
@@ -586,9 +573,9 @@ class NenoLanguageFile
 			// Loop through all the core files
 			for ($i = 0; $i < count($coreFiles) && !$found; $i++)
 			{
-				$strlen = mb_strlen($coreFiles[ $i ]);
+				$strlen = mb_strlen($coreFiles[$i]);
 
-				if (substr($file, mb_strlen($file) - $strlen, $strlen) == $coreFiles[ $i ])
+				if (substr($file, mb_strlen($file) - $strlen, $strlen) == $coreFiles[$i])
 				{
 					$found = true;
 				}
@@ -619,7 +606,7 @@ class NenoLanguageFile
 	{
 		$constant = strtoupper($constant);
 
-		$this->strings[ $constant ] = $string;
+		$this->strings[$constant] = $string;
 
 		return $this;
 	}

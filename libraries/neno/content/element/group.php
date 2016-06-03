@@ -492,8 +492,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 		// Check if the saving process has been completed successfully
 		if ($result)
 		{
-			NenoLog::log('Group data added or modified successfully', 2);
-
 			$this->persistExtensionData();
 
 			if ($isNew)
@@ -556,8 +554,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				'extensionId' => $extension['extension_id']
 			)
 		);
-
-		NenoLog::log('Group created successfully', 2);
 
 		return $group;
 	}
@@ -786,8 +782,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	{
 		$this->assignedTranslationMethods = $assignedTranslationMethods;
 
-		NenoLog::log('Translation method of group changed successfully', 2);
-
 		return $this;
 	}
 
@@ -830,8 +824,6 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			->where('group_id = ' . $this->id);
 		$db->setQuery($query);
 		$db->execute();
-
-		NenoLog::log('Group deleted successfully', 2);
 
 		return parent::remove();
 	}

@@ -43,11 +43,15 @@ class NenoTranslatorApiBing extends NenoTranslatorApi
 
 		foreach ($chunks as $chunk)
 		{
-			$query = http_build_query(array( 'from' => $source, 'text' => $chunk, 'to' => $target ));
+			$query = http_build_query(array(
+			  'from' => $source,
+			  'text' => $chunk,
+			  'to'   => $target
+			));
 			// Invoke the POST request.
 			$response = $this->get(
-				$url . '?' . $query,
-				array( 'Authorization' => 'Bearer ' . $accessToken )
+			  $url . '?' . $query,
+			  array('Authorization' => 'Bearer ' . $accessToken)
 			);
 
 			$responseBody = (array) simplexml_load_string($response->body);
@@ -55,7 +59,7 @@ class NenoTranslatorApiBing extends NenoTranslatorApi
 			// Log it if server response is not OK.
 			if ($response->code != 200)
 			{
-				NenoLog::log('Bing API failed with response: ' . $response->code, 1);
+				NenoLog::log('Bing API failed with response: ' . $response->code, '', 0, NenoLog::PRIORITY_ERROR);
 				throw new Exception((string) $responseBody['body']->p[1], $response->code);
 			}
 			else
@@ -101,7 +105,7 @@ class NenoTranslatorApiBing extends NenoTranslatorApi
 	/**
 	 * Request Access token
 	 *
-	 * @param string $clientId Client Id
+	 * @param string $clientId     Client Id
 	 * @param string $clientSecret Client secret
 	 *
 	 * @return string
@@ -111,10 +115,10 @@ class NenoTranslatorApiBing extends NenoTranslatorApi
 	{
 		//Create the request Array.
 		$paramArr = array(
-			'grant_type'    => 'client_credentials',
-			'scope'         => 'http://api.microsofttranslator.com',
-			'client_id'     => $clientId,
-			'client_secret' => $clientSecret
+		  'grant_type'    => 'client_credentials',
+		  'scope'         => 'http://api.microsofttranslator.com',
+		  'client_id'     => $clientId,
+		  'client_secret' => $clientSecret
 		);
 
 		$credentialsRequest = $this->post('https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/', $paramArr);

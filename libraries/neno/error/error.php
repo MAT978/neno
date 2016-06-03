@@ -60,6 +60,6 @@ class NenoError
 				break;
 		}
 
-		NenoLog::log("Encountered $errorType error in $file, line $line: $errorMessage", NenoLog::PRIORITY_ERROR);
+		NenoLog::log("Encountered $errorType error in $file, line $line: $errorMessage", '', 0, NenoLog::PRIORITY_ERROR);
 	}
 }

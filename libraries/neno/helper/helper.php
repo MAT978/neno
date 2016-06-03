@@ -2780,7 +2780,6 @@ class NenoHelper
 	public static function findLanguages($allSupported = false)
 	{
 		$enGbExtensionId = self::getEnGbExtensionId();
-		NenoLog::log('en-GB Extension ID ' . $enGbExtensionId);
 		$languagesFound = array();
 		$db             = JFactory::getDbo();
 		$query          = $db->getQuery(true);
@@ -2811,9 +2810,7 @@ class NenoHelper
 			$updater = JUpdater::getInstance();
 			$updater->findUpdates($enGbExtensionId);
 			$updateSiteId = self::getLanguagesUpdateSite($enGbExtensionId);
-			NenoLog::log('UpdateSiteID: ' . $updateSiteId);
 			$updates = self::getUpdates($updateSiteId);
-			NenoLog::log('Updates: ' . json_encode($updateSiteId));
 			$languagesFound = $updates;
 		}
 
