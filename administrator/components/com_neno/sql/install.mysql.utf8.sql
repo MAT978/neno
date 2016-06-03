@@ -387,6 +387,19 @@ INSERT IGNORE INTO `#__neno_translation_states` (`id`, `state`, `name`, `descrip
 (NULL, 4, 'Not Translated', 'The item is not translated yet');
 
 --
+-- Log entries table
+--
+
+CREATE TABLE IF NOT EXISTS `#__neno_log_entries`(
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `time_added` DATETIME NOT NULL,
+  `action` VARCHAR(50) NOT NULL,
+  `message` TEXT NOT NULL,
+  `level` TINYINT(1) NOT NULL,
+  `trigger` INT NOT NULL
+);
+
+--
 -- Values for content history
 --
 INSERT IGNORE INTO `#__content_types` (`type_id`, `type_title`, `type_alias`, `table`, `rules`, `field_mappings`, `router`, `content_history_options`)
