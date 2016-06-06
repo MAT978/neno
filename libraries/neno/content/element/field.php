@@ -549,7 +549,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		$translation->setSourceElementData($sourceData);
 
 		// If the translation does not exists already, let's add it
-		if ($translation->existsAlready())
+		if ($translation->existsAlready() && $keepState == false)
 		{
 			$translation = NenoContentElementTranslation::getTranslationBySourceElementData($sourceData, $language, $this->getId());
 			$translation->setElement($this);

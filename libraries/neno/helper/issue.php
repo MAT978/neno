@@ -432,40 +432,15 @@ class NenoHelperIssue
 					$f = NenoContentElementField::load($field['id'], true, true);
 
 					$f->convertContentToTranslation(array('id' => $element['id']), $opt->parent, $opt->lang);
-
-				/*	$data                 = array();
-					$data['string']       = $element[$field['field_name']];
-					$data['language']     = $opt->lang;
-					$data['state']        = 1;
-					$data['content_id']   = $field['id'];
-					$data['content_type'] = 'db_string';
-
-					// Create and persist the translation
-					$translation = new NenoContentElementTranslation($data);
-
-					if ($translation->persist())
-					{
-						$query = $db->getQuery(true);
-
-						$query
-							->insert($db->quoteName('#__neno_content_element_fields_x_translations'))
-							->columns(array('field_id', 'translation_id', 'value'))
-							->values($db->quote($translation->getContentId()) . ', ' . $db->quote($translation->getId()) . ', ' . $db->quote($opt->parent));
-
-						$db->setQuery($query);
-						$db->execute();
-					}
-
-				*/
 				}
-
+				
 				$query = $db->getQuery(true);
 				$query
 					->delete($db->quoteName($opt->table_name))
 					->where($db->quoteName('id') . ' = ' . (int) $element['id']);
 
 				$db->setQuery($query);
-				//$db->execute();
+				$db->execute();
 			}
 		}
 
