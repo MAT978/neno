@@ -430,7 +430,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 		return $this->getQueryType((string) $this->sql) === self::INSERT_QUERY
 		&& $language->getTag() !== NenoSettings::get('source_language')
-		&& $app->isSite() && !$this->isNenoSql((string) $this->sql);
+		&& $app->isSite() && !$this->isNenoSql((string) $this->sql)
+		&& self::hasToBeParsed((string) $this->sql);
 	}
 
 	/**
