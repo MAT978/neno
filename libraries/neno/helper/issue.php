@@ -160,7 +160,7 @@ class NenoHelperIssue
 				case 'TRANSLATED_OUT_NENO' :
 					$issue->parent = json_decode($issue->info)->parent;
 
-					if (self::moveContentIntoShadowTables($issue))// && self::solveIssue($pk))
+					if (self::moveContentIntoShadowTables($issue) && self::solveIssue($pk))
 					{
 						$result = 1;
 					}

@@ -505,10 +505,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @param array  $commonData
 	 * @param array  $primaryKeyData
 	 * @param array  $translationMethods Translation method list
+	 * @param bool   $keepState Keep translation state unchanged
 	 *
 	 * @return void
 	 */
-	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods)
+	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods, $keepState = false)
 	{
 		$commonData['language'] = $language;
 		$commonData['string']   = $string['string'] === NULL ? '' : $string['string'];
@@ -520,7 +521,10 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		}
 		else
 		{
-			$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
+			if ($keepState == false)
+			{
+				$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
+			}
 		}
 
 		$translation     = new NenoContentElementTranslation($commonData);
@@ -625,10 +629,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @param array  $commonData
 	 * @param array  $primaryKeyData
 	 * @param array  $translationMethods Translation method list
+	 * @param bool   $keepState Keep translation state unchanged
 	 *
 	 * @return void
 	 */
-	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
+	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, $keepState = false)
 	{
 		$this->persistProgressCounters();
 
@@ -638,7 +643,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			{
 				if ($defaultLanguage !== $language->lang_code)
 				{
-					$this->persistStringForLanguage($string, $language->lang_code, $commonData, $primaryKeyData, $translationMethods);
+					$this->persistStringForLanguage($string, $language->lang_code, $commonData, $primaryKeyData, $translationMethods, $keepState);
 				}
 			}
 		}
@@ -735,7 +740,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 			if (!empty($string))
 			{
-				$this->persistString($string[0], $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods);
+				$this->persistString($string[0], $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, true);
 			}
 		}
 		else
