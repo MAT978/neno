@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS `#__neno_translation_states` (
 --
 -- Table structure for table `#__neno_content_issues`
 --
-CREATE TABLE `#__neno_content_issues` (
+CREATE TABLE IF NOT EXISTS `#__neno_content_issues` (
   `id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `discovered`  DATETIME      NOT NULL,
   `error_code`  VARCHAR(45)   NOT NULL,
