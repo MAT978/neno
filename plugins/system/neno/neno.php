@@ -174,33 +174,32 @@ class PlgSystemNeno extends JPlugin
 		}
 
 		// Check if there's some issue on the item
-		if ($app->input->get('option') == 'com_content')
+		$context = $app->input->get('option');
+		$issued  = json_decode($app->getUserState($context . '.issue'));
+		$app->setUserState($context . '.issue', null);
+
+		if ($issued != null)
 		{
-			$issued = json_decode($app->getUserState('com_content.issue'));
-			$app->setUserState('com_content.issue', null);
+			$tableName    = '#_' . strstr($context, '_');
+			$associations = JLanguageAssociations::getAssociations($context, $tableName, $context . '.item', $issued->id);
+			$parentItem   = $associations[NenoSettings::get('source_language')];
 
-			if ($issued != null)
+			$info = new stdClass;
+
+			if ($parentItem)
 			{
-				$associations = JLanguageAssociations::getAssociations('com_content', '#__content', 'com_content.item', $issued->id);
-				$parentItem   = $associations[NenoSettings::get('source_language')];
+				$code         = 'TRANSLATED_OUT_NENO';
+				$info->parent = (int) substr($parentItem->id, 0, strpos($parentItem->id, ':'));
+			}
+			else
+			{
+				$code = 'NOT_SOURCE_LANG_CONTENT';
+			}
 
-				$info = new stdClass;
-
-				if ($parentItem)
-				{
-					$code         = 'TRANSLATED_OUT_NENO';
-					$info->parent = (int) substr($parentItem->id, 0, strpos($parentItem->id, ':'));
-				}
-				else
-				{
-					$code = 'NOT_SOURCE_LANG_CONTENT';
-				}
-
-				if (NenoHelperIssue::generateIssue($code, $issued->id, '#__content',  $issued->lang, $info))
-				{
-					$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
-					$app->enqueueMessage($message, 'warning');
-				}
+			if (NenoHelperIssue::generateIssue($code, $issued->id, '#__content',  $issued->lang, $info))
+			{
+				$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
+				$app->enqueueMessage($message, 'warning');
 			}
 		}
 	}
@@ -236,7 +235,8 @@ class PlgSystemNeno extends JPlugin
 				if (isset($content->state) && $content->state == -2)
 				{
 					$primaryKeys = $content->getPrimaryKey();
-					$this->trashTranslations($table, array($content->{$primaryKeys[0]}));
+					NenoHelper::trashTranslations($table, array($content->{$primaryKeys[0]}));
+					NenoHelperIssue::removeIssues($content->getPrimaryKey(), $tableName);
 				}
 				else
 				{
@@ -269,7 +269,7 @@ class PlgSystemNeno extends JPlugin
 						$issue->id   = $content->id;
 						$issue->lang = $content->language;
 
-						JFactory::getApplication()->setUserState('com_content.issue', json_encode($issue));
+						JFactory::getApplication()->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
 					}
 					else
 					{
@@ -277,7 +277,7 @@ class PlgSystemNeno extends JPlugin
 						
 						if ($wasIsued && $wasIsued->error_code == 'NOT_SOURCE_LANG_CONTENT')
 						{
-							NenoHelperIssue::removeIssue($content->id);
+							NenoHelperIssue::removeIssues($content->id, $tableName);
 						}
 					}
 				}
@@ -423,6 +423,7 @@ class PlgSystemNeno extends JPlugin
 				foreach ($pks as $pk)
 				{
 					NenoHelper::trashTranslations($table, $pk);
+					NenoHelperIssue::removeIssues($pk, $tableName);
 				}
 			}
 		}

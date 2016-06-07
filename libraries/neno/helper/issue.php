@@ -348,20 +348,23 @@ class NenoHelperIssue
 	}
 
 	/**
-	 * Removes an issue according to its id
+	 * Removes issues according to their parent item and table
 	 *
-	 * @param   int  $pk  The id
+	 * @param   int     $pk         The id
+	 *
+	 * @param   string  $tableName  The table name
 	 *
 	 * @return  mixed
 	 */
-	public static function removeIssue($pk)
+	public static function removeIssues($pk, $tableName)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		$query
 			->delete($db->quoteName('#__neno_content_issues'))
-			->where($db->quoteName('item_id') . ' = ' . (int) $pk);
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk)
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($tableName));
 
 		$db->setQuery($query);
 
