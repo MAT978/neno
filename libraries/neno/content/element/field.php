@@ -549,10 +549,17 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		$translation->setSourceElementData($sourceData);
 
 		// If the translation does not exists already, let's add it
-		if ($translation->existsAlready() && $keepState == false)
+		if ($translation->existsAlready())
 		{
 			$translation = NenoContentElementTranslation::getTranslationBySourceElementData($sourceData, $language, $this->getId());
 			$translation->setElement($this);
+
+			if ($keepState)
+			{
+				$translation->loadOriginalText();
+				$translation->setState($string['state']);
+				$translation->setString($string['string']);
+			}
 
 			if ($translation->refresh())
 			{
@@ -730,17 +737,20 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			$languageData->lang_code = $lang;
 			$languages               = array($languageData);
 
-			$defaultLanguage               = NenoSettings::get('source_language');
-			$this->translations            = array();
-			$primaryKeyData                = $this->getTable()->getPrimaryKey();
-			$string                        = $this->getStrings($record);
-			$string[0][$primaryKeyData[0]] = $asocId;
+			$defaultLanguage                = NenoSettings::get('source_language');
+			$this->translations             = array();
+			$primaryKeyData                 = $this->getTable()->getPrimaryKey();
+			$strings                        = $this->getStrings($record);
+			$strings[0][$primaryKeyData[0]] = $asocId;
 
 			$translationMethods = NenoHelper::getTranslationMethodsByTableId($this->table->getId());
 
-			if (!empty($string))
+			foreach ($strings as $string)
 			{
-				$this->persistString($string[0], $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, true);
+				if (!empty($string))
+				{
+					$this->persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, true);
+				}
 			}
 		}
 		else
