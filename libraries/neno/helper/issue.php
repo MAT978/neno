@@ -401,7 +401,6 @@ class NenoHelperIssue
 	{
 		/** @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
-
 		$query = $db->getQuery(true);
 		$query
 			->select('*')
@@ -441,6 +440,9 @@ class NenoHelperIssue
 
 				$db->setQuery($query);
 				$db->execute();
+
+				$table = NenoContentElementTable::load(array('table_name' => $opt->table_name), false, true);
+				NenoHelper::trashTranslations($table, $element['id']);
 			}
 		}
 

@@ -197,6 +197,47 @@ class NenoHelper
 	}
 
 	/**
+	 * Trash translations when the user click on the trash button
+	 *
+	 * @param NenoContentElementTable $table Table where the element was trashed
+	 * @param mixed                   $pk    Primary key value
+	 *
+	 * @return void
+	 */
+	public static function trashTranslations(NenoContentElementTable $table, $pk)
+	{
+		$db          = JFactory::getDbo();
+		$primaryKeys = $table->getPrimaryKeys();
+		$query       = $db->getQuery(true);
+
+		$query
+			->select('tr.id')
+			->from('#__neno_content_element_translations AS tr');
+
+		/* @var $primaryKey NenoContentElementField */
+		foreach ($primaryKeys as $key => $primaryKey)
+		{
+			$alias = 'ft' . $key;
+			$query
+				->where(
+					"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
+				);
+		}
+
+		$db->setQuery($query);
+		$translationIds = $db->loadColumn();
+
+		foreach ($translationIds as $translationId)
+		{
+			/* @var $translation NenoContentElementTranslation */
+			$translation = NenoContentElementTranslation::load($translationId);
+
+			$translation->remove();
+		}
+	}
+
+
+	/**
 	 * Convert a camelcase property name to a underscore case database column name
 	 *
 	 * @param   string $propertyName Property name
