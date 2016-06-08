@@ -65,6 +65,36 @@ class NenoHelperIssue
 	}
 
 	/**
+	 * Cleans the issues that are not related to any item and are still pending
+	 */
+	private static function cleanIssues()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select($db->quoteName(array('item_id', 'table_name')))
+			->from('#__neno_content_issues')
+			->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+
+		$db->setQuery($query);
+		$issues = $db->loadObjectList();
+
+		foreach ($issues as $issue)
+		{
+			$subquery = '( SELECT id FROM ' . $db->quoteName($issue->table_name) . ' AS t WHERE (' . $db->quoteName('id') . ' = ' . (int) $issue->item_id . '))';
+
+			$query->clear();
+			$query
+				->delete($db->quoteName('#__neno_content_issues'))
+				->where(' NOT EXISTS ' . $subquery);
+
+			$db->setQuery($query);
+			$db->execute();
+		}
+	}
+
+	/**
 	 * Gets a list of issues
 	 * 
 	 * @param   bool  $pending  If true, it gets not solved issues
@@ -73,6 +103,9 @@ class NenoHelperIssue
 	 */
 	public static function getList($lang, $pending = true)
 	{
+		// Clean pending unlinked issues
+		self::cleanIssues();
+
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		
