@@ -2389,7 +2389,26 @@ class NenoHelper
 
 		if (NenoSettings::get('installation_completed'))
 		{
-			$issuesCounter = NenoHelperIssue::getIssuesNumber('#__content', $language['lang_code']);
+			$joomlaTables = array(
+				'#__banners',
+				'#__categories',
+				'#__contact_details',
+				'#__content',
+				'#__finder_links',
+				'#__finder_terms',
+				'#__finder_terms_common',
+				'#__finder_tokens',
+				'#__finder_tokens_aggregate',
+				'#__newsfeeds',
+				'#__tags'
+			);
+
+			$issuesCounter = 0;
+
+			foreach ($joomlaTables as $joomlaTable)
+			{
+				$issuesCounter += NenoHelperIssue::getIssuesNumber($joomlaTable, $language['lang_code']);
+			}
 
 			if ($issuesCounter !== 0)
 			{

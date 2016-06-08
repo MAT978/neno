@@ -254,26 +254,19 @@ class NenoHelperIssue
 	{
 		$details = new stdClass;
 
-		switch ($issue->table_name)
+		if (self::isFixed($issue))
 		{
-			case '#__content' :
-
-				if (self::isFixed($issue))
-				{
-					$user = JFactory::getUser($issue->fixed_by);
-					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->table_name);
-					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
-				}
-				else
-				{
-					$item                 = self::getItemDetails($issue);
-					$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->table_name) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
-					$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
-				}
-
-				break;
+			$user = JFactory::getUser($issue->fixed_by);
+			$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->table_name);
+			$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
 		}
-		
+		else
+		{
+			$item                 = self::getItemDetails($issue);
+			$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->table_name) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+			$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
+		}
+
 		return $details;
 	}
 
