@@ -19,6 +19,62 @@ defined('_JEXEC') or die;
 class NenoControllerDebug extends JControllerAdmin
 {
 	/**
+	 * Gets a list of issues
+	 *
+	 * @throws Exception
+	 */
+	public function listIssues()
+	{
+		$app = JFactory::getApplication();
+		$lang = $app->input->get('lang', null);
+
+		$view          = $this->getView('issues', 'html');
+		$view->pending = NenoHelperIssue::getList($lang);
+		$view->solved  = NenoHelperIssue::getList($lang, false);
+		$view->lang    = $lang;
+		$view->display('list');
+	}
+
+	/**
+	 * Issues fixer
+	 *
+	 * @throws Exception
+	 */
+	public function fixIssue()
+	{
+		$app  = JFactory::getApplication();
+		$pk   = $app->input->get('id');
+		$lang = $app->input->get('lang', null);
+
+		$lang = ($lang == null) ? '' : '&lang=' . $lang;
+
+		switch (NenoHelperIssue::fixIssue($pk))
+		{
+			// Failure
+			case 0 :
+				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_FAILURE'), 'error');
+				break;
+			
+			// Success
+			case 1 :
+				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_SUCCESS'), 'success');
+				break;
+			
+			// Already fixed
+			case 2 :
+				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_ALREADY_FIXED'), 'success');
+				break;
+
+			// Cant be automatically fixed
+			case 3 :
+				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_CANT_BE_FIXED'), 'success');
+				break;
+		}
+
+		$this->setRedirect('index.php?option=com_neno&task=debug.listIssues' . $lang);
+	}
+
+	/**
 	 * Fix non associated menus
 	 */
 	public function fixMenus()

@@ -985,7 +985,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return string
 	 */
-	private function loadOriginalText()
+	public function loadOriginalText()
 	{
 		$string = NenoHelper::getTranslationOriginalText($this->getId(), $this->getContentType());
 

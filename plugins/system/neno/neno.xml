@@ -11,7 +11,16 @@
     <description>Neno plugin</description>
 
     <files>
-        <filename>index.html</filename>
         <filename plugin="neno">neno.php</filename>
+        <filename>index.html</filename>
     </files>
+
+    <languages>
+        <language tag="en-GB">en-GB.plg_system_neno.ini</language>
+        <language tag="en-GB">en-GB.plg_system_neno.sys.ini</language>
+        <language tag="es-ES">es-ES.plg_system_neno.ini</language>
+        <language tag="es-ES">es-ES.plg_system_neno.sys.ini</language>
+        <language tag="fr-FR">fr-FR.plg_system_neno.ini</language>
+        <language tag="fr-FR">fr-FR.plg_system_neno.sys.ini</language>
+    </languages>
 </extension>

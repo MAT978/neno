@@ -197,6 +197,47 @@ class NenoHelper
 	}
 
 	/**
+	 * Trash translations when the user click on the trash button
+	 *
+	 * @param NenoContentElementTable $table Table where the element was trashed
+	 * @param mixed                   $pk    Primary key value
+	 *
+	 * @return void
+	 */
+	public static function trashTranslations(NenoContentElementTable $table, $pk)
+	{
+		$db          = JFactory::getDbo();
+		$primaryKeys = $table->getPrimaryKeys();
+		$query       = $db->getQuery(true);
+
+		$query
+			->select('tr.id')
+			->from('#__neno_content_element_translations AS tr');
+
+		/* @var $primaryKey NenoContentElementField */
+		foreach ($primaryKeys as $key => $primaryKey)
+		{
+			$alias = 'ft' . $key;
+			$query
+				->where(
+					"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
+				);
+		}
+
+		$db->setQuery($query);
+		$translationIds = $db->loadColumn();
+
+		foreach ($translationIds as $translationId)
+		{
+			/* @var $translation NenoContentElementTranslation */
+			$translation = NenoContentElementTranslation::load($translationId);
+
+			$translation->remove();
+		}
+	}
+
+
+	/**
 	 * Convert a camelcase property name to a underscore case database column name
 	 *
 	 * @param   string $propertyName Property name
@@ -2304,7 +2345,6 @@ class NenoHelper
 		}
 
 		return NenoCache::getCacheData($cacheId);
-
 	}
 
 	/**
@@ -2331,24 +2371,46 @@ class NenoHelper
 			);
 		}
 
-		if (!self::hasContentCreated($language['lang_code']))
+		if (NenoSettings::get('installation_completed'))
 		{
-			$errors[] = JLayoutHelper::render(
-			  'fixitbutton',
-			  array(
-				'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
-				'language' => $language['lang_code'],
-				'issue'    => 'content_missing'
-			  ),
-			  JPATH_NENO_LAYOUTS
-			);
+			if (!self::hasContentCreated($language['lang_code']))
+			{
+				$errors[] = JLayoutHelper::render(
+					'fixitbutton',
+					array(
+						'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
+						'language' => $language['lang_code'],
+						'issue'    => 'content_missing'
+					),
+					JPATH_NENO_LAYOUTS
+				);
+			}
 		}
 
 		if (NenoSettings::get('installation_completed'))
 		{
-			$contentCounter = self::contentCountInOtherLanguages($language['lang_code']);
+			$joomlaTables = array(
+				'#__banners',
+				'#__categories',
+				'#__contact_details',
+				'#__content',
+				'#__finder_links',
+				'#__finder_terms',
+				'#__finder_terms_common',
+				'#__finder_tokens',
+				'#__finder_tokens_aggregate',
+				'#__newsfeeds',
+				'#__tags'
+			);
 
-			if ($contentCounter !== 0)
+			$issuesCounter = 0;
+
+			foreach ($joomlaTables as $joomlaTable)
+			{
+				$issuesCounter += NenoHelperIssue::getIssuesNumber($joomlaTable, $language['lang_code']);
+			}
+
+			if ($issuesCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
 					'fixitbutton',
@@ -2640,9 +2702,6 @@ class NenoHelper
 						break;
 					}
 				}
-				break;
-			case 'content_out_of_neno':
-				$result = self::moveContentIntoShadowTables($language);
 				break;
 		}
 
@@ -3027,86 +3086,6 @@ class NenoHelper
 		$db->setQuery($query);
 
 		return $db->loadResult() == 1;
-	}
-
-	/**
-	 * Move content to shadow tables
-	 *
-	 * @param   string $languageTag Language tag
-	 *
-	 * @return bool
-	 */
-	public static function moveContentIntoShadowTables($languageTag)
-	{
-		/* @var $db NenoDatabaseDriverMysqlx */
-		$db    = JFactory::getDbo();
-
-		$joomlaTablesUsingLanguageField = array(
-		  '#__banners',
-		  '#__categories',
-		  '#__contact_details',
-		  '#__content',
-		  '#__finder_links',
-		  '#__finder_terms',
-		  '#__finder_terms_common',
-		  '#__finder_tokens',
-		  '#__finder_tokens_aggregate',
-		  '#__newsfeeds',
-		  '#__tags'
-		);
-
-		foreach ($joomlaTablesUsingLanguageField as $joomlaTableUsingLanguageField)
-		{
-			$query = $db->getQuery(true);
-			$query
-				->select('*')
-				->from($db->quoteName($joomlaTableUsingLanguageField))
-				->where($db->quoteName('language') . ' = ' . $db->quote($languageTag));
-
-			$db->setQuery($query);
-			$elements = $db->loadAssocList();
-
-			if (count($elements) > 0)
-			{
-				$query = $db->getQuery(true);
-				$query
-					->select(array('f.*', 't.table_name'))
-					->from($db->quoteName('#__neno_content_element_fields', 'f'))
-					->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
-					->where($db->quoteName('f.translate') . ' = 1')
-					->where($db->quoteName('t.table_name') . ' = ' . $db->quote($joomlaTableUsingLanguageField));
-
-				$db->setQuery($query);
-				$fields = $db->loadAssocList();
-
-				foreach ($elements as $element)
-				{
-					foreach ($fields as $field)
-					{
-						$data                 = array();
-						$data['string']       = $element[$field['field_name']];
-						$data['language']     = $languageTag;
-						$data['state']        = 1;
-						$data['content_id']   = $field['id'];
-						$data['content_type'] = 'db_string';
-
-						// Create and persist the translation
-						$translation = new NenoContentElementTranslation($data);
-						$translation->persist();
-					}
-
-					$query = $db->getQuery(true);
-					$query
-						->delete($db->quoteName($joomlaTableUsingLanguageField))
-						->where($db->quoteName('id') . ' = ' . (int) $element['id']);
-
-					$db->setQuery($query);
-					$db->execute();
-				}
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -3620,7 +3599,6 @@ class NenoHelper
 
 				$items[] = $languagesData;
 			}
-
 		}
 
 		return $items;
@@ -3743,7 +3721,28 @@ class NenoHelper
 		$chunks[] = $string;
 
 		return $chunks;
+	}
 
+	/**
+	 * Gets the language details from a given code
+	 * 
+	 * @param   string  $code  The lang code
+	 *                         
+	 * @return  stdClass The language details
+	 */
+	public static function getLanguageByCode($code)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('*')
+			->from($db->quoteName('#__languages'))
+			->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
+
+		$db->setQuery($query);
+
+		return $db->loadObject();
 	}
 
 	/**

@@ -26,6 +26,14 @@ class PlgSystemNeno extends JPlugin
 	protected static $recordsApprovedToSave = array();
 
 	/**
+	 * Load the language file on instantiation.
+	 *
+	 * @var    boolean
+	 * @since  3.1
+	 */
+	protected $autoloadLanguage = true;
+
+	/**
 	 * Method to register a custom database driver
 	 *
 	 * @return void
@@ -121,10 +129,10 @@ class PlgSystemNeno extends JPlugin
 		  ->select('*')
 		  ->from('#__extensions')
 		  ->where(
-			array(
-			  'extension_id = ' . (int) $extensionId,
-			  'type IN (' . implode(',', $extensions) . ')',
-			)
+			  array(
+				  'extension_id = ' . (int) $extensionId,
+				  'type IN (' . implode(',', $extensions) . ')',
+			  )
 		  );
 
 		$db->setQuery($query);
@@ -156,12 +164,43 @@ class PlgSystemNeno extends JPlugin
 	 */
 	public function onBeforeRender()
 	{
+		$app      = JFactory::getApplication();
 		$document = JFactory::getDocument();
 		$document->addScript(JUri::root() . '/media/neno/js/common.js?v=' . NenoHelperBackend::getNenoVersion());
 
 		if (NenoSettings::get('schedule_task_option', 'ajax') == 'ajax' && NenoSettings::get('installation_completed') == 1)
 		{
 			$document->addScript(JUri::root() . '/media/neno/js/ajax_module.js');
+		}
+
+		// Check if there's some issue on the item
+		$context = $app->input->get('option');
+		$issued  = json_decode($app->getUserState($context . '.issue'));
+		$app->setUserState($context . '.issue', null);
+
+		if ($issued != null)
+		{
+			$tableName    = '#_' . strstr($context, '_');
+			$associations = JLanguageAssociations::getAssociations($context, $tableName, $context . '.item', $issued->id);
+			$parentItem   = $associations[NenoSettings::get('source_language')];
+
+			$info = new stdClass;
+
+			if ($parentItem)
+			{
+				$code         = 'TRANSLATED_OUT_NENO';
+				$info->parent = (int) substr($parentItem->id, 0, strpos($parentItem->id, ':'));
+			}
+			else
+			{
+				$code = 'NOT_SOURCE_LANG_CONTENT';
+			}
+
+			if (NenoHelperIssue::generateIssue($code, $issued->id, $tableName,  $issued->lang, $info))
+			{
+				$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
+				$app->enqueueMessage($message, 'warning');
+			}
 		}
 	}
 
@@ -196,7 +235,8 @@ class PlgSystemNeno extends JPlugin
 				if (isset($content->state) && $content->state == -2)
 				{
 					$primaryKeys = $content->getPrimaryKey();
-					$this->trashTranslations($table, array($content->{$primaryKeys[0]}));
+					NenoHelper::trashTranslations($table, array($content->{$primaryKeys[0]}));
+					NenoHelperIssue::removeIssues($content->getPrimaryKey(), $tableName);
 				}
 				else
 				{
@@ -222,22 +262,22 @@ class PlgSystemNeno extends JPlugin
 						}
 					}
 
-					// Only do that if the translation is new.
-					if ($isNew)
+					// Check if language is not source/all
+					if ($content->language != NenoSettings::get('source_language') && $content->language != '*')
 					{
-						$languages       = NenoHelper::getLanguages(false);
-						$defaultLanguage = NenoSettings::get('source_language');
+						$issue       = new stdClass;
+						$issue->id   = $content->id;
+						$issue->lang = $content->language;
 
-						foreach ($languages as $language)
+						JFactory::getApplication()->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
+					}
+					else
+					{
+						$wasIsued = NenoHelperIssue::isIssued($content->id);
+						
+						if ($wasIsued && $wasIsued->error_code == 'NOT_SOURCE_LANG_CONTENT')
 						{
-							if ($language->lang_code != $defaultLanguage)
-							{
-								$shadowTable = $db->generateShadowTableName($tableName, $language->lang_code);
-								$properties  = $content->getProperties();
-								$query       = 'REPLACE INTO ' . $db->quoteName($shadowTable) . ' (' . implode(',', $db->quoteName(array_keys($properties))) . ') VALUES(' . implode(',', $db->quote($properties)) . ')';
-								$db->setQuery($query);
-								$db->execute();
-							}
+							NenoHelperIssue::removeIssues($content->id, $tableName);
 						}
 					}
 				}
@@ -338,46 +378,6 @@ class PlgSystemNeno extends JPlugin
 	}
 
 	/**
-	 * Trash translations when the user click on the trash button
-	 *
-	 * @param NenoContentElementTable $table Table where the element was trashed
-	 * @param mixed                   $pk    Primary key value
-	 *
-	 * @return void
-	 */
-	protected function trashTranslations(NenoContentElementTable $table, $pk)
-	{
-		$db          = JFactory::getDbo();
-		$primaryKeys = $table->getPrimaryKeys();
-		$query       = $db->getQuery(true);
-
-		$query
-		  ->select('tr.id')
-		  ->from('#__neno_content_element_translations AS tr');
-
-		/* @var $primaryKey NenoContentElementField */
-		foreach ($primaryKeys as $key => $primaryKey)
-		{
-			$alias = 'ft' . $key;
-			$query
-			  ->where(
-				"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
-			  );
-		}
-
-		$db->setQuery($query);
-		$translationIds = $db->loadColumn();
-
-		foreach ($translationIds as $translationId)
-		{
-			/* @var $translation NenoContentElementTranslation */
-			$translation = NenoContentElementTranslation::load($translationId);
-
-			$translation->remove();
-		}
-	}
-
-	/**
 	 * Event thrown when one or several categories change their state
 	 *
 	 * @param string  $context Component context
@@ -395,7 +395,7 @@ class PlgSystemNeno extends JPlugin
 
 			foreach ($pks as $pk)
 			{
-				$this->trashTranslations($table, $pk);
+				NenoHelper::trashTranslations($table, $pk);
 			}
 		}
 	}
@@ -422,7 +422,8 @@ class PlgSystemNeno extends JPlugin
 
 				foreach ($pks as $pk)
 				{
-					$this->trashTranslations($table, $pk);
+					NenoHelper::trashTranslations($table, $pk);
+					NenoHelperIssue::removeIssues($pk, $tableName);
 				}
 			}
 		}

@@ -20,22 +20,6 @@ function highlightBox(selector) {
 }
 
 /**
- * Fixes issues with a language such as "language out of date" or "missing content"
- */
-function fixIssue() {
-	var button = jQuery(this);
-	button.closest('.alert').remove();
-	jQuery.ajax({
-		url : 'index.php?option=com_neno&task=fixLanguageIssue',
-		data: {
-			language: button.data('language'),
-			issue   : button.data('issue')
-		},
-		type: 'POST'
-	});
-}
-
-/**
  * Load missing translations method
  *
  * @param listSelector List jQuery selector.

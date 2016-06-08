@@ -40,6 +40,8 @@ class NenoViewDebug extends JViewLegacy
 
 		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
 
+		JToolbarHelper::custom('debug.listIssues', 'cube', 'cube', JText::_('COM_NENO_ISSUES_TITLE'), false);
+
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
 
 		NenoHelperBackend::addSubmenu('debug');
