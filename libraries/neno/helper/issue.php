@@ -87,7 +87,8 @@ class NenoHelperIssue
 			$query->clear();
 			$query
 				->delete($db->quoteName('#__neno_content_issues'))
-				->where(' NOT EXISTS ' . $subquery);
+				->where(' NOT EXISTS ' . $subquery)
+				->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
 			$db->setQuery($query);
 			$db->execute();
