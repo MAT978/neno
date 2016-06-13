@@ -19,4 +19,13 @@
 		<filename>tmpl/default.php</filename>
 		<filename>tmpl/index.html</filename>
 	</files>
+
+	<languages>
+		<language tag="en-GB">languages/en-GB/en-GB.mod_neno_dashboard.ini</language>
+		<language tag="en-GB">languages/en-GB/en-GB.mod_neno_dashboard.sys.ini</language>
+		<language tag="es-ES">languages/es-ES/es-ES.mod_neno_dashboard.ini</language>
+		<language tag="es-ES">languages/es-ES/es-ES.mod_neno_dashboard.sys.ini</language>
+		<language tag="fr-FR">languages/fr-FR/fr-FR.mod_neno_dashboard.ini</language>
+		<language tag="fr-FR">languages/fr-FR/fr-FR.mod_neno_dashboard.sys.ini</language>
+	</languages>
 </extension>

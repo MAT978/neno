@@ -16,11 +16,11 @@
     </files>
 
     <languages>
-        <language tag="en-GB">en-GB.plg_system_neno.ini</language>
-        <language tag="en-GB">en-GB.plg_system_neno.sys.ini</language>
-        <language tag="es-ES">es-ES.plg_system_neno.ini</language>
-        <language tag="es-ES">es-ES.plg_system_neno.sys.ini</language>
-        <language tag="fr-FR">fr-FR.plg_system_neno.ini</language>
-        <language tag="fr-FR">fr-FR.plg_system_neno.sys.ini</language>
+        <language tag="en-GB">languages/en-GB/en-GB.plg_system_neno.ini</language>
+        <language tag="en-GB">languages/en-GB/en-GB.plg_system_neno.sys.ini</language>
+        <language tag="es-ES">languages/en-GB/es-ES.plg_system_neno.ini</language>
+        <language tag="es-ES">languages/en-GB/es-ES.plg_system_neno.sys.ini</language>
+        <language tag="fr-FR">languages/en-GB/fr-FR.plg_system_neno.ini</language>
+        <language tag="fr-FR">languages/en-GB/fr-FR.plg_system_neno.sys.ini</language>
     </languages>
 </extension>
