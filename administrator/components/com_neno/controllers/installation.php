@@ -801,18 +801,25 @@ class NenoControllerInstallation extends JControllerAdmin
 
 		if ($languageStringId == NULL)
 		{
-			// Get one table that hasn't been discovered yet
-			$languageString = NenoContentElementLanguageString::load(
-			  array(
-				'discovered' => 0,
-				'_limit'     => 1
-			  ), false, true
-			);
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
+
+			$query
+				->select($db->quoteName('id'))
+				->from($db->quoteName('#__neno_content_element_language_strings', 'ls'))
+				->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
+				->where(
+					array(
+						'ls.discovered = 0',
+						'lf.translate = 1'
+					)
+				);
+
+			$db->setQuery($query, 0, 1);
+			$languageStringId = $db->loadResult();
 		}
-		else
-		{
-			$languageString = NenoContentElementLanguageString::load($languageStringId);
-		}
+
+		$languageString = NenoContentElementLanguageString::load($languageStringId);
 
 		if (!empty($languageString))
 		{
