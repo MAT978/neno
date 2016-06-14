@@ -401,11 +401,13 @@ class NenoHelperIssue
 	/**
 	 * Check if an item is issued
 	 *
-	 * @param   int  $pk  The item_id
+	 * @param   int     $pk     The item_id
+	 *
+	 * @param   string  $table  The table name
 	 *
 	 * @return stdClass The issue id & error_code
 	 */
-	public static function isIssued($pk)
+	public static function isIssued($pk, $table)
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -413,7 +415,8 @@ class NenoHelperIssue
 		$query
 			->select($db->quoteName(array('id', 'error_code')))
 			->from($db->quoteName('#__neno_content_issues'))
-			->where($db->quoteName('item_id') . ' = ' . (int) $pk);
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk)
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table));
 
 		$db->setQuery($query);
 
