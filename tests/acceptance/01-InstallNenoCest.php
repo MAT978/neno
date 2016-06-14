@@ -38,7 +38,7 @@ class InstallNenoCest
         $I->waitForElement("//form[@id='adminForm']/div/table/tbody/tr[1]/td[4]/a[contains(text(), 'Neno plugin')]", 30);
         $I->seeElement(['xpath' => "//form[@id='adminForm']/div/table/tbody"]);
         $I->see('Neno plugin', ['xpath' => "//form[@id='adminForm']/div/table/tbody"]);
-        $I->click(['xpath' => "//input[@id='cb0']"]);
+        $I->click(['xpath' => "//*[@id=\"cb0\"]"]);
         $I->click(['xpath' => "//div[@id='toolbar-publish']/button"]);
         $I->see('successfully enabled', ['id' => 'system-message-container']);
         //$I->enablePlugin('Neno plugin');
