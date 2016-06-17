@@ -32,22 +32,17 @@ class InstallNenoCest
         $I->installExtensionFromDirectory($path . 'com_neno');
 
         // Enabling plugin
-        $I->amOnPage('/administrator/index.php?option=com_plugins');
-        $I->fillField(['id' => "filter_search"], 'Neno plugin');
-        $I->click(['xpath' => "//button[@type='submit' and @data-original-title='Search']"]);
-        $I->waitForElement("//form[@id='adminForm']/div/table/tbody/tr[1]/td[4]/a[contains(text(), 'Neno plugin')]", 30);
-        $I->seeElement(['xpath' => "//form[@id='adminForm']/div/table/tbody"]);
-        $I->see('Neno plugin', ['xpath' => "//form[@id='adminForm']/div/table/tbody"]);
-        $I->click(['xpath' => "//*[@id=\"cb0\"]"]);
-        $I->click(['xpath' => "//div[@id='toolbar-publish']/button"]);
-        $I->see('successfully enabled', ['id' => 'system-message-container']);
-        //$I->enablePlugin('Neno plugin');
+        $I->enablePlugin('Neno plugin');
 
         // Going to Neno
+        $I->amOnPage("/administrator/index.php?option=com_neno&view=installation");
         $I->click("Components");
-        $I->wait(1);
         $I->click("Neno Translate");
-        $I->wait(1);
+        $I->click("//button[@type='button']");
+        $I->click("//button[@type='button']");
+        $I->click("//button[@type='button']");
+        $I->click("#add-languages-button");
+        $I->click("#close-button");
 
         // Get started Screen
         $I->click('Get Started');

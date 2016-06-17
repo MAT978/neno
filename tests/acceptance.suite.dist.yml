@@ -9,8 +9,10 @@ modules:
     enabled:
         - JoomlaBrowser:
             url: 'http://localhost/tests/joomla-cms/'     # the url that points to the joomla installation at /tests/system/joomla-cms
-            browser: 'chrome'
+            browser: 'firefox'
             window_size: 1024x768
+            capabilities:
+              unexpectedAlertBehaviour: 'accept'
             username: 'admin'
             password: 'admin'
             database host: 'localhost'             # place where the Application is Hosted #server Address
@@ -26,3 +28,4 @@ modules:
             joomla folder: '/home/travis/build/Jensen-Technologies/neno/tests/joomla-cms' # Path to Joomla installation where we execute the tests
         - AcceptanceHelper:
             repo_folder: '/home/travis/build/Jensen-Technologies/neno/'
+error_level: "E_ALL & ~E_STRICT & ~E_DEPRECATED"
