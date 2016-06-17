@@ -60,9 +60,9 @@
 				COM_NENO_TITLE_JOBS
 			</menu>
 			<menu link="option=com_neno&amp;view=externaltranslations"
-			      view="externaltranslations"
-			      alt="neno/externaltranslations">
-				COM_NENO_TITLE_EXTERNALTRANSLATIONS
+			      view="professionaltranslations"
+			      alt="neno/professionaltranslations">
+				COM_NENO_TITLE_PROFESSIONAL_TRANSLATIONS
 			</menu>
 		</submenu>
 		<files folder="back">

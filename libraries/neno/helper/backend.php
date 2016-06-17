@@ -40,19 +40,19 @@ class NenoHelperBackend
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_GROUPSELEMENTS'),
+			JText::_('COM_NENO_NAV_LINK_GROUPSELEMENTS'),
 			'index.php?option=com_neno&view=groupselements',
 			($vName == 'groupselements') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_TRANSLATIONS'),
-			'index.php?option=com_neno&view=externaltranslations',
-			($vName == 'externaltranslations') ? true : false
+			JText::_('COM_NENO_NAV_LINK_PROFESSIONAL_TRANSLATIONS'),
+			'index.php?option=com_neno&view=professionaltranslations',
+			($vName == 'professionaltranslations') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_SETTINGS'),
+			JText::_('COM_NENO_NAV_LINK_SETTINGS'),
 			'index.php?option=com_neno&view=settings',
 			($vName == 'settings') ? true : false
 		);
