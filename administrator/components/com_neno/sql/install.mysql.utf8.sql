@@ -48,7 +48,6 @@ CREATE TABLE IF NOT EXISTS `#__neno_translation_methods` (
   `id`                              INT(11)      NOT NULL AUTO_INCREMENT,
   `name_constant`                   VARCHAR(255) NOT NULL,
   `acceptable_follow_up_method_ids` VARCHAR(255) NOT NULL,
-  `pricing_per_word`                INT          NOT NULL,
   PRIMARY KEY (`id`)
 )
   ENGINE = InnoDB
@@ -419,8 +418,8 @@ INSERT IGNORE INTO `#__neno_machine_translation_apis`
 VALUES (1, 'Google', 'machine'), (3, 'Yandex', 'machine'), (4, 'Bing', 'machine');
 
 INSERT IGNORE INTO `#__neno_translation_methods`
-VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0', 0), (2, 'COM_NENO_TRANSLATION_METHOD_MACHINE', '1,3', 1),
-  (3, 'COM_NENO_TRANSLATION_METHOD_PROFESSIONAL', '0', 200);
+VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0'),
+  (3, 'COM_NENO_TRANSLATION_METHOD_PROFESSIONAL', '0');
 
 INSERT IGNORE INTO `#__neno_settings` (`setting_key`, `setting_value`, `read_only`)
 VALUES ('translate_automatically_professional', '0', 0),
