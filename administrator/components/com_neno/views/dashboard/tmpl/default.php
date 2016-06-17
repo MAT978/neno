@@ -68,8 +68,6 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 		});
 
-		jQuery("[data-issue]").off('click').on('click', fixIssue);
-
 		jQuery('.not-ready').off('click').on('click', function (e) {
 			e.preventDefault();
 			alert('<?php echo JText::_('COM_NENO_LANGUAGE_IS_NOT_READY_YET_MESSAGE', true); ?>');
