@@ -20,37 +20,20 @@ if (!empty($this->extraSidebar))
 ?>
 
 	<style>
-		.translation-type, .information-box {
+		.translation, .information-box {
 			border: 1px solid #ccc;
 			margin: 10px 0;
 		}
 
-		.translation-type .translation-type-header, .translation-type .translation-type-footer {
-			background-color: #eee;
-		}
-
-		.translation-type > div {
-			padding: 15px;
-		}
-
-		.translation-type .translation-introtext {
-			color: #888;
-		}
-
-		.translation-type .translation {
+		.translation {
 			padding: 20px 15px;
 			min-height: 28px;
 			line-height: 28px;
+			background-color: #eee;
 		}
 
 		.information-box {
 			padding: 20px 15px;
-		}
-
-		.add-comment-to-translator-button {
-			float: right;
-			font-weight: normal;
-			margin-top: -15px;
 		}
 
 		.modal {
@@ -128,136 +111,61 @@ if (!empty($this->extraSidebar))
 			<div id="elements-wrapper">
 				<h1><?php echo JText::_('COM_NENO_TITLE_PROFESSIONAL_TRANSLATIONS'); ?></h1>
 
-				<p>
-					<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT'); ?>
-				</p>
+				<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT'); ?></p>
+				<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT_PRICE'); ?></p>
 
-				<div class="translation-type">
-					<div class="translation-type-header">
-						<h3>
-					<span
-						class="icon-screen"></span> <?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_MACHINE_TRANSLATION_TITLE'); ?>
-						</h3>
-
-						<p class="translation-introtext">
-							<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_MACHINE_TRANSLATION_INTROTEXT', '#'); ?>
-						</p>
-					</div>
-					<div class="translation-type-content">
-						<?php $machineTranslationsAvailable = false; ?>
-						<?php foreach ($this->items as $key => $item): ?>
-							<?php if ($item->translation_method_id == '2'): ?>
-								<?php $machineTranslationsAvailable = true; ?>
-								<div class="translation">
-									<div class="span3">
-										<img
-											src="<?php echo JUri::root(); ?>/media/mod_languages/images/<?php echo $item->image; ?>.gif"
-											style="margin-bottom: 3px;">
-										<?php echo $item->title_native; ?>
-									</div>
-									<div class="span3">
-										<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_WORDS', $item->words); ?>
-									</div>
-									<div class="span3">
-										<?php $machinePriceTc = $item->words * $item->tc_price; ?>
-										<?php $machinePriceEur = number_format($item->words * $item->euro_price, 4, ',', '.'); ?>
-										<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PRICE'); ?>
-										<?php echo $machinePriceTc; ?> TC (€ <?php echo $machinePriceEur; ?>)
-									</div>
-									<div class="span3">
-										<button type="button" class="btn order-button"
-										        data-type="<?php echo $item->translation_method_id; ?>"
-										        data-language="<?php echo $item->language; ?>">
-											<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ORDER_NOW'); ?>
-										</button>
-									</div>
-								</div>
-								<?php unset($this->items[$key]); ?>
-							<?php endif; ?>
-						<?php endforeach; ?>
-						<?php if ($machineTranslationsAvailable === false): ?>
-							<div class="alert alert-info">
-								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_NO_TRANSLATIONS_AVAILABLE', JRoute::_('index.php?option=com_neno&view=groupselements')); ?>
+				<?php $professionalTranslationsAvailable = false; ?>
+				<?php foreach ($this->items as $key => $item): ?>
+					<?php if ($item->translation_method_id == '3'): ?>
+						<?php $professionalTranslationsAvailable = true; ?>
+						<div class="translation">
+							<div class="span3">
+								<img
+								  src="<?php echo JUri::root(); ?>/media/mod_languages/images/<?php echo $item->image; ?>.gif"
+								  style="margin-bottom: 3px;">
+								<?php echo $item->title_native; ?>
 							</div>
-						<?php endif; ?>
-					</div>
-					<div class="translation-type-footer">
-						<input type="checkbox" class="translate_automatically_setting"
-						       data-setting="translate_automatically_machine"
-						       name="machine_translation" <?php echo NenoSettings::get('translate_automatically_machine') ? 'checked="checked"' : ''; ?>
-						       value="1"/> <?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_AUTOMATICALLY_MACHINE_TRANSLATE'); ?>
-					</div>
-				</div>
+							<div class="span3">
+								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_WORDS', $item->words); ?>
+							</div>
+							<div class="span3">
+								<?php $proPriceTc = $item->words * $item->tc_price; ?>
+								<?php $proPriceEur = number_format($item->words * $item->euro_price, 2, ',', '.'); ?>
+								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PRICE'); ?>
+								<?php echo $proPriceTc; ?> TC
+								(€ <?php echo $proPriceEur; ?>)
+							</div>
+							<div class="span3">
+								<button type="button"
+								        class="btn order-button"
+								        data-type="<?php echo $item->translation_method_id; ?>"
+								        data-language="<?php echo $item->language; ?>">
+									<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ORDER_NOW'); ?>
+								</button>
+							</div>
+						</div>
+					<?php endif; ?>
+				<?php endforeach; ?>
+				<?php if ($professionalTranslationsAvailable === false): ?>
+					<div
+					  class="alert alert-info"><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_NO_TRANSLATIONS_AVAILABLE', JRoute::_('index.php?option=com_neno&view=groupselements')); ?></div>
+				<?php endif; ?>
 
-				<div class="translation-type">
-					<div class="translation-type-header">
-						<h3>
-							<span class="icon-users"></span>
-							<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_TITLE'); ?>
-							<a
-								href="#addCommentForTranslators"
-								role="button"
-								class="btn add-comment-to-translator-button"
-								title=""
-								type="button"
-								data-toggle="modal">
-								<span class="icon-pencil"></span>
-								<?php if (empty($this->comment)): ?>
-									<?php $btnLabel = 'COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_CREATE'; ?>
-								<?php else: ?>
-									<?php $btnLabel = 'COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT'; ?>
-								<?php endif; ?>
-								<?php echo JText::_($btnLabel); ?>
-							</a>
-						</h3>
-
-						<p class="translation-introtext">
-							<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_INTROTEXT', '#'); ?>
-						</p>
-					</div>
-					<div class="translation-type-content">
-						<?php $professionalTranslationsAvailable = false; ?>
-						<?php foreach ($this->items as $key => $item): ?>
-							<?php if ($item->translation_method_id == '3'): ?>
-								<?php $professionalTranslationsAvailable = true; ?>
-								<div class="translation">
-									<div class="span3">
-										<img
-											src="<?php echo JUri::root(); ?>/media/mod_languages/images/<?php echo $item->image; ?>.gif"
-											style="margin-bottom: 3px;">
-										<?php echo $item->title_native; ?>
-									</div>
-									<div class="span3">
-										<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_WORDS', $item->words); ?>
-									</div>
-									<div class="span3">
-										<?php $proPriceTc = $item->words * $item->tc_price; ?>
-										<?php $proPriceEur = number_format($item->words * $item->euro_price, 2, ',', '.'); ?>
-										<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PRICE'); ?>
-										<?php echo $proPriceTc; ?> TC (€ <?php echo $proPriceEur; ?>)
-									</div>
-									<div class="span3">
-										<button type="button" class="btn order-button"
-										        data-type="<?php echo $item->translation_method_id; ?>"
-										        data-language="<?php echo $item->language; ?>">
-											<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ORDER_NOW'); ?>
-										</button>
-									</div>
-								</div>
-							<?php endif; ?>
-						<?php endforeach; ?>
-						<?php if ($professionalTranslationsAvailable === false): ?>
-							<div
-								class="alert alert-info"><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_NO_TRANSLATIONS_AVAILABLE', JRoute::_('index.php?option=com_neno&view=groupselements')); ?></div>
-						<?php endif; ?>
-					</div>
-					<div class="translation-type-footer">
-						<input type="checkbox" class="translate_automatically_setting"
-						       data-setting="translate_automatically_professional"
-						       name="machine_translation" <?php echo NenoSettings::get('translate_automatically_professional') ? 'checked="checked"' : ''; ?>
-						       value="1"/> <?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_AUTOMATICALLY_PROFESSIONAL_TRANSLATE'); ?>
-					</div>
-				</div>
+				<a
+				  href="#addCommentForTranslators"
+				  role="button"
+				  class="btn add-comment-to-translator-button"
+				  title=""
+				  type="button"
+				  data-toggle="modal">
+					<span class="icon-pencil"></span>
+					<?php if (empty($this->comment)): ?>
+						<?php $btnLabel = 'COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_CREATE'; ?>
+					<?php else: ?>
+						<?php $btnLabel = 'COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT'; ?>
+					<?php endif; ?>
+					<?php echo JText::_($btnLabel); ?>
+				</a>
 			</div>
 		</div>
 		<div class="span3">
@@ -281,11 +189,37 @@ if (!empty($this->extraSidebar))
 						</h3>
 					</div>
 					<div class="center">
-						<button onclick="location.href='https://www.neno-translate.com/en/pricing/checkout'" class="btn btn-primary">
-							<span class="icon-cart"></span>
-							<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_BUY_TC_BUTTON'); ?>
+						<button
+						  onclick="location.href='https://www.neno-translate.com/en/pricing/checkout'"
+						  class="btn btn-primary">
+							<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ADD_FUNDS_BUTTON'); ?>
 						</button>
 					</div>
+				</div>
+			</div>
+
+			<div class="information-box span11 pull-right">
+				<div class="center">
+					<p><i class="icon-user"></i> </p>
+					<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_AGENCIES'); ?></p>
+				</div>
+			</div>
+
+			<div class="information-box span11 pull-right">
+				<div class="center">
+					<p><i class="icon-clock"></i> </p>
+					<p><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_TIME', '#'); ?></p>
+				</div>
+			</div>
+
+			<div class="information-box span11 pull-right">
+				<div class="center">
+					<p><i class="icon-loop"></i> </p>
+					<input type="checkbox"
+					       class="translate_automatically_setting"
+					       data-setting="translate_automatically_professional"
+					       name="machine_translation" <?php echo NenoSettings::get('translate_automatically_professional') ? 'checked="checked"' : ''; ?>
+					       value="1"/> <?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_AUTOMATICALLY_PROFESSIONAL_TRANSLATE'); ?>
 				</div>
 			</div>
 
@@ -297,7 +231,8 @@ if (!empty($this->extraSidebar))
 							<p class="left">
 								<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_INTRO'); ?>
 								<br/>
-								<a href="<?php echo JRoute::_('index.php?option=com_neno&view=jobs'); ?>"><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_LINK'); ?></a>
+								<a
+								  href="<?php echo JRoute::_('index.php?option=com_neno&view=jobs'); ?>"><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_LINK'); ?></a>
 							</p>
 						</div>
 					</div>
@@ -305,11 +240,13 @@ if (!empty($this->extraSidebar))
 			<?php endif; ?>
 		</div>
 	</div>
-	<div id="addCommentForTranslators" class="modal hide fade" tabindex="-1" role="dialog"
+	<div id="addCommentForTranslators" class="modal hide fade" tabindex="-1"
+	     role="dialog"
 	     aria-labelledby="myModalLabel"
 	     aria-hidden="true">
 		<div class="modal-body">
-			<h3 class="myModalLabel"><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_TITLE'); ?></h3>
+			<h3
+			  class="myModalLabel"><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_TITLE'); ?></h3>
 
 			<p><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_PRE'); ?></p>
 
@@ -319,7 +256,7 @@ if (!empty($this->extraSidebar))
 
 			<p>
 			<textarea
-				class="comment-to-translator"><?php echo empty($this->comment) ? '' : $this->comment; ?></textarea>
+			  class="comment-to-translator"><?php echo empty($this->comment) ? '' : $this->comment; ?></textarea>
 			</p>
 		</div>
 		<div class="modal-footer">
@@ -335,18 +272,18 @@ if (!empty($this->extraSidebar))
 		jQuery(document).ready(function () {
 			jQuery('#save-comment').on('click', function () {
 				jQuery.post(
-					'index.php?option=com_neno&task=saveExternalTranslatorsComment',
-					{
-						placement: 'general',
-						comment: jQuery('.comment-to-translator').val()
-					},
-					function (response) {
-						if (response == 'ok') {
-							jQuery('.add-comment-to-translator-button').html('<span class="icon-pencil"></span> <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT', true); ?>');
-						}
+				  'index.php?option=com_neno&task=saveExternalTranslatorsComment',
+				  {
+					  placement: 'general',
+					  comment: jQuery('.comment-to-translator').val()
+				  },
+				  function (response) {
+					  if (response == 'ok') {
+						  jQuery('.add-comment-to-translator-button').html('<span class="icon-pencil"></span> <?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_EDIT', true); ?>');
+					  }
 
-						jQuery('#addCommentForTranslators').modal('toggle');
-					}
+					  jQuery('#addCommentForTranslators').modal('toggle');
+				  }
 				)
 			});
 		});
