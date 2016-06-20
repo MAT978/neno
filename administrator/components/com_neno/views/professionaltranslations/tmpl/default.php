@@ -77,7 +77,7 @@ if (!empty($this->extraSidebar))
 				var button = jQuery(this);
 				jQuery.ajax({
 					type: "POST",
-					url: 'index.php?option=com_neno&task=professional_translations.createJob',
+					url: 'index.php?option=com_neno&task=professionaltranslations.createJob',
 					data: {
 						type: jQuery(this).data('type'),
 						language: jQuery(this).data('language')
@@ -90,7 +90,7 @@ if (!empty($this->extraSidebar))
 							button.closest('.translation').slideToggle();
 						}
 						else {
-							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_ORDERING_GENERAL_ERROR'); ?>");
+							alert("<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ERROR_ORDERING_GENERAL_ERROR'); ?>");
 						}
 					}
 				});
