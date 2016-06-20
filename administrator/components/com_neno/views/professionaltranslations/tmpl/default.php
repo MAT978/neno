@@ -129,11 +129,8 @@ if (!empty($this->extraSidebar))
 								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_WORDS', $item->words); ?>
 							</div>
 							<div class="span3">
-								<?php $proPriceTc = $item->words * $item->tc_price; ?>
-								<?php $proPriceEur = number_format($item->words * $item->euro_price, 2, ',', '.'); ?>
 								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PRICE'); ?>
-								<?php echo $proPriceTc; ?> TC
-								(€ <?php echo $proPriceEur; ?>)
+								€ <?php echo number_format($item->euro_price, 2, ',', '.'); ?>
 							</div>
 							<div class="span3">
 								<button type="button"
@@ -172,21 +169,14 @@ if (!empty($this->extraSidebar))
 			<div class="information-box span11 pull-right">
 				<div class="center">
 					<div>
+						<div class="center">
+							<h3><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATIONS_FUNDS_AVAILABLE_HEADER_TEXT', number_format($this->fundsAvailable, 2, ',', '.')); ?></h3>
+						</div>
 						<p class="center">
-							<?php if ($this->needsTc): ?>
-								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_BUY_TC_TEXT', $this->tcNeeded); ?>
+							<?php if ($this->fundsNeededToBeAdded): ?>
+								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_ADD_FUNDS_TEXT', number_format($this->fundsNeeded, 2, ',', '.')); ?>
 							<?php endif; ?>
 						</p>
-					</div>
-					<div class="center">
-						<h3>
-							<?php if ($this->needsTc): ?>
-								<?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PRICE'); ?>
-								&nbsp;€<?php echo number_format(ceil($this->tcNeeded * 0.0005), 2, ',', '.'); ?>
-							<?php else: ?>
-								<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_BUY_ADDITIONAL_TC_TEXT'); ?>
-							<?php endif; ?>
-						</h3>
 					</div>
 					<div class="center">
 						<button
@@ -200,21 +190,21 @@ if (!empty($this->extraSidebar))
 
 			<div class="information-box span11 pull-right">
 				<div class="center">
-					<p><i class="icon-user"></i> </p>
+					<p><i class="icon-user"></i></p>
 					<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_AGENCIES'); ?></p>
 				</div>
 			</div>
 
 			<div class="information-box span11 pull-right">
 				<div class="center">
-					<p><i class="icon-clock"></i> </p>
+					<p><i class="icon-clock"></i></p>
 					<p><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_PROFESSIONAL_TRANSLATION_TIME', '#'); ?></p>
 				</div>
 			</div>
 
 			<div class="information-box span11 pull-right">
 				<div class="center">
-					<p><i class="icon-loop"></i> </p>
+					<p><i class="icon-loop"></i></p>
 					<input type="checkbox"
 					       class="translate_automatically_setting"
 					       data-setting="translate_automatically_professional"

@@ -32,7 +32,7 @@ class NenoHelperApi
 
 		if ($status !== false && is_array($userData))
 		{
-			return empty($userData['response']['tcAvailable']) ? 0 : $userData['response']['tcAvailable'];
+			return empty($userData['response']['fundsAvailable']) ? 0 : $userData['response']['fundsAvailable'];
 		}
 
 		return 0;

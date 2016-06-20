@@ -540,25 +540,52 @@ class NenoHelper
 
 	/**
 	 * Gets exclusive language pairs
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function getExclusiveLangPairs()
 	{
 		return array(
-			'en-gb' => array('no-nor', 'fr-ca', 'ja-jp', 'is-is', 'ga-ie', 'da-dk'),
-			'fr-ca' => array('en-gb'),
-			'ko-kr' => array('en-gb'),
-			'ja-jp' => array('en-gb'),
-			'fi-fi' => array('en-gb'),
-			'is-is' => array('en-gb'),
-			'sv-se' => array('en-gb'),
-			'ga-ie' => array('en-gb'),
-			'de-de' => array('fr-fr'),
-			'fr-fr' => array('de-de'),
-			'da-dk' => array('en-gb'),
-			'no-nor' => array('en-gb')
+		  'en-gb'  => array(
+			'no-nor',
+			'fr-ca',
+			'ja-jp',
+			'is-is',
+			'ga-ie',
+			'da-dk'
+		  ),
+		  'fr-ca'  => array('en-gb'),
+		  'ko-kr'  => array('en-gb'),
+		  'ja-jp'  => array('en-gb'),
+		  'fi-fi'  => array('en-gb'),
+		  'is-is'  => array('en-gb'),
+		  'sv-se'  => array('en-gb'),
+		  'ga-ie'  => array('en-gb'),
+		  'de-de'  => array('fr-fr'),
+		  'fr-fr'  => array('de-de'),
+		  'da-dk'  => array('en-gb'),
+		  'no-nor' => array('en-gb')
 		);
+	}
+
+	/**
+	 * Calculates prices depends of language pairs
+	 *
+	 * @param string $sourceLanguage Source language tag
+	 * @param string $targetLanguage Target language tag
+	 *
+	 * @return float
+	 */
+	public static function getPriceByLanguagePair($sourceLanguage, $targetLanguage)
+	{
+		$exclusiveLanguagePairs = static::getExclusiveLangPairs();
+
+		if (isset($exclusiveLanguagePairs[strtolower($sourceLanguage)]) && in_array(strtolower($targetLanguage), $exclusiveLanguagePairs[strtolower($sourceLanguage)]))
+		{
+			return 0.16;
+		}
+
+		return 0.08;
 	}
 
 	/**
