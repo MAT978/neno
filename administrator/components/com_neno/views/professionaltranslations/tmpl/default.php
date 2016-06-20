@@ -59,7 +59,7 @@ if (!empty($this->extraSidebar))
 			jQuery('.translate_automatically_setting').off('click').on('click', function () {
 				jQuery.ajax({
 					type: "POST",
-					url: 'index.php?option=com_neno&task=professional_translations.setAutomaticTranslationSetting',
+					url: 'index.php?option=com_neno&task=professionaltranslations.setAutomaticTranslationSetting',
 					data: {
 						setting: jQuery(this).data('setting'),
 						value: +jQuery(this).is(':checked')
