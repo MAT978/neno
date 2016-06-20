@@ -211,17 +211,17 @@ class NenoHelper
 		$query       = $db->getQuery(true);
 
 		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translations AS tr');
+		  ->select('tr.id')
+		  ->from('#__neno_content_element_translations AS tr');
 
 		/* @var $primaryKey NenoContentElementField */
 		foreach ($primaryKeys as $key => $primaryKey)
 		{
 			$alias = 'ft' . $key;
 			$query
-				->where(
-					"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
-				);
+			  ->where(
+				"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
+			  );
 		}
 
 		$db->setQuery($query);
@@ -235,7 +235,6 @@ class NenoHelper
 			$translation->remove();
 		}
 	}
-
 
 	/**
 	 * Convert a camelcase property name to a underscore case database column name
@@ -2186,7 +2185,7 @@ class NenoHelper
 	/**
 	 * Create menu structure
 	 *
-	 * @param   string  $event  Event which triggered the method
+	 * @param   string $event Event which triggered the method
 	 *
 	 * @return  mixed   True if no event, a menu list if event == fixMenus
 	 */
@@ -2376,13 +2375,13 @@ class NenoHelper
 			if (!self::hasContentCreated($language['lang_code']))
 			{
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
-					array(
-						'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
-						'language' => $language['lang_code'],
-						'issue'    => 'content_missing'
-					),
-					JPATH_NENO_LAYOUTS
+				  'fixitbutton',
+				  array(
+					'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
+					'language' => $language['lang_code'],
+					'issue'    => 'content_missing'
+				  ),
+				  JPATH_NENO_LAYOUTS
 				);
 			}
 		}
@@ -2390,17 +2389,17 @@ class NenoHelper
 		if (NenoSettings::get('installation_completed'))
 		{
 			$joomlaTables = array(
-				'#__banners',
-				'#__categories',
-				'#__contact_details',
-				'#__content',
-				'#__finder_links',
-				'#__finder_terms',
-				'#__finder_terms_common',
-				'#__finder_tokens',
-				'#__finder_tokens_aggregate',
-				'#__newsfeeds',
-				'#__tags'
+			  '#__banners',
+			  '#__categories',
+			  '#__contact_details',
+			  '#__content',
+			  '#__finder_links',
+			  '#__finder_terms',
+			  '#__finder_terms_common',
+			  '#__finder_tokens',
+			  '#__finder_tokens_aggregate',
+			  '#__newsfeeds',
+			  '#__tags'
 			);
 
 			$issuesCounter = 0;
@@ -2413,13 +2412,13 @@ class NenoHelper
 			if ($issuesCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
-					array(
-						'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
-						'language' => $language['lang_code'],
-						'issue'    => 'content_out_of_neno'
-					),
-					JPATH_NENO_LAYOUTS
+				  'fixitbutton',
+				  array(
+					'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
+					'language' => $language['lang_code'],
+					'issue'    => 'content_out_of_neno'
+				  ),
+				  JPATH_NENO_LAYOUTS
 				);
 			}
 		}
@@ -2838,20 +2837,19 @@ class NenoHelper
 	 */
 	public static function findLanguages($allSupported = false)
 	{
-		$enGbExtensionId = self::getEnGbExtensionId();
-		NenoLog::log('en-GB Extension ID ' . $enGbExtensionId);
-		$languagesFound = array();
-		$db             = JFactory::getDbo();
-		$query          = $db->getQuery(true);
+		$enGbExtensionIds = self::getEnGbExtensionId();
+		$languagesFound   = array();
+		$db               = JFactory::getDbo();
+		$query            = $db->getQuery(true);
 
-		if (!empty($enGbExtensionId))
+		if (!empty($enGbExtensionIds))
 		{
 			// Let's enable it if it's disabled
 			$query
 			  ->select('a.update_site_id')
 			  ->from('#__update_sites AS a')
 			  ->innerJoin('#__update_sites_extensions AS b ON a.update_site_id = b.update_site_id')
-			  ->where('b.extension_id = ' . (int) $enGbExtensionId);
+			  ->where('b.extension_id IN (' . implode(',', $db->quote($enGbExtensionIds)) . ')');
 			$db->setQuery($query);
 			$updateId = $db->loadResult();
 
@@ -2867,13 +2865,14 @@ class NenoHelper
 			}
 
 			// Find updates for languages
-			$updater = JUpdater::getInstance();
-			$updater->findUpdates($enGbExtensionId);
-			$updateSiteId = self::getLanguagesUpdateSite($enGbExtensionId);
-			NenoLog::log('UpdateSiteID: ' . $updateSiteId);
-			$updates = self::getUpdates($updateSiteId);
-			NenoLog::log('Updates: ' . json_encode($updateSiteId));
-			$languagesFound = $updates;
+			foreach ($enGbExtensionIds as $enGbExtensionId)
+			{
+				$updater = JUpdater::getInstance();
+				$updater->findUpdates($enGbExtensionId);
+				$updateSiteId   = self::getLanguagesUpdateSite($enGbExtensionId);
+				$updates        = self::getUpdates($updateSiteId);
+				$languagesFound = array_merge($languagesFound, $updates);
+			}
 		}
 
 		if ($allSupported)
@@ -2899,25 +2898,25 @@ class NenoHelper
 	/**
 	 * Get the extension_id of the en-GB package
 	 *
-	 * @return int
+	 * @return array
 	 */
 	protected static function getEnGbExtensionId()
 	{
 		$db       = JFactory::getDbo();
 		$extQuery = $db->getQuery(true);
-		$extType  = 'language';
-		$extElem  = 'en-GB';
+		$extType  = array('package', 'language',);
+		$extElem  = array('pkg_en-GB', 'en-GB');
 
 		$extQuery
 		  ->select($db->quoteName('extension_id'))
 		  ->from($db->quoteName('#__extensions'))
-		  ->where($db->quoteName('type') . ' = ' . $db->quote($extType))
-		  ->where($db->quoteName('element') . ' = ' . $db->quote($extElem))
+		  ->where($db->quoteName('type') . ' IN (' . implode(',', $db->quote($extType)) . ')')
+		  ->where($db->quoteName('element') . ' IN (' . implode(',', $db->quote($extElem)) . ')')
 		  ->where($db->quoteName('client_id') . ' = 0');
 
 		$db->setQuery($extQuery);
 
-		return (int) $db->loadResult();
+		return $db->loadColumn();
 	}
 
 	/**
@@ -3725,9 +3724,9 @@ class NenoHelper
 
 	/**
 	 * Gets the language details from a given code
-	 * 
-	 * @param   string  $code  The lang code
-	 *                         
+	 *
+	 * @param   string $code The lang code
+	 *
 	 * @return  stdClass The language details
 	 */
 	public static function getLanguageByCode($code)
@@ -3736,9 +3735,9 @@ class NenoHelper
 		$query = $db->getQuery(true);
 
 		$query
-			->select('*')
-			->from($db->quoteName('#__languages'))
-			->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
+		  ->select('*')
+		  ->from($db->quoteName('#__languages'))
+		  ->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
 
 		$db->setQuery($query);
 

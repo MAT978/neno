@@ -81,8 +81,7 @@ if (!empty($this->extra_sidebar))
 					jQuery("label[for=" + jQuery(this).attr('id') + "]").addClass('active btn-success');
 				}
 			});
-
-			jQuery("[data-issue]").off('click').on('click', fixIssue);
+			
 			jQuery(".remove-language-button").off('click').on('click', function () {
 				var result = confirm("<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_1', true) ?>\n\n<?php echo JText::_('COM_NENO_DASHBOARD_REMOVING_LANGUAGE_MESSAGE_2', true); ?>");
 
