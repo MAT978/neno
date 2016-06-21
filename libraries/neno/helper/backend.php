@@ -1568,47 +1568,6 @@ class NenoHelperBackend
 	}
 
 	/**
-	 * Refreshes pricing for language pairs installed
-	 *
-	 * @return void
-	 */
-	public static function refreshLanguagePairsPricing()
-	{
-		$targetLanguages = NenoHelper::getLanguages(false, false);
-		$db              = JFactory::getDbo();
-		$query           = $db->getQuery(true);
-
-		$query
-			->select(
-				array(
-					'target_language',
-				)
-			)
-			->from('#__neno_language_pairs_pricing')
-			->where('TIMESTAMPDIFF(HOUR, time_updated, NOW()) < 24')
-			->group('target_language');
-
-		$db->setQuery($query);
-		$languagesUpToDate = $db->loadColumn();
-
-		foreach ($targetLanguages as $targetLanguage)
-		{
-			// If the language is not on the up to date, let's refresh it
-			if (!in_array($targetLanguage->lang_code, $languagesUpToDate))
-			{
-				list($professionalPricing, $machinePricing) = NenoHelperApi::getQuote($targetLanguage->lang_code);
-
-				$query = 'INSERT INTO `#__neno_language_pairs_pricing` (`target_language`,`translation_type`,`price_per_word`,`time_updated`)
-							VALUES (' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('professional') . ', ' . $db->quote($professionalPricing) . ', NOW()),
-							(' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('machine') . ', ' . $db->quote($machinePricing) . ', NOW())
-							ON DUPLICATE KEY UPDATE `price_per_word` = VALUES(`price_per_word`),`time_updated` = NOW()';
-				$db->setQuery($query);
-				$db->execute();
-			}
-		}
-	}
-
-	/**
 	 * Checks whether the incoming request is being made via Ajax or not
 	 *
 	 * @return bool

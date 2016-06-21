@@ -159,23 +159,4 @@ class NenoHelperApi
 
 		return $status;
 	}
-
-	/**
-	 * Gets price per word for a particular language
-	 *
-	 * @param string $targetLanguage Target language (JISO format)
-	 *
-	 * @return float
-	 */
-	public static function getQuote($targetLanguage)
-	{
-		$data = array(
-			'source_language' => NenoSettings::get('source_language'),
-			'target_language' => $targetLanguage
-		);
-
-		list(, $response) = NenoHelperApi::makeApiCall('quote', 'POST', $data);
-
-		return array_values($response['response']);
-	}
 }
