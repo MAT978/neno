@@ -583,10 +583,10 @@ class NenoHelper
 
 		if (isset($exclusiveLanguagePairs[strtolower($sourceLanguage)]) && in_array(strtolower($targetLanguage), $exclusiveLanguagePairs[strtolower($sourceLanguage)]))
 		{
-			return 0.16;
+			return 0.18;
 		}
 
-		return 0.08;
+		return 0.09;
 	}
 
 	/**
