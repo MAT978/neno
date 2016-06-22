@@ -63,7 +63,7 @@ if (rename($extractPath . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPA
 }
 
 // Languages
-$languageFiles = files($extractPath . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPARATOR . 'language', true);
+$languageFiles = files($extractPath . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPARATOR . 'language', true);
 
 foreach ($languageFiles as $languageFile)
 {
