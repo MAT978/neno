@@ -43,12 +43,6 @@ if (!NenoHelperBackend::isDatabaseDriverEnabled())
 	$app->enqueueMessage(JText::_('COM_NENO_ERROR_IN_LICENSE'), 'warning');
 }*/
 
-
-if (!NenoHelperBackend::isAjax())
-{
-	NenoHelperBackend::refreshLanguagePairsPricing();
-}
-
 // Include dependencies
 jimport('joomla.application.component.controller');
 

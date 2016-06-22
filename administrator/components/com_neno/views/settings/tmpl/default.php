@@ -326,37 +326,9 @@ foreach ($this->items as $item)
 					</td>
 				</tr>
 				<tr>
-					<?php $item = $options['schedule_task_option']; ?>
-					<td class='left' colspan="2">
-						<h4><?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_TRANSLATE_AUTOMATICALLY_TITLE'); ?></h4>
-					</td>
-				</tr>
-				<tr>
-					<?php $item = $options['translate_automatically_machine']; ?>
-					<td class='left setting-label'>
-						&bullet; <?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
-					</td>
-					<td class=''>
-						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
-							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
-								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
-							<label for="<?php echo $item->setting_key; ?>0" class="btn">
-								<?php echo JText::_('JYES'); ?>
-							</label>
-							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
-								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
-							<label for="<?php echo $item->setting_key; ?>1" class="btn">
-								<?php echo JText::_('JNO'); ?>
-							</label>
-						</fieldset>
-					</td>
-				</tr>
-				<tr>
 					<?php $item = $options['translate_automatically_professional']; ?>
 					<td class='left setting-label'>
-						&bullet; <?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
+						<?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
 					</td>
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">

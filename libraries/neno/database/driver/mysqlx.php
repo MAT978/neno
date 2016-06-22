@@ -71,6 +71,10 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 * @var bool
 	 */
 	private $propagateQuery;
+	/**
+	 * @var
+	 */
+	private $handlingMissingTableIssue = false;
 
 	/**
 	 * Set Autoincrement index in a shadow table
@@ -556,12 +560,44 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				// If the table(s) doesn't exists, let's create them
 				if ($ex->getCode() == 1146)
 				{
-					$this->handleMissingTableIssue();
+					$isShadowTable = false;
+					$tables        = $this->extractTableNamesFromSqlQuery();
+
+					if (!empty($tables))
+					{
+						foreach ($tables as $tableName)
+						{
+							if ($this->isShadowTable($tableName))
+							{
+								$isShadowTable = true;
+							}
+							else
+							{
+								// Delete table because it's not longer there
+
+								/* @var $table NenoContentElementTable */
+								$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
+								$table->remove();
+							}
+						}
+					}
+
+					if ($isShadowTable)
+					{
+						$this->handleMissingTableIssue();
+					}
 				}
 			}
 		}
 
 		return false;
+	}
+
+	public function isShadowTable($tableName)
+	{
+		$shadowTableTemp = $this->generateShadowTableName(NenoHelper::unifyTableName($tableName), $this->getLanguageTagSelected());
+
+		return $tableName === $shadowTableTemp;
 	}
 
 	protected function extractTableNamesFromSqlQuery()

@@ -32,7 +32,7 @@ class NenoHelperApi
 
 		if ($status !== false && is_array($userData))
 		{
-			return empty($userData['response']['tcAvailable']) ? 0 : $userData['response']['tcAvailable'];
+			return empty($userData['response']['fundsAvailable']) ? 0 : $userData['response']['fundsAvailable'];
 		}
 
 		return 0;
@@ -158,24 +158,5 @@ class NenoHelperApi
 		}
 
 		return $status;
-	}
-
-	/**
-	 * Gets price per word for a particular language
-	 *
-	 * @param string $targetLanguage Target language (JISO format)
-	 *
-	 * @return float
-	 */
-	public static function getQuote($targetLanguage)
-	{
-		$data = array(
-			'source_language' => NenoSettings::get('source_language'),
-			'target_language' => $targetLanguage
-		);
-
-		list(, $response) = NenoHelperApi::makeApiCall('quote', 'POST', $data);
-
-		return array_values($response['response']);
 	}
 }
