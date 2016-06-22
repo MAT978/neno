@@ -72,7 +72,7 @@ foreach ($languageFiles as $languageFile)
 
     if (endsWith($languageFile, 'com_neno.ini') || endsWith($languageFile, 'com_neno.sys.ini'))
     {
-        if (!JFolder::exists($componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
+        if (!file_exists($componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
         {
             mkdir($componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
         }
@@ -80,7 +80,7 @@ foreach ($languageFiles as $languageFile)
     }
     elseif (endsWith($languageFile, 'mod_neno_dashboard.ini') || endsWith($languageFile, 'mod_neno_dashboard.sys.ini'))
     {
-        if (!JFolder::exists($packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
+        if (!file_exists($packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
         {
             mkdir($packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
         }
@@ -88,7 +88,7 @@ foreach ($languageFiles as $languageFile)
     }
     else
     {
-        if (!JFolder::exists($packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
+        if (!file_exists($packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
         {
             mkdir($packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
         }
