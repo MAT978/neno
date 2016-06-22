@@ -19,42 +19,34 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	 * @var stdClass
 	 */
 	public $wordCount;
-
 	/**
 	 * @var int
 	 */
 	public $stringsCount;
-
 	/**
 	 * @var NenoContentElementGroup
 	 */
 	protected $group;
-
 	/**
 	 * @var string
 	 */
 	protected $filename;
-
 	/**
 	 * @var string
 	 */
 	protected $language;
-
 	/**
 	 * @var string
 	 */
 	protected $extension;
-
 	/**
 	 * @var array
 	 */
 	protected $languageStrings;
-
 	/**
 	 * @var bool
 	 */
 	protected $discovered;
-
 	/**
 	 * @var bool
 	 */
@@ -103,23 +95,23 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		$query           = $db->getQuery(true);
 
 		$query
-			->select(
-				array(
-					'SUM(word_counter) AS counter',
-					'tr.state'
-				)
+		  ->select(
+			array(
+			  'SUM(word_counter) AS counter',
+			  'tr.state'
 			)
-			->from('#__neno_content_element_translations as tr')
-			->innerJoin('#__neno_content_element_language_strings AS ls ON tr.content_id = ls.id')
-			->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
-			->where(
-				array(
-					'content_type = ' . $db->quote('lang_string'),
-					'lf.id = ' . $this->getId(),
-					'tr.language = ' . $db->quote($workingLanguage)
-				)
+		  )
+		  ->from('#__neno_content_element_translations as tr')
+		  ->innerJoin('#__neno_content_element_language_strings AS ls ON tr.content_id = ls.id')
+		  ->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
+		  ->where(
+			array(
+			  'content_type = ' . $db->quote('lang_string'),
+			  'lf.id = ' . $this->getId(),
+			  'tr.language = ' . $db->quote($workingLanguage)
 			)
-			->group('tr.state');
+		  )
+		  ->group('tr.state');
 
 		$db->setQuery($query);
 		$statistics = $db->loadAssocList('state');
@@ -224,13 +216,14 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	/**
 	 * Get language strings
 	 *
-	 * @param boolean $fromFile Whether or not the language strings must be loaded from the file
+	 * @param boolean $fromFile             Whether or not the language strings must be loaded from the file
+	 * @param boolean $notPersistedLanguage Only returns strings that has not been persisted on a particular language
 	 *
 	 * @return array
 	 */
-	public function getLanguageStrings($fromFile = true)
+	public function getLanguageStrings($fromFile = true, $notPersistedLanguage = NULL)
 	{
-		if ($this->languageStrings == null)
+		if ($this->languageStrings == NULL)
 		{
 			if ($fromFile)
 			{
@@ -238,9 +231,41 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 			}
 			else
 			{
-				$this->languageStrings = NenoContentElementLanguageString::load(array( 'languagefile_id' => $this->id ), true, true);
+				$this->languageStrings = NenoContentElementLanguageString::load(array('languagefile_id' => $this->id), true, true);
+			}
+		}
+
+		if (!empty($notPersistedLanguage))
+		{
+			$nonPersistedLanguageStrings = array();
+			$db                          = JFactory::getDbo();
+			$query                       = $db->getQuery(true);
+
+			/* @var $languageString NenoContentElementLanguageString */
+			foreach ($this->languageStrings as $languageString)
+			{
+				$query
+				  ->clear()
+				  ->select(1)
+				  ->from('#__neno_content_element_translations AS t')
+				  ->where(
+					array(
+					  'content_type = ' . $db->quote('lang_string'),
+					  'content_id = ' . $db->quote($languageString->getId()),
+					  'language = ' . $db->quote($notPersistedLanguage)
+					)
+				  );
+
+				$db->setQuery($query);
+				$result = $db->loadResult();
+
+				if (empty($result))
+				{
+					$nonPersistedLanguageStrings[] = $languageString;
+				}
 			}
 
+			$this->languageStrings = $nonPersistedLanguageStrings;
 		}
 
 		return $this->languageStrings;
@@ -281,19 +306,19 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 				{
 					// If this language string exists already, let's load it
 					$languageString = NenoContentElementLanguageString::load(array(
-						'constant'        => $constant,
-						'languagefile_id' => $this->id
+					  'constant'        => $constant,
+					  'languagefile_id' => $this->id
 					));
 
 					// If it's not, let's create it
 					if (empty($languageString))
 					{
 						$languageString = new NenoContentElementLanguageString(
-							array(
-								'constant'   => $constant,
-								'string'     => $string,
-								'time_added' => new DateTime
-							)
+						  array(
+							'constant'   => $constant,
+							'string'     => $string,
+							'time_added' => new DateTime
+						  )
 						);
 					}
 
@@ -377,21 +402,21 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 	public function discoverElement()
 	{
 		NenoHelper::setSetupState(
-			JText::sprintf('COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE', $this->group->getGroupName(), $this->getFilename()), 2
+		  JText::sprintf('COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE', $this->group->getGroupName(), $this->getFilename()), 2
 		);
 
 		// Check if there are children not discovered
 		$languageString = NenoContentElementLanguageString::load(array(
-			'discovered'      => 0,
-			'_limit'          => 1,
-			'languagefile_id' => $this->id
+		  'discovered'      => 0,
+		  '_limit'          => 1,
+		  'languagefile_id' => $this->id
 		));
 
 		if (empty($languageString))
 		{
 			$this
-				->setDiscovered(true)
-				->persist();
+			  ->setDiscovered(true)
+			  ->persist();
 		}
 		else
 		{
@@ -415,8 +440,8 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 				foreach ($this->languageStrings as $languageString)
 				{
 					$languageString
-						->setLanguageFile($this)
-						->persist();
+					  ->setLanguageFile($this)
+					  ->persist();
 				}
 			}
 		}
@@ -498,7 +523,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 
 		foreach ($randomArray as $randomIndex)
 		{
-			$records[] = (string) $this->languageStrings[ $randomIndex ];
+			$records[] = (string) $this->languageStrings[$randomIndex];
 		}
 
 		return $records;
@@ -510,9 +535,9 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		$query = $db->getQuery(true);
 
 		$query
-			->select('COUNT(*)')
-			->from('#__neno_content_element_language_strings')
-			->where('languagefile_id = ' . $db->quote($this->id));
+		  ->select('COUNT(*)')
+		  ->from('#__neno_content_element_language_strings')
+		  ->where('languagefile_id = ' . $db->quote($this->id));
 
 		$db->setQuery($query);
 		$this->stringsCount = $db->loadResult();
@@ -531,23 +556,23 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		$workingLanguage  = NenoHelper::getWorkingLanguage();
 
 		$translationQuery
-			->select('tr.id')
-			->from('#__neno_content_element_translations as tr')
-			->innerJoin('#__neno_content_element_language_strings as ls ON ls.id = tr.content_id')
-			->where(
-				array(
-					'ls.languagefile_id = ' . $db->quote($this->id),
-					'tr.content_type = ' . $db->quote(NenoContentElementTranslation::LANG_STRING),
-					'tr.language = ' . $db->quote($workingLanguage)
-				)
-			);
+		  ->select('tr.id')
+		  ->from('#__neno_content_element_translations as tr')
+		  ->innerJoin('#__neno_content_element_language_strings as ls ON ls.id = tr.content_id')
+		  ->where(
+			array(
+			  'ls.languagefile_id = ' . $db->quote($this->id),
+			  'tr.content_type = ' . $db->quote(NenoContentElementTranslation::LANG_STRING),
+			  'tr.language = ' . $db->quote($workingLanguage)
+			)
+		  );
 
 		$deleteQuery = $db->getQuery(true);
 
 		$deleteQuery
-			->clear()
-			->delete('#__neno_content_element_translation_x_translation_methods')
-			->where('translation_id IN (' . (string) $translationQuery . ')');
+		  ->clear()
+		  ->delete('#__neno_content_element_translation_x_translation_methods')
+		  ->where('translation_id IN (' . (string) $translationQuery . ')');
 
 		$db->setQuery($deleteQuery);
 
@@ -555,16 +580,16 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 		if ($db->execute() !== false)
 		{
 			$translationQuery
-				->select(
-					array(
-						'gtm.translation_method_id',
-						'gtm.ordering'
-					)
+			  ->select(
+				array(
+				  'gtm.translation_method_id',
+				  'gtm.ordering'
 				)
-				->innerJoin('#__neno_content_element_language_files as lf ON lf.id = ls.languagefile_id')
-				->innerJoin('#__neno_content_element_groups AS g ON lf.group_id = g.id')
-				->leftJoin('#__neno_content_element_groups_x_translation_methods AS gtm ON gtm.group_id = g.id')
-				->where('gtm.lang = ' . $db->quote($workingLanguage));
+			  )
+			  ->innerJoin('#__neno_content_element_language_files as lf ON lf.id = ls.languagefile_id')
+			  ->innerJoin('#__neno_content_element_groups AS g ON lf.group_id = g.id')
+			  ->leftJoin('#__neno_content_element_groups_x_translation_methods AS gtm ON gtm.group_id = g.id')
+			  ->where('gtm.lang = ' . $db->quote($workingLanguage));
 
 			$insertQuery = 'INSERT INTO #__neno_content_element_translation_x_translation_methods (translation_id, translation_method_id, ordering) ' . (string) $translationQuery;
 

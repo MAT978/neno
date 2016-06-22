@@ -20,47 +20,38 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	 * @var NenoContentElementLanguageFile
 	 */
 	protected $languageFile;
-
 	/**
 	 * @var string
 	 */
 	protected $constant;
-
 	/**
 	 * @var String
 	 */
 	protected $string;
-
 	/**
 	 * @var DateTime|string
 	 */
 	protected $timeAdded;
-
 	/**
 	 * @var DateTime
 	 */
 	protected $timeChanged;
-
 	/**
 	 * @var DateTime
 	 */
 	protected $timeDeleted;
-
 	/**
 	 * @var array|null
 	 */
 	protected $translations;
-
 	/**
 	 * @var bool
 	 */
 	protected $discovered;
-
 	/**
 	 * @var string
 	 */
 	protected $comment;
-
 	/**
 	 * @var bool
 	 */
@@ -76,7 +67,7 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	public function __construct($data, $loadExtraData = false, $loadParent = false)
 	{
 		parent::__construct($data);
-		$this->translations = null;
+		$this->translations = NULL;
 		$data               = (array) $data;
 
 		if ($this->isNew())
@@ -257,7 +248,7 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	 */
 	public function getTranslations()
 	{
-		if ($this->translations == null)
+		if ($this->translations == NULL)
 		{
 			$this->translations = NenoContentElementTranslation::getTranslations($this);
 		}
@@ -287,15 +278,18 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	public function discoverElement()
 	{
 		NenoHelper::setSetupState(
-			JText::sprintf('COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD', $this->getLanguageFile()->getGroup()->getGroupName(), $this->getLanguageFile()->getFilename(), $this->getConstant()),
-			3
+		  JText::sprintf('COM_NENO_INSTALLATION_MESSAGE_PARSING_GROUP_TABLE_FIELD', $this->getLanguageFile()
+			->getGroup()
+			->getGroupName(), $this->getLanguageFile()
+			->getFilename(), $this->getConstant()),
+		  3
 		);
 
 		if ($this->persistTranslations())
 		{
 			$this
-				->setDiscovered(true)
-				->persist();
+			  ->setDiscovered(true)
+			  ->persist();
 		}
 	}
 
@@ -354,7 +348,7 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	 *
 	 * @return bool True on success
 	 */
-	public function persistTranslations($language = null)
+	public function persistTranslations($language = NULL)
 	{
 		if ($this->isNew())
 		{
@@ -366,26 +360,26 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 			// If it doesn't have translations
 			if (empty($this->translations))
 			{
-				$this->translations = NenoContentElementTranslation::getTranslations($this);
+				$this->translations = NenoContentElementTranslation::getTranslations($this, $language);
 			}
 
 			if (empty($this->translations))
 			{
 				$commonData = array(
-					'contentType' => NenoContentElementTranslation::LANG_STRING,
-					'element'     => $this,
-					'contentId'   => $this->getId(),
-					'state'       => NenoContentElementTranslation::NOT_TRANSLATED_STATE,
-					'string'      => $this->getString(),
-					'timeAdded'   => new DateTime,
-					'comment'     => $this->comment
+				  'contentType' => NenoContentElementTranslation::LANG_STRING,
+				  'element'     => $this,
+				  'contentId'   => $this->getId(),
+				  'state'       => NenoContentElementTranslation::NOT_TRANSLATED_STATE,
+				  'string'      => $this->getString(),
+				  'timeAdded'   => new DateTime,
+				  'comment'     => $this->comment
 				);
 
-				if ($language !== null)
+				if ($language !== NULL)
 				{
 					$languageData            = new stdClass;
 					$languageData->lang_code = $language;
-					$languages               = array( $languageData );
+					$languages               = array($languageData);
 				}
 				else
 				{
@@ -470,21 +464,21 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	protected function setStringAsSourceHasChanged($index)
 	{
 		/* @var $translation NenoContentElementTranslation */
-		$translation = $this->translations[ $index ];
+		$translation = $this->translations[$index];
 
 		// If the state is queued or translate, let's mark it as out of sync
 		if (in_array(
-			$translation->getState(),
-			array(
-				NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE,
-				NenoContentElementTranslation::TRANSLATED_STATE
-			)
+		  $translation->getState(),
+		  array(
+			NenoContentElementTranslation::QUEUED_FOR_BEING_TRANSLATED_STATE,
+			NenoContentElementTranslation::TRANSLATED_STATE
+		  )
 		))
 		{
 			$translation->setState(NenoContentElementTranslation::SOURCE_CHANGED_STATE);
 		}
 
-		$this->translations[ $index ] = $translation;
+		$this->translations[$index] = $translation;
 	}
 
 	/**

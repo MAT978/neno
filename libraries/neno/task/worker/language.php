@@ -28,20 +28,24 @@ class NenoTaskWorkerLanguage extends NenoTaskWorker
 		{
 			$languageTag = $taskData['language'];
 			$groups      = NenoHelper::getGroups(false);
-
+			
 			/* @var $group NenoContentElementGroup */
 			foreach ($groups as $group)
 			{
-				$group->generateContentForLanguage($languageTag);
+				$assignedTranslationMethods = $group->getAssignedTranslationMethods();
+				if (!empty($assignedTranslationMethods))
+				{
+					$group->generateContentForLanguage($languageTag);
+				}
 			}
-
+			
 			// Publish language content
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
-				->update('#__languages')
-				->set('published = 1')
-				->where('lang_code = ' . $db->quote($languageTag));
+			  ->update('#__languages')
+			  ->set('published = 1')
+			  ->where('lang_code = ' . $db->quote($languageTag));
 			$db->setQuery($query);
 			$db->execute();
 		}
