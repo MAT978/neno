@@ -2,9 +2,8 @@
 
 $compress    = ($argc > 1 && $argv[1] == '--compress');
 $extractPath = dirname(__FILE__);
-$folders     = folders($extractPath);
-$folder      = array_pop($folders);
-$packagePath = $extractPath . $folder;
+$folders     = folders(dirname(__FILE__));
+$packagePath = $extractPath;
 
 // Neno Component folders
 $componentPath = $packagePath . DIRECTORY_SEPARATOR . 'com_neno';
@@ -64,38 +63,6 @@ if (rename($extractPath . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPA
 }
 
 // Languages
-$languageFiles = files($extractPath . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPARATOR . 'language', true);
-
-foreach ($languageFiles as $languageFile)
-{
-	$languageFileName = basename($languageFile);
-	list($language, ,) = explode('.', $languageFileName);
-
-	if (endsWith($languageFile, 'com_neno.ini') || endsWith($languageFile, 'com_neno.sys.ini'))
-	{
-		if (!file_exists($componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
-		{
-			mkdir($componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
-		}
-		rename($languageFile, $componentPath . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $languageFileName);
-	}
-	elseif (endsWith($languageFile, 'mod_neno_dashboard.ini') || endsWith($languageFile, 'mod_neno_dashboard.sys.ini'))
-	{
-		if (!file_exists($packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
-		{
-			mkdir($packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
-		}
-		rename($languageFile, $packagePath . DIRECTORY_SEPARATOR . 'mod_neno_dashboard' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $languageFileName);
-	}
-	else
-	{
-		if (!file_exists($packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language))
-		{
-			mkdir($packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language);
-		}
-		rename($languageFile, $packagePath . DIRECTORY_SEPARATOR . 'plg_system_neno' . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $languageFileName);
-	}
-}
 if (rename($extractPath . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPARATOR . 'language', $componentPath . DIRECTORY_SEPARATOR . 'languages') !== true)
 {
 	return false;
@@ -439,9 +406,3 @@ function rmdirRecursive($dir)
 
 	return rmdir($dir);
 }
-
-function endsWith($string, $suffix)
-{
-	return $suffix === "" || mb_strpos($string, $suffix, mb_strlen($string) - mb_strlen($suffix)) !== false;
-}
-
