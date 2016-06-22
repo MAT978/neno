@@ -33,6 +33,30 @@ class NenoHelperIssue
 	}
 
 	/**
+	 * Checks if language content is issued
+	 *
+	 * @param  string  $lang  Lang code
+	 *
+	 * @return boolean The result
+	 */
+	public static function isContentLangIssued($lang)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('1')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('error_code') . ' = ' . $db->quote('NOT_LANG_CONTENT_AVAILABLE'))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote('#__languages'))
+			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+
+		$db->setQuery($query);
+
+		return $db->loadResult() == 1;
+	}
+
+	/**
 	 * Gets the number of issues
 	 *
 	 * @param   string  $table      The table
@@ -317,7 +341,7 @@ class NenoHelperIssue
 	 *
 	 * @return  bool
 	 */
-	public static function generateIssue($code, $item, $table, $lang, $opt)
+	public static function generateIssue($code, $item, $table, $lang, $opt = '')
 	{
 		$info   = json_encode($opt);
 		$db     = JFactory::getDbo();
