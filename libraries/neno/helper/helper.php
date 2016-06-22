@@ -2724,17 +2724,6 @@ class NenoHelper
 		$result = false;
 		switch ($issue)
 		{
-			case 'content_missing':
-				if (!self::hasContentCreated($language))
-				{
-					$result = self::createContentRow($language);
-				}
-				else
-				{
-					$result = true;
-				}
-
-				break;
 			case 'language_file_out_of_date':
 
 				// Delete update for this language
