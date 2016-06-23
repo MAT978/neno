@@ -344,7 +344,8 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 	/**
 	 * Persist translations
 	 *
-	 * @param   string|null $language A language tag to persist only for language, null to persist on all the language known
+	 * @param   string|null $language A language tag to persist only for language, null to persist on all the language
+	 *                                known
 	 *
 	 * @return bool True on success
 	 */
@@ -406,6 +407,13 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 					$this->setStringAsSourceHasChanged($i);
 				}
 			}
+			else
+			{
+				foreach ($this->translations as $translation)
+				{
+					$translation->persist();
+				}
+			}
 		}
 
 		return true;
@@ -454,6 +462,36 @@ class NenoContentElementLanguageString extends NenoContentElement implements Nen
 		}
 	}
 
+	/**
+	 * Update changes on changing original text
+	 *
+	 * @param   string  $string  The string
+	 */
+	public function languageFileStringUpdate($string)
+	{
+		if ($this->getString() != $string)
+		{
+			$this->setString($string);
+
+			$this->getTranslations();
+
+			$newTranslations = array();
+
+			/** @var  $tr   NenoContentElementTranslation */
+			foreach ($this->translations as $key => $tr)
+			{
+				$this->setStringAsSourceHasChanged($key);
+				$tr->setOriginalText($string);
+				$tr->hasChanged = true;
+				$newTranslations[] = $tr;
+			}
+
+			$this->translations = $newTranslations;
+			$this->persistTranslations();
+			$this->persist();
+		}
+	}
+	
 	/**
 	 * Set a string as its source has changed
 	 *

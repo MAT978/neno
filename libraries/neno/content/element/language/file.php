@@ -323,6 +323,7 @@ class NenoContentElementLanguageFile extends NenoContentElement implements NenoC
 					}
 
 					$languageString->setLanguageFile($this);
+					$languageString->languageFileStringUpdate($string);
 
 					if (($languageString->isNew() && $onlyNew) || !$onlyNew)
 					{

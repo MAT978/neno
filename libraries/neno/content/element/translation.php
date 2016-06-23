@@ -345,6 +345,16 @@ class NenoContentElementTranslation extends NenoContentElement
 	}
 
 	/**
+	 * Setter for original text
+	 *
+	 * @param   string  $string 
+	 */
+	public function setOriginalText($string)
+	{
+		$this->originalText = $string;
+	}
+
+	/**
 	 * Find related language strings
 	 *
 	 * @param int $translationId

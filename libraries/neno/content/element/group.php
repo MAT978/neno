@@ -754,6 +754,13 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 		{
 			$this->tables = array_values($this->tables);
 		}
+
+		/** @var  $file NenoContentElementLanguageFile */
+		foreach ($this->languageFiles as $file)
+		{
+			$file->loadStringsFromFile();
+			$file->getLanguageStrings();
+		}
 	}
 
 	/**
