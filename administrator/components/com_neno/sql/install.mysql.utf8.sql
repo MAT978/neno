@@ -423,7 +423,7 @@ VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0'),
 INSERT IGNORE INTO `#__neno_settings` (`setting_key`, `setting_value`, `read_only`)
 VALUES ('translate_automatically_professional', '0', 0),
 	('translate_automatically_machine', '1', 0),
-	('api_server_url', 'http://api.neno-translate.com/en/api/', 1),
+	('api_server_url', 'http://api.neno-translate.com/en/api/v1/', 1),
 	('license_code', '', 0), ('translator', '', 0),
 	('translator_api_key', '', 0),
 	('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),
