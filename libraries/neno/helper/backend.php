@@ -40,19 +40,19 @@ class NenoHelperBackend
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_GROUPSELEMENTS'),
+			JText::_('COM_NENO_NAV_LINK_GROUPSELEMENTS'),
 			'index.php?option=com_neno&view=groupselements',
 			($vName == 'groupselements') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_TRANSLATIONS'),
-			'index.php?option=com_neno&view=externaltranslations',
-			($vName == 'externaltranslations') ? true : false
+			JText::_('COM_NENO_NAV_LINK_PROFESSIONAL_TRANSLATIONS'),
+			'index.php?option=com_neno&view=professionaltranslations',
+			($vName == 'professionaltranslations') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NENO_NAV_LINK_EXTERNAL_SETTINGS'),
+			JText::_('COM_NENO_NAV_LINK_SETTINGS'),
 			'index.php?option=com_neno&view=settings',
 			($vName == 'settings') ? true : false
 		);
@@ -1565,47 +1565,6 @@ class NenoHelperBackend
 	protected static function convertString2Datetime($stringDateTime)
 	{
 		return new DateTime($stringDateTime);
-	}
-
-	/**
-	 * Refreshes pricing for language pairs installed
-	 *
-	 * @return void
-	 */
-	public static function refreshLanguagePairsPricing()
-	{
-		$targetLanguages = NenoHelper::getLanguages(false, false);
-		$db              = JFactory::getDbo();
-		$query           = $db->getQuery(true);
-
-		$query
-			->select(
-				array(
-					'target_language',
-				)
-			)
-			->from('#__neno_language_pairs_pricing')
-			->where('TIMESTAMPDIFF(HOUR, time_updated, NOW()) < 24')
-			->group('target_language');
-
-		$db->setQuery($query);
-		$languagesUpToDate = $db->loadColumn();
-
-		foreach ($targetLanguages as $targetLanguage)
-		{
-			// If the language is not on the up to date, let's refresh it
-			if (!in_array($targetLanguage->lang_code, $languagesUpToDate))
-			{
-				list($professionalPricing, $machinePricing) = NenoHelperApi::getQuote($targetLanguage->lang_code);
-
-				$query = 'INSERT INTO `#__neno_language_pairs_pricing` (`target_language`,`translation_type`,`price_per_word`,`time_updated`)
-							VALUES (' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('professional') . ', ' . $db->quote($professionalPricing) . ', NOW()),
-							(' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('machine') . ', ' . $db->quote($machinePricing) . ', NOW())
-							ON DUPLICATE KEY UPDATE `price_per_word` = VALUES(`price_per_word`),`time_updated` = NOW()';
-				$db->setQuery($query);
-				$db->execute();
-			}
-		}
 	}
 
 	/**

@@ -211,17 +211,17 @@ class NenoHelper
 		$query       = $db->getQuery(true);
 
 		$query
-			->select('tr.id')
-			->from('#__neno_content_element_translations AS tr');
+		  ->select('tr.id')
+		  ->from('#__neno_content_element_translations AS tr');
 
 		/* @var $primaryKey NenoContentElementField */
 		foreach ($primaryKeys as $key => $primaryKey)
 		{
 			$alias = 'ft' . $key;
 			$query
-				->where(
-					"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
-				);
+			  ->where(
+				"exists(SELECT 1 FROM #__neno_content_element_fields_x_translations AS $alias WHERE $alias.translation_id = tr.id AND $alias.field_id = " . $primaryKey->getId() . " AND $alias.value = " . $db->quote($pk) . ")"
+			  );
 		}
 
 		$db->setQuery($query);
@@ -235,7 +235,6 @@ class NenoHelper
 			$translation->remove();
 		}
 	}
-
 
 	/**
 	 * Convert a camelcase property name to a underscore case database column name
@@ -537,6 +536,56 @@ class NenoHelper
 		$template = $db->loadResult();
 
 		return $template;
+	}
+
+	/**
+	 * Gets exclusive language pairs
+	 *
+	 * @return array
+	 */
+	public static function getExclusiveLangPairs()
+	{
+		return array(
+		  'en-gb'  => array(
+			'no-nor',
+			'fr-ca',
+			'ja-jp',
+			'is-is',
+			'ga-ie',
+			'da-dk'
+		  ),
+		  'fr-ca'  => array('en-gb'),
+		  'ko-kr'  => array('en-gb'),
+		  'ja-jp'  => array('en-gb'),
+		  'fi-fi'  => array('en-gb'),
+		  'is-is'  => array('en-gb'),
+		  'sv-se'  => array('en-gb'),
+		  'ga-ie'  => array('en-gb'),
+		  'de-de'  => array('fr-fr'),
+		  'fr-fr'  => array('de-de'),
+		  'da-dk'  => array('en-gb'),
+		  'no-nor' => array('en-gb')
+		);
+	}
+
+	/**
+	 * Calculates prices depends of language pairs
+	 *
+	 * @param string $sourceLanguage Source language tag
+	 * @param string $targetLanguage Target language tag
+	 *
+	 * @return float
+	 */
+	public static function getPriceByLanguagePair($sourceLanguage, $targetLanguage)
+	{
+		$exclusiveLanguagePairs = static::getExclusiveLangPairs();
+
+		if (isset($exclusiveLanguagePairs[strtolower($sourceLanguage)]) && in_array(strtolower($targetLanguage), $exclusiveLanguagePairs[strtolower($sourceLanguage)]))
+		{
+			return 0.18;
+		}
+
+		return 0.09;
 	}
 
 	/**
@@ -2186,7 +2235,7 @@ class NenoHelper
 	/**
 	 * Create menu structure
 	 *
-	 * @param   string  $event  Event which triggered the method
+	 * @param   string $event Event which triggered the method
 	 *
 	 * @return  mixed   True if no event, a menu list if event == fixMenus
 	 */
@@ -2375,14 +2424,19 @@ class NenoHelper
 		{
 			if (!self::hasContentCreated($language['lang_code']))
 			{
+				if (!NenoHelperIssue::isContentLangIssued($language['lang_code']))
+				{
+					NenoHelperIssue::generateIssue('NOT_LANG_CONTENT_AVAILABLE', 0, '#__languages', $language['lang_code']);
+				}
+
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
-					array(
-						'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
-						'language' => $language['lang_code'],
-						'issue'    => 'content_missing'
-					),
-					JPATH_NENO_LAYOUTS
+				  'fixitbutton',
+				  array(
+					'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
+					'language' => $language['lang_code'],
+					'issue'    => 'content_missing'
+				  ),
+				  JPATH_NENO_LAYOUTS
 				);
 			}
 		}
@@ -2390,17 +2444,17 @@ class NenoHelper
 		if (NenoSettings::get('installation_completed'))
 		{
 			$joomlaTables = array(
-				'#__banners',
-				'#__categories',
-				'#__contact_details',
-				'#__content',
-				'#__finder_links',
-				'#__finder_terms',
-				'#__finder_terms_common',
-				'#__finder_tokens',
-				'#__finder_tokens_aggregate',
-				'#__newsfeeds',
-				'#__tags'
+			  '#__banners',
+			  '#__categories',
+			  '#__contact_details',
+			  '#__content',
+			  '#__finder_links',
+			  '#__finder_terms',
+			  '#__finder_terms_common',
+			  '#__finder_tokens',
+			  '#__finder_tokens_aggregate',
+			  '#__newsfeeds',
+			  '#__tags'
 			);
 
 			$issuesCounter = 0;
@@ -2413,13 +2467,13 @@ class NenoHelper
 			if ($issuesCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
-					array(
-						'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
-						'language' => $language['lang_code'],
-						'issue'    => 'content_out_of_neno'
-					),
-					JPATH_NENO_LAYOUTS
+				  'fixitbutton',
+				  array(
+					'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
+					'language' => $language['lang_code'],
+					'issue'    => 'content_out_of_neno'
+				  ),
+				  JPATH_NENO_LAYOUTS
 				);
 			}
 		}
@@ -2669,17 +2723,6 @@ class NenoHelper
 		$result = false;
 		switch ($issue)
 		{
-			case 'content_missing':
-				if (!self::hasContentCreated($language))
-				{
-					$result = self::createContentRow($language);
-				}
-				else
-				{
-					$result = true;
-				}
-
-				break;
 			case 'language_file_out_of_date':
 
 				// Delete update for this language
@@ -3725,9 +3768,9 @@ class NenoHelper
 
 	/**
 	 * Gets the language details from a given code
-	 * 
-	 * @param   string  $code  The lang code
-	 *                         
+	 *
+	 * @param   string $code The lang code
+	 *
 	 * @return  stdClass The language details
 	 */
 	public static function getLanguageByCode($code)
@@ -3736,9 +3779,9 @@ class NenoHelper
 		$query = $db->getQuery(true);
 
 		$query
-			->select('*')
-			->from($db->quoteName('#__languages'))
-			->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
+		  ->select('*')
+		  ->from($db->quoteName('#__languages'))
+		  ->where($db->quoteName('lang_code') . ' = ' . $db->quote($code));
 
 		$db->setQuery($query);
 

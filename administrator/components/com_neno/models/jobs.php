@@ -31,14 +31,14 @@ class NenoModelJobs extends JModelList
 		if (empty($config['filter_fields']))
 		{
 			$config['filter_fields'] = array (
-				'id',
-				'state',
-				'to_language',
-				'translation_method',
-				'word_count',
-				'translation_credit',
-				'created_time',
-				'completion_time'
+			  'id',
+			  'state',
+			  'to_language',
+			  'translation_method',
+			  'word_count',
+			  'funds_needed',
+			  'created_time',
+			  'completion_time'
 			);
 		}
 
@@ -53,11 +53,11 @@ class NenoModelJobs extends JModelList
 	public function getItems()
 	{
 		$queryData = array (
-			'_offset' => $this->getStart(),
-			'_limit'  => $this->getState('list.limit'),
-			'_order'  => array (
-				(string) $this->getState('list.ordering') => $this->getState('list.direction')
-			)
+		  '_offset' => $this->getStart(),
+		  '_limit'  => $this->getState('list.limit'),
+		  '_order'  => array (
+			(string) $this->getState('list.ordering') => $this->getState('list.direction')
+		  )
 		);
 
 		$jobs = NenoJob::load($queryData);

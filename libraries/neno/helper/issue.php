@@ -33,6 +33,31 @@ class NenoHelperIssue
 	}
 
 	/**
+	 * Checks if language content is issued
+	 *
+	 * @param  string  $lang  Lang code
+	 *
+	 * @return boolean The result
+	 */
+	public static function isContentLangIssued($lang)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('1')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('error_code') . ' = ' . $db->quote('NOT_LANG_CONTENT_AVAILABLE'))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote('#__languages'))
+			->where($db->quoteName('fixed') . ' = \'0000-00-00 00:00:00\'')
+			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+
+		$db->setQuery($query);
+
+		return $db->loadResult() == 1;
+	}
+
+	/**
 	 * Gets the number of issues
 	 *
 	 * @param   string  $table      The table
@@ -88,6 +113,7 @@ class NenoHelperIssue
 			$query
 				->delete($db->quoteName('#__neno_content_issues'))
 				->where(' NOT EXISTS ' . $subquery)
+				->where($db->quoteName('error_code') . ' <> ' . $db->quote('NOT_LANG_CONTENT_AVAILABLE'))
 				->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
 			$db->setQuery($query);
@@ -191,6 +217,15 @@ class NenoHelperIssue
 		{
 			switch ($issue->error_code)
 			{
+				case 'NOT_LANG_CONTENT_AVAILABLE' :
+					// Create a row in the table #languages
+					if (NenoHelper::createContentRow($issue->lang) && self::solveIssue($pk))
+					{
+						$result = 1;
+					}
+
+					break;
+
 				case 'TRANSLATED_OUT_NENO' :
 					$issue->parent = json_decode($issue->info)->parent;
 
@@ -262,8 +297,16 @@ class NenoHelperIssue
 		}
 		else
 		{
-			$item                 = self::getItemDetails($issue);
-			$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->table_name) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+			if ($issue->error_code == 'NOT_LANG_CONTENT_AVAILABLE')
+			{
+				$details->message = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code), $issue->lang);
+			}
+			else
+			{
+				$item             = self::getItemDetails($issue);
+				$details->message = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ARTICLE'), $item['title'], $issue->table_name) . ' ' . JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+			}
+
 			$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_DESC_' . $issue->error_code), $issue->lang, NenoSettings::get('source_language'));
 		}
 
@@ -317,7 +360,7 @@ class NenoHelperIssue
 	 *
 	 * @return  bool
 	 */
-	public static function generateIssue($code, $item, $table, $lang, $opt)
+	public static function generateIssue($code, $item, $table, $lang, $opt = '')
 	{
 		$info   = json_encode($opt);
 		$db     = JFactory::getDbo();

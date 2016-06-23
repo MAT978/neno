@@ -149,9 +149,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		if (!empty($tableId))
 		{
 
-			$displayData                  = new stdClass;
-			$displayData->filters         = NenoHelperBackend::getTableFiltersData($tableId, 'filters');
-			$displayData->tableId         = $tableId;
+			$displayData          = new stdClass;
+			$displayData->filters = NenoHelperBackend::getTableFiltersData($tableId, 'filters');
+			$displayData->tableId = $tableId;
 
 
 			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
@@ -162,20 +162,19 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 	public function generateFieldFilterOutput()
 	{
-		$app         = JFactory::getApplication();
-		$field       = $app->input->getInt('field');
-		$tableId     = $app->input->getInt('table');
+		$app     = JFactory::getApplication();
+		$field   = $app->input->getInt('field');
+		$tableId = $app->input->getInt('table');
 
 		$filter = array(
-			'field' => $field,
-			'value' => ''
+		  'field' => $field,
+		  'value' => ''
 		);
 
 		echo NenoHelperBackend::renderTableFilter($tableId, $filter);
 
 		$app->close();
 	}
-
 
 	protected static function getFilterAttributesBasedOnFilterType($contentElementFilePath, $fieldName, $filterType)
 	{
@@ -376,7 +375,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				if (!empty($file))
 				{
 					$file->loadStringsFromFile();
-					$languageStrings = $file->getLanguageStrings();
+					$languageStrings = $file->getLanguageStrings(true, true);
 
 					if (!empty($languageStrings))
 					{
@@ -407,8 +406,9 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	}
 
 	protected function executeMethodOnTranslationListPassedByInput(
-		$method
-	){
+	  $method
+	)
+	{
 		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
 
 		foreach ($translationIds as $translationId)
@@ -513,7 +513,14 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				// Check if the filters are common fields
 				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
 
-				$commonFields = array('state', 'published', 'created_by', 'created_user_id', 'modified_by', 'modified_user_id');
+				$commonFields = array(
+				  'state',
+				  'published',
+				  'created_by',
+				  'created_user_id',
+				  'modified_by',
+				  'modified_user_id'
+				);
 
 				if (in_array($fieldName, $commonFields))
 				{
