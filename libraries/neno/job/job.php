@@ -21,87 +21,70 @@ class NenoJob extends NenoObject
 	 * Status when the job has been generated
 	 */
 	const JOB_STATE_GENERATED = 1;
-
 	/**
 	 * Status when the job has been sent to the API Server
 	 */
 	const JOB_STATE_SENT = 2;
-
 	/**
 	 * Status when the job has been completed by the API server
 	 */
 	const JOB_STATE_COMPLETED = 3;
-
 	/**
 	 * Status when the job has been processed by the component
 	 */
 	const JOB_STATE_PROCESSED = 4;
-
 	/**
 	 * Status when the job has tried to be sent but the user does not have enough translation credits
 	 */
 	const JOB_STATE_NO_TC = 5;
-
 	/**
 	 * Status when the job has tried to be sent but the system is not ready yet
 	 */
 	const JOB_STATE_NOT_READY = 6;
-
 	/**
 	 * @var array
 	 */
 	public $translations;
-
 	/**
 	 * @var integer
 	 */
 	protected $state;
-
 	/**
 	 * @var Datetime
 	 */
 	protected $createdTime;
-
 	/**
 	 * @var Datetime
 	 */
 	protected $sentTime;
-
 	/**
 	 * @var Datetime
 	 */
 	protected $completedTime;
-
 	/**
 	 * @var stdClass
 	 */
 	protected $translationMethod;
-
 	/**
 	 * @var string
 	 */
 	protected $fromLanguage;
-
 	/**
 	 * @var string
 	 */
 	protected $toLanguage;
-
 	/**
 	 * @var string
 	 */
 	protected $fileName;
-
 	/**
 	 * @var int
 	 */
 	protected $wordCount;
-
 	/**
 	 * @var int
 	 */
-	protected $translationCredits;
-
+	protected $fundsNeeded;
 	/**
 	 * @var Datetime
 	 */
@@ -142,36 +125,36 @@ class NenoJob extends NenoObject
 		$query = $db->getQuery(true);
 
 		$query
-			->select('id')
-			->from('#__neno_content_element_translations AS tr')
-			->where(
-				array(
-					'language = ' . $db->quote($toLanguage),
-					'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
-					'EXISTS (SELECT 1 FROM #__neno_content_element_translation_x_translation_methods AS trtm WHERE tr.id = trtm.translation_id AND translation_method_id = ' . $translationMethod . ')',
-					'NOT EXISTS (SELECT 1 FROM #__neno_jobs_x_translations AS jt WHERE tr.id = jt.translation_id)'
-				)
-			);
+		  ->select('id')
+		  ->from('#__neno_content_element_translations AS tr')
+		  ->where(
+			array(
+			  'language = ' . $db->quote($toLanguage),
+			  'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
+			  'EXISTS (SELECT 1 FROM #__neno_content_element_translation_x_translation_methods AS trtm WHERE tr.id = trtm.translation_id AND translation_method_id = ' . $translationMethod . ')',
+			  'NOT EXISTS (SELECT 1 FROM #__neno_jobs_x_translations AS jt WHERE tr.id = jt.translation_id)'
+			)
+		  );
 
 		$db->setQuery($query);
 		$translationObjects = $db->loadArray();
 
-		$job = null;
+		$job = NULL;
 
 		if (!empty($translationObjects))
 		{
 			$jobData = array(
-				'fromLanguage'      => NenoSettings::get('source_language'),
-				'toLanguage'        => $toLanguage,
-				'state'             => self::JOB_STATE_GENERATED,
-				'createdTime'       => new DateTime,
-				'translationMethod' => $translationMethod
+			  'fromLanguage'      => NenoSettings::get('source_language'),
+			  'toLanguage'        => $toLanguage,
+			  'state'             => self::JOB_STATE_GENERATED,
+			  'createdTime'       => new DateTime,
+			  'translationMethod' => $translationMethod
 			);
 
 			$job = new NenoJob($jobData);
 			$job
-				->setTranslations($translationObjects)
-				->persist();
+			  ->setTranslations($translationObjects)
+			  ->persist();
 
 			NenoTaskMonitor::addTask('job_sender');
 		}
@@ -196,13 +179,13 @@ class NenoJob extends NenoObject
 			if (!empty($this->translations))
 			{
 				$query
-					->replace('#__neno_jobs_x_translations')
-					->columns(
-						array(
-							'job_id',
-							'translation_id'
-						)
-					);
+				  ->replace('#__neno_jobs_x_translations')
+				  ->columns(
+					array(
+					  'job_id',
+					  'translation_id'
+					)
+				  );
 
 				foreach ($this->translations as $translation)
 				{
@@ -214,27 +197,15 @@ class NenoJob extends NenoObject
 			}
 
 			$query
-				->select('SUM(word_counter)')
-				->from('#__neno_jobs_x_translations AS jt')
-				->innerJoin('#__neno_content_element_translations AS tr ON jt.translation_id = tr.id')
-				->where('jt.job_id = ' . $this->id)
-				->group('jt.job_id');
+			  ->select('SUM(word_counter)')
+			  ->from('#__neno_jobs_x_translations AS jt')
+			  ->innerJoin('#__neno_content_element_translations AS tr ON jt.translation_id = tr.id')
+			  ->where('jt.job_id = ' . $this->id)
+			  ->group('jt.job_id');
 			$db->setQuery($query);
-			$wordCount          = $db->loadResult();
-			$translationCredits = 0;
-
-			switch (NenoHelper::convertTranslationMethodIdToName($this->translationMethod->id))
-			{
-				case 'machine':
-					$translationCredits = $wordCount;
-					break;
-				case 'professional':
-					$translationCredits = $wordCount * 200;
-					break;
-			}
-
-			$this->wordCount          = $wordCount;
-			$this->translationCredits = $translationCredits;
+			$wordCount         = $db->loadResult();
+			$this->wordCount   = $wordCount;
+			$this->fundsNeeded = NenoHelper::getPriceByLanguagePair($this->getFromLanguage(), $this->toLanguage) * $wordCount;
 
 			return parent::persist();
 		}
@@ -314,7 +285,7 @@ class NenoJob extends NenoObject
 	 *
 	 * @return $this
 	 */
-	public function setCompletedTime(Datetime $completedTime)
+	public function setCompletedTime(DateTime $completedTime)
 	{
 		$this->completedTime = $completedTime;
 
@@ -346,7 +317,8 @@ class NenoJob extends NenoObject
 		try
 		{
 			return $zipAdapter->extract($fullPath, $tmpPath . '/' . $filename . '.json');
-		} catch (RuntimeException $e)
+		}
+		catch (RuntimeException $e)
 		{
 			NenoLog::log($e->getMessage(), NenoLog::PRIORITY_ERROR, true);
 
@@ -376,7 +348,7 @@ class NenoJob extends NenoObject
 		$filename     = $this->getFileName();
 		$fileContents = json_decode(file_get_contents($tmpPath . '/' . $filename . '.json' . '/' . $filename . '.json'), true);
 
-		if ($fileContents !== null)
+		if ($fileContents !== NULL)
 		{
 			foreach ($fileContents['strings'] as $translationId => $translationText)
 			{
@@ -386,7 +358,7 @@ class NenoJob extends NenoObject
 				if (!empty($translation))
 				{
 					$translation->setString(
-						NenoHelperHtml::replaceTranslationsInHtmlTag($translation->getOriginalText(), html_entity_decode($translationText, ENT_COMPAT | ENT_HTML401, $this->getCorrectEncodingCharset($this->getToLanguage())))
+					  NenoHelperHtml::replaceTranslationsInHtmlTag($translation->getOriginalText(), html_entity_decode($translationText, ENT_COMPAT | ENT_HTML401, $this->getCorrectEncodingCharset($this->getToLanguage())))
 					);
 
 					// Mark this translation method as completed
@@ -407,7 +379,7 @@ class NenoJob extends NenoObject
 			}
 
 			// Ensure the shadow tables of the target language have their language column (if there's any) properly set.
-			$tables = NenoContentElementTable::load(array( 'translate' => 1 ));
+			$tables = NenoContentElementTable::load(array('translate' => 1));
 
 			/* @var $table NenoContentElementTable */
 			foreach ($tables as $table)
@@ -424,11 +396,11 @@ class NenoJob extends NenoObject
 	protected function getCorrectEncodingCharset($language)
 	{
 		$encoding = array(
-			'fr-FR' => 'ISO8859-15',
-			'es-ES' => 'ISO8859-15'
+		  'fr-FR' => 'ISO8859-15',
+		  'es-ES' => 'ISO8859-15'
 		);
 
-		return isset($encoding[ $language ]) ? $encoding[ $language ] : 'UTF-8';
+		return isset($encoding[$language]) ? $encoding[$language] : 'UTF-8';
 	}
 
 	/**
@@ -440,15 +412,15 @@ class NenoJob extends NenoObject
 	{
 		$this->generateJobFile();
 		$this
-			->setSentTime(new DateTime)
-			->setState(self::JOB_STATE_SENT);
+		  ->setSentTime(new DateTime)
+		  ->setState(self::JOB_STATE_SENT);
 
 		$data = array(
-			'filename'             => JUri::root() . 'tmp/' . $this->getFileName() . '.json.zip',
-			'words'                => $this->getWordCount(),
-			'translation_method'   => NenoHelper::convertTranslationMethodIdToName($this->getTranslationMethod()->id),
-			'source_language'      => $this->getFromLanguage(),
-			'destination_language' => $this->getToLanguage()
+		  'filename'             => JUri::root() . 'tmp/' . $this->getFileName() . '.json.zip',
+		  'words'                => $this->getWordCount(),
+		  'translation_method'   => NenoHelper::convertTranslationMethodIdToName($this->getTranslationMethod()->id),
+		  'source_language'      => $this->getFromLanguage(),
+		  'destination_language' => $this->getToLanguage()
 		);
 
 		list($status, $response) = NenoHelperApi::makeApiCall('job', 'POST', $data);
@@ -456,8 +428,8 @@ class NenoJob extends NenoObject
 		if ($status === false)
 		{
 			$this
-				->setSentTime(null)
-				->setState(self::JOB_STATE_GENERATED);
+			  ->setSentTime(NULL)
+			  ->setState(self::JOB_STATE_GENERATED);
 
 			if ($response['code'] !== 200)
 			{
@@ -493,26 +465,26 @@ class NenoJob extends NenoObject
 		$filename = $this->getFileName();
 
 		$jobData = array(
-			'jobId'              => $this->getId(),
-			'job_create_time'    => $this->getCreatedTime(true),
-			'file_name'          => $filename,
-			'translation_method' => NenoHelper::convertTranslationMethodIdToName($this->getTranslationMethod()->id),
-			'from'               => $this->getFromLanguage(),
-			'to'                 => $this->getToLanguage(),
-			'comment'            => NenoSettings::get('external_translators_notes'),
-			'word_count'         => $this->getWordCount(),
-			'callback_url'       => JUri::root() . 'index.php?option=com_neno&task=translationReady&jobId=' . $this->getId(),
-			'strings'            => $this->getTranslations()
+		  'jobId'              => $this->getId(),
+		  'job_create_time'    => $this->getCreatedTime(true),
+		  'file_name'          => $filename,
+		  'translation_method' => NenoHelper::convertTranslationMethodIdToName($this->getTranslationMethod()->id),
+		  'from'               => $this->getFromLanguage(),
+		  'to'                 => $this->getToLanguage(),
+		  'comment'            => NenoSettings::get('external_translators_notes'),
+		  'word_count'         => $this->getWordCount(),
+		  'callback_url'       => JUri::root() . 'index.php?option=com_neno&task=translationReady&jobId=' . $this->getId(),
+		  'strings'            => $this->getTranslations()
 		);
 
 		$fileData = array(
-			'name' => $filename . '.json',
-			'data' => json_encode($jobData)
+		  'name' => $filename . '.json',
+		  'data' => json_encode($jobData)
 		);
 
 		/* @var $zipArchiveAdapter JArchiveZip */
 		$zipArchiveAdapter = JArchive::getAdapter('zip');
-		$result            = $zipArchiveAdapter->create(JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . $filename . '.json.zip', array( $fileData ));
+		$result            = $zipArchiveAdapter->create(JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . $filename . '.json.zip', array($fileData));
 
 		$this->fileName = $filename;
 
@@ -590,31 +562,31 @@ class NenoJob extends NenoObject
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
-				->select(
-					array(
-						't.id',
-						't.content_type',
-						't.content_id',
-						't.comment'
-					)
+			  ->select(
+				array(
+				  't.id',
+				  't.content_type',
+				  't.content_id',
+				  't.comment'
 				)
-				->from('`#__neno_jobs_x_translations` AS jt')
-				->innerJoin('`#__neno_content_element_translations` AS t ON jt.translation_id = t.id')
-				->where('job_id = ' . $this->getId());
+			  )
+			  ->from('`#__neno_jobs_x_translations` AS jt')
+			  ->innerJoin('`#__neno_content_element_translations` AS t ON jt.translation_id = t.id')
+			  ->where('job_id = ' . $this->getId());
 			$db->setQuery($query);
 			$translations       = $db->loadAssocList();
 			$this->translations = array();
 
 			foreach ($translations as $translation)
 			{
-				$translationOriginalText                  = NenoHelper::getTranslationOriginalText(
-					$translation['id'],
-					$translation['content_type'],
-					$translation['content_id']
+				$translationOriginalText                = NenoHelper::getTranslationOriginalText(
+				  $translation['id'],
+				  $translation['content_type'],
+				  $translation['content_id']
 				);
-				$this->translations[ $translation['id'] ] = array(
-					'text'    => NenoHelperHtml::splitHtmlText($translationOriginalText),
-					'comment' => $translation['comment']
+				$this->translations[$translation['id']] = array(
+				  'text'    => NenoHelperHtml::splitHtmlText($translationOriginalText),
+				  'comment' => $translation['comment']
 				);
 			}
 		}

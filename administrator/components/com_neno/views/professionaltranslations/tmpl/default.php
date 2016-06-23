@@ -66,7 +66,7 @@ if (!empty($this->extraSidebar))
 					},
 					success: function (data) {
 						if (data != 'ok') {
-							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_SAVING_SETTING'); ?>");
+							alert("<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ERROR_SAVING_SETTING'); ?>");
 						}
 					}
 
@@ -84,7 +84,7 @@ if (!empty($this->extraSidebar))
 					},
 					success: function (data) {
 						if (data == 'no_tc') {
-							alert("<?php echo JText::_('COM_NENO_EXTERNAL_TRANSLATION_ERROR_ORDERING_NOT_ENOUGH_TC'); ?>");
+							alert("<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ERROR_ORDERING_NOT_ENOUGH_FUNDS'); ?>");
 						}
 						else if (data == 'ok') {
 							button.closest('.translation').slideToggle();

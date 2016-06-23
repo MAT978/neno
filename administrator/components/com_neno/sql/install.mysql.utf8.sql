@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `#__neno_jobs` (
   `from_language`       VARCHAR(5)   NOT NULL,
   `to_language`         VARCHAR(5)   NOT NULL,
   `word_count`          INT(11)      NOT NULL,
-  `translation_credits` INT(11)      NOT NULL,
+  `funds` INT(11)      NOT NULL,
   `estimated_time`      DATETIME     NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_jobs_x_tm_idx` (`translation_method`)
