@@ -31,7 +31,7 @@ if (!empty($this->extraSidebar))
 </div>
 <div class="span11">
 	<form action="<?php echo JRoute::_('index.php?option=com_neno&view=strings'); ?>" method="post" name="adminForm"
-		id="adminForm">
+	      id="adminForm">
 		<div id="j-main-container" class="span10">
 			<div id="elements-wrapper">
 				<table class="table table-striped table-jobs" id="table-jobs">
@@ -52,7 +52,7 @@ if (!empty($this->extraSidebar))
 							<?php echo JHtml::_('grid.sort', 'COM_NENO_JOBS_WORD_COUNT', 'word_count', $listDirection, $listOrder); ?>
 						</th>
 						<th>
-							<?php echo JHtml::_('grid.sort', 'COM_NENO_JOBS_TRANSLATION_CREDIT', 'translation_credit', $listDirection, $listOrder); ?>
+							<?php echo JHtml::_('grid.sort', 'COM_NENO_JOBS_FUNDS', 'funds_needed', $listDirection, $listOrder); ?>
 						</th>
 						<th>
 							<?php echo JHtml::_('grid.sort', 'COM_NENO_JOBS_CREATION_DATE', 'created_time', $listDirection, $listOrder); ?>
@@ -81,7 +81,7 @@ if (!empty($this->extraSidebar))
 								<?php echo $item->word_count; ?>
 							</td>
 							<td>
-								<?php echo JText::sprintf('COM_NENO_TRANSLATION_CREDIT_AMOUNT', $item->translation_credits); ?>
+								<?php echo JText::sprintf('COM_NENO_FUNDS_AMOUNT', $item->funds_needed); ?>
 							</td>
 							<td>
 								<?php echo $item->created_time; ?>
@@ -93,12 +93,12 @@ if (!empty($this->extraSidebar))
 								<div class="btn-group">
 									<?php if ($item->state != NenoJob::JOB_STATE_PROCESSED): ?>
 										<a href="index.php?option=com_neno&task=jobs.resend&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
-											class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_SEND_BUTTON'); ?></a>
+										   class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_SEND_BUTTON'); ?></a>
 									<?php endif; ?>
 									<?php if ($item->state == NenoJob::JOB_STATE_COMPLETED || $item->state == NenoJob::JOB_STATE_PROCESSED): ?>
 										<a
-											href="index.php?option=com_neno&task=jobs.fetch&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
-											class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_FETCH_BUTTON'); ?></a>
+										  href="index.php?option=com_neno&task=jobs.fetch&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
+										  class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_FETCH_BUTTON'); ?></a>
 									<?php endif; ?>
 								</div>
 							</td>
