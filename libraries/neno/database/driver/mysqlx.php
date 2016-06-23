@@ -577,7 +577,11 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 								/* @var $table NenoContentElementTable */
 								$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
-								$table->remove();
+
+								if (!empty($table))
+								{
+									$table->remove();
+								}
 							}
 						}
 					}
