@@ -59,7 +59,7 @@
 			      alt="neno/jobs">
 				COM_NENO_TITLE_JOBS
 			</menu>
-			<menu link="option=com_neno&amp;view=externaltranslations"
+			<menu link="option=com_neno&amp;view=professionaltranslations"
 			      view="professionaltranslations"
 			      alt="neno/professionaltranslations">
 				COM_NENO_TITLE_PROFESSIONAL_TRANSLATIONS
