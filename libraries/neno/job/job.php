@@ -631,4 +631,25 @@ class NenoJob extends NenoObject
 	{
 		return $this->wordCount;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @return bool
+	 */
+	public function remove()
+	{
+		// Delete strings
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->delete('#__neno_jobs_x_translations')
+		  ->where('job_id = ' . $db->quote($this->getId()));
+
+		$db->setQuery($query);
+		$db->execute();
+
+		return parent::remove();
+	}
 }
