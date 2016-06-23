@@ -61,7 +61,7 @@ class com_NenoInstallerScript
 			$app->enqueueMessage('Error installing layouts: ' . $mediaError);
 		}
 
-		if ((string) $parent->getManifest()->version == '2.1.2' && $type == 'update')
+		if ((string) $parent->getManifest()->version == '2.1.3' && $type == 'update')
 		{
 			$app->enqueueMessage('Notice! Neno no longer supports ordering paid machine translation. If you had set any content to be automatically machine translated it has been changed to "manual" translation instead. You can configure how you would like your content translated under "Groups & Elements"', 'warning');
 		}
