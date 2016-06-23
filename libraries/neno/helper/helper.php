@@ -3243,7 +3243,7 @@ class NenoHelper
 	public static function getWorkingLanguage()
 	{
 		$app = JFactory::getApplication();
-
+		
 		if ($app->getUserState('com_neno.working_language') === NULL)
 		{
 			$userId = JFactory::getUser()->id;

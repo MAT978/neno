@@ -27,6 +27,8 @@ class NenoTaskWorkerLanguage extends NenoTaskWorker
 		if (!empty($taskData['language']))
 		{
 			$languageTag = $taskData['language'];
+			$languageTag = $taskData['language'];
+			JFactory::getApplication()->setUserState('com_neno.working_language', $languageTag);
 			$groups      = NenoHelper::getGroups(false);
 			
 			/* @var $group NenoContentElementGroup */
