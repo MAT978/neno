@@ -4271,4 +4271,18 @@ class NenoHelper
 		
 		return $callback;
 	}
+
+	/**
+	 * @param $contentElementFilePath
+	 * @param $fieldName
+	 * @param $attributeName
+	 *
+	 * @return string
+	 */
+	public static function getFieldAttributeFromContentElementFile($contentElementFilePath, $fieldName, $attributeName)
+	{
+		$xml        = simplexml_load_file($contentElementFilePath);
+		$filterType = $xml->xpath('/neno/reference/table/field[@name=\'' . $fieldName . '\']/@' . $attributeName . '');
+		return (string) $filterType[0][ $attributeName ];
+	}
 }
