@@ -770,12 +770,28 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	 */
 	public function getAssignedTranslationMethods()
 	{
-		if ($this->assignedTranslationMethods === NULL)
+		if (empty($this->assignedTranslationMethods))
 		{
 			$this->calculateExtraData();
 		}
 
 		return $this->assignedTranslationMethods;
+	}
+
+	/**
+	 * Copy translation methods from one language to another
+	 *
+	 * @param string $fromLanguage Language you are copying translation methods from
+	 * @param string $toLanguage Language you are copying translation methods to.
+	 *
+	 * @return boolean
+	 */
+	public function copyTranslationMethodFromLanguage($fromLanguage, $toLanguage)
+	{
+		$db    = JFactory::getDbo();
+		$query = 'INSERT IGNORE INTO #__neno_content_element_groups_x_translation_methods (`group_id`,`lang`,`translation_method_id`,`ordering`) SELECT group_id, ' . $db->quote($toLanguage) . ', translation_method_id, ordering FROM #__neno_content_element_groups_x_translation_methods WHERE lang = ' . $db->quote($fromLanguage);
+		$db->setQuery($query);
+		return $db->execute() !== false;
 	}
 
 	/**
