@@ -27,13 +27,15 @@ class NenoTaskWorkerLanguage extends NenoTaskWorker
 		if (!empty($taskData['language']))
 		{
 			$languageTag = $taskData['language'];
-			$languageTag = $taskData['language'];
-			JFactory::getApplication()->setUserState('com_neno.working_language', $languageTag);
-			$groups      = NenoHelper::getGroups(false);
-			
+			JFactory::getApplication()
+			  ->setUserState('com_neno.working_language', $languageTag);
+			$groups                 = NenoHelper::getGroups(false);
+			$mostTranslatedLanguage = NenoHelper::getMostTranslatedLanguage();
+
 			/* @var $group NenoContentElementGroup */
 			foreach ($groups as $group)
 			{
+				$group->copyTranslationMethodFromLanguage($mostTranslatedLanguage, $languageTag);
 				$assignedTranslationMethods = $group->getAssignedTranslationMethods();
 				if (!empty($assignedTranslationMethods))
 				{
