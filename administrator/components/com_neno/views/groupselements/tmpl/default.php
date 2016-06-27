@@ -116,6 +116,10 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		display: none;
 	}
 
+	.modal-body {
+		overflow-y: visible!important;
+	}
+
 </style>
 
 <script type="text/javascript">
