@@ -51,8 +51,10 @@ if (!empty($this->extra_sidebar))
 	}
 
 	function bindEvents(step) {
+		console.log(step);
 		step = typeof step !== 'undefined' ? step : 5;
 		if (step != 5) {
+			console.log(jQuery('.next-step-button'));
 			jQuery('.next-step-button').off('click').on('click', processInstallationStep);
 			// Turn radios into btn-group
 			jQuery('.radio.btn-group label').addClass('btn');
