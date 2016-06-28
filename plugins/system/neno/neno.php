@@ -220,10 +220,8 @@ class PlgSystemNeno extends JPlugin
 		{
 			NenoHelper::createMenuStructure();
 		}
-		elseif ($content instanceof JTable) // We only can process a record if the content is a JTable instance.
+		elseif ($content instanceof JTable && $context !== 'com_menus.item') // We only can process a record if the content is a JTable instance.
 		{
-			/* @var $db NenoDatabaseDriverMysqlx */
-			$db        = JFactory::getDbo();
 			$tableName = $content->getTableName();
 
 			/* @var $table NenoContentElementTable */
@@ -274,9 +272,9 @@ class PlgSystemNeno extends JPlugin
 					}
 					else
 					{
-						$wasIsued = NenoHelperIssue::isIssued($content->id, $tableName);
+						$wasIssued = NenoHelperIssue::isIssued($content->id, $tableName);
 						
-						if ($wasIsued && $wasIsued->error_code == 'NOT_SOURCE_LANG_CONTENT')
+						if ($wasIssued && $wasIssued->error_code == 'NOT_SOURCE_LANG_CONTENT')
 						{
 							NenoHelperIssue::removeIssues($content->id, $tableName);
 						}
