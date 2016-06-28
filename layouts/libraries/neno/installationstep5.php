@@ -175,8 +175,6 @@ JHtml::_('bootstrap.tooltip');
 		jQuery('#proceed-button').attr('disabled', !jQuery(this).prop('checked'));
 	});
 
-	console.log(jQuery('.record-refresher-btn'));
-
 	jQuery('.record-refresher-btn').on('click', refreshRecordCounter);
 
 </script>
