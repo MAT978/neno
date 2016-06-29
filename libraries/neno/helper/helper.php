@@ -1773,6 +1773,93 @@ class NenoHelper
 		$db->setQuery($query);
 		$db->execute();
 	}
+
+	/**
+	 * Check if the issue with the same alias in different menu items but with different languages exist.
+	 *
+	 * @return bool
+	 */
+	public static function menuItemsAliasIssueExists()
+	{
+		$db    = JFactory::getDbo();
+		$query = static::generateMenuItemAliasIssueDatabaseQuery();
+
+		$query->select('COUNT(*)');
+
+		$db->setQuery($query);
+		$results = $db->loadColumn();
+
+		return !empty($results);
+	}
+
+	/**
+	 * Get an array of menu items affected by this issue
+	 *
+	 * @return array
+	 */
+	public static function getMenuItemsAffectedByAliasIssue()
+	{
+		$db         = JFactory::getDbo();
+		$whereQuery = static::generateMenuItemAliasIssueDatabaseQuery();
+		$query      = clone $whereQuery;
+		$whereQuery->select('alias');
+
+		$query
+		  ->clear('group')
+		  ->clear('having')
+		  ->select('*')
+		  ->where(
+			array(
+			  'alias IN (' . (string) $whereQuery . ')'
+			)
+		  );
+
+		$db->setQuery($query);
+		$menuItemsAffected = $db->loadAssocList();
+
+		$aliases = array();
+
+		foreach ($menuItemsAffected as $menuItemAffected)
+		{
+			if (!isset($aliases[$menuItemAffected['alias']]))
+			{
+				$aliases[$menuItemAffected['alias']] = array();
+			}
+
+			$aliases[$menuItemAffected['alias']][] = $menuItemAffected;
+		}
+
+		return $aliases;
+	}
+
+	/**
+	 * Generate query for alias issue on menu item
+	 *
+	 * @return \NenoDatabaseQueryMysqlx
+	 */
+	protected static function generateMenuItemAliasIssueDatabaseQuery()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->from('#__menu')
+		  ->where(
+			array(
+			  '(language = \'*\' OR language = ' . $db->quote(NenoSettings::get('source_language')) . ')',
+			  'client_id = 0'
+			)
+		  )
+		  ->group(
+			array(
+			  'parent_id',
+			  'alias'
+			)
+		  )
+		  ->having('COUNT(*) > 1');
+
+		return $query;
+	}
 	
 	/**
 	 * Replicate module for a particular language
