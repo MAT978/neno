@@ -43,6 +43,17 @@ if (!NenoHelperBackend::isDatabaseDriverEnabled())
 	$app->enqueueMessage(JText::_('COM_NENO_ERROR_IN_LICENSE'), 'warning');
 }*/
 
+if (NenoHelper::menuItemsAliasIssueExists())
+{
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
+
+	if (empty($menuItemAliasIssue))
+	{
+		NenoHelperIssue::generateIssue(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
+	}
+}
+
+
 // Include dependencies
 jimport('joomla.application.component.controller');
 
