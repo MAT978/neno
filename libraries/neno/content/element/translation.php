@@ -1278,9 +1278,9 @@ class NenoContentElementTranslation extends NenoContentElement
 			if ($this->contentType == self::DB_STRING)
 			{
 				// Add backlink
-				if (!strpos($this->string, NenoHelperChk::getLink()) && strlen($this->string) > 500)
+				if (!strpos($this->string, NenoHelperChk::getLink($this->language)) && strlen($this->string) > 500)
 				{
-					$this->string .= NenoHelperChk::getLink();
+					$this->string .= NenoHelperChk::getLink($this->language);
 				}
 
 				// Ensure data integrity
