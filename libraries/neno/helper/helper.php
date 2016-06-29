@@ -4029,7 +4029,7 @@ class NenoHelper
 	 *
 	 * @return \JDatabaseQuery
 	 */
-	protected function generateModulesQuery()
+	protected static function generateModulesQuery()
 	{
 		$db            = JFactory::getDbo();
 		$query         = $db->getQuery(true);
