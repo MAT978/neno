@@ -31,7 +31,7 @@ JHtml::_('bootstrap.tooltip');
 		</p>
 		<?php if ($displayData->fixable) : ?>
 			<?php $lang = ($displayData->viewLang == null) ? '' : '&lang=' . $displayData->viewLang; ?>
-			<a href="<?php echo JRoute::_('index.php?option=com_neno&task=debug.fixIssue&id=' . (int) $displayData->id . $lang); ?>" class="btn btn-small btn-success">
+			<a href="<?php echo JRoute::_('index.php?option=com_neno&task=debug.fixIssue&id=' . (int) $displayData->id . $lang); ?>&r=<?php echo NenoHelperBackend::generateRandomString(); ?>" class="btn btn-small btn-success">
 				<?php echo JText::_('COM_NENO_ISSUE_FIX'); ?>
 			</a>
 		<?php else : ?>

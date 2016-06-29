@@ -75,7 +75,7 @@ class NenoController extends JControllerLegacy
 
 			if (empty($workingLanguage) || !in_array($workingLanguage, array_keys($languages)))
 			{
-				$url = JRoute::_('index.php?option=com_neno&view=setworkinglang&next=' . $view, false);
+				$url = JRoute::_('index.php?option=com_neno&view=setworkinglang&next=' . $view . '&r=' . NenoHelperBackend::generateRandomString(), false);
 				$this->setRedirect($url);
 				$this->redirect();
 			}
@@ -115,7 +115,7 @@ class NenoController extends JControllerLegacy
 
 		NenoHelper::setWorkingLanguage($lang);
 
-		$url = JRoute::_('index.php?option=com_neno&view=' . $next, false);
+		$url = JRoute::_('index.php?option=com_neno&view=' . $next . '&r=' . NenoHelperBackend::generateRandomString(), false);
 		$this->setRedirect($url);
 		$this->redirect();
 	}

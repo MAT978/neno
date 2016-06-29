@@ -71,7 +71,7 @@ $language = $language->title;
 		<?php endif; ?>
 	</ul>
 
-	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=dashboard'); ?>" class="btn btn-primary">
+	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString()); ?>" class="btn btn-primary">
 		<?php echo JText::_('COM_NENO_FIX_CONTENT_DONE'); ?>
 	</a>
 </div>
