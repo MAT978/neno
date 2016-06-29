@@ -273,7 +273,7 @@ function changeTranslateState() {
 		jQuery('#filter-rows-table-'+id).show();
 	}
 
-	bindEvents();
+	bindGroupElementEventes();
 	markLabelAsActiveByStatus(id, type, status, status == 2);
 	setTranslateStatus(id, type, status);
 }
@@ -426,7 +426,7 @@ function showTableFiltersModal(id, currentStatus) {
 				modal.modal('show');
 
 				// Bind events
-				bindEvents();
+				bindGroupElementEventes();
 
 				//Handle saving and submitting the form
 				jQuery('#save-filters-btn').off('click').on('click', saveTableFilters);
@@ -573,7 +573,7 @@ function bindTranslateSomeButtonEvents() {
 
 function duplicateFilterRow() {
 	jQuery(this).closest('tr').clone().appendTo('#filters-table');
-	bindEvents();
+	bindGroupElementEventes();
 }
 
 function removeFilterRow() {

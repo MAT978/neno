@@ -129,12 +129,12 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING', true); ?>';
 		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN', true); ?>';
 		//Bind
-		bindEvents();
+		bindGroupElementEventes();
 
 	});
 
 
-	function bindEvents() {
+	function bindGroupElementEventes() {
 
 		// Bind load elements
 		jQuery('.toggle-elements').off('click').on('click', toggleElementVisibility);
@@ -183,7 +183,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 						jQuery('#loader-' + id).replaceWith(html);
 
 						//Bind events to new fields
-						bindEvents();
+						bindGroupElementEventes();
 					}
 				}
 			);
