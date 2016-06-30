@@ -100,7 +100,7 @@ class NenoViewJobs extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 	}
 
 	/**
