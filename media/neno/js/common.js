@@ -574,7 +574,7 @@ function toggleElementVisibility() {
 					jQuery('#loader-' + id).replaceWith(html);
 
 					//Bind events to new fields
-					bindGroupElementEventes();
+					bindGroupElementEvents();
 				}
 			}
 		);
@@ -645,11 +645,14 @@ function changeFieldTranslateState() {
  *  - Parent click: check/uncheck all children
  *  - Child click: uncheck parent if unchecked
  */
-function checkUncheckFamilyCheckboxes() {
+function checkUncheckFamilyCheckboxes(element) {
 
+	if(typeof element === 'undefined'){
+		element = jQuery(this);
+	}
 	//Set some vars
-	var state = jQuery(this).prop('checked');
-	var this_data_id = jQuery(this).closest('tr').attr('data-id');
+	var state = element.prop('checked');
+	var this_data_id = element.closest('tr').attr('data-id');
 	var this_parts = this_data_id.split('-');
 	var this_id = this_parts[1];
 
@@ -762,7 +765,7 @@ function bindTranslateSomeButtonEvents() {
 
 function duplicateFilterRow() {
 	jQuery(this).closest('tr').clone().appendTo('#filters-table');
-	bindGroupElementEventes();
+	bindGroupElementEvents();
 }
 
 function removeFilterRow() {

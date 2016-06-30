@@ -129,7 +129,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		warning_message = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_WARNING', true); ?>';
 		warning_button = '<?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_RELOAD_BTN', true); ?>';
 		//Bind
-		bindGroupElementEventes();
+		bindGroupElementEvents();
 
 	});
 
