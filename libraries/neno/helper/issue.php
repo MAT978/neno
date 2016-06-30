@@ -340,6 +340,10 @@ class NenoHelperIssue
 			{
 				$details->message = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code), $issue->lang);
 			}
+			elseif ($issue->error_code == static::MENU_ITEMS_HAVE_SAME_ALIAS)
+			{
+				$details->message = JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+			}
 			else
 			{
 				$item             = self::getItemDetails($issue);
@@ -383,7 +387,10 @@ class NenoHelperIssue
 	 */
 	private static function isFixable($issue)
 	{
-		return ($issue->error_code != static::NOT_SOURCE_LANG_CONTENT);
+		return (!in_array($issue->error_code, array(
+		  static::NOT_SOURCE_LANG_CONTENT,
+		  static::MENU_ITEMS_HAVE_SAME_ALIAS
+		)));
 	}
 
 	/**

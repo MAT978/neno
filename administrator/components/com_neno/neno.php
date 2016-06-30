@@ -45,7 +45,7 @@ if (!NenoHelperBackend::isDatabaseDriverEnabled())
 
 if (NenoHelper::menuItemsAliasIssueExists())
 {
-	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, null, true);
 
 	if (empty($menuItemAliasIssue))
 	{
