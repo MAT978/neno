@@ -22,31 +22,30 @@ class NenoViewDashboard extends JViewLegacy
 	 * @var array
 	 */
 	protected $items;
-
 	/**
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
-
 	/**
 	 * @var string
 	 */
 	protected $sidebar;
-
 	/**
 	 * @var string
 	 */
 	protected $extraSidebar;
-
 	/**
 	 * @var bool
 	 */
 	protected $isLanguageSwitcherPublished;
-
 	/**
 	 * @var JForm
 	 */
 	protected $positionField;
+	/**
+	 * @var stdClass
+	 */
+	protected $menuItemAliasIssue;
 
 	/**
 	 * Display the view
@@ -59,11 +58,13 @@ class NenoViewDashboard extends JViewLegacy
 	 *
 	 * @since 1.0
 	 */
-	public function display($tpl = null)
+	public function display($tpl = NULL)
 	{
 		$this->state                       = $this->get('State');
 		$this->items                       = $this->get('Items');
-		$this->isLanguageSwitcherPublished = $this->getModel()->IsSwitcherPublished();
+		$this->isLanguageSwitcherPublished = $this->getModel()
+		  ->IsSwitcherPublished();
+		$this->menuItemAliasIssue          = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
 
 		if (!$this->isLanguageSwitcherPublished)
 		{
