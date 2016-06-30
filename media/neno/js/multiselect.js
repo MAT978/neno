@@ -55,43 +55,10 @@ function loadGroupsElementsChildren(element) {
 	}
 }
 
-
-function bindEvents() {
-	jQuery('.multiselect *').unbind('click');
-
-	jQuery('.btn-toggle').click(function (e) {
-		jQuery('#' + jQuery(this).attr('data-toggle')).slideToggle('fast');
-		jQuery(this).toggleClass('open');
-		jQuery(this).blur();
-	});
-
-	jQuery('#table-multiselect .cell-expand').click(toggleElementVisibility);
-
-	jQuery('#table-multiselect input[type=checkbox]').unbind('click').click(function () {
-		if (confirmNotSavingChanges() === false) {
-			jQuery(this).prop('checked', !jQuery(this).prop('checked'));
-			return;
-		}
-		jQuery("input[name='limitstart']").val(0);
-		jQuery('#elements-wrapper').html('');
-		checkUncheckFamilyCheckboxes(jQuery(this));
-		loadStrings(true);
-	});
-	jQuery('#status-multiselect input[type=checkbox], #method-multiselect input[type=checkbox]').unbind('click').click(function () {
-		if (confirmNotSavingChanges() === false) {
-			jQuery(this).prop('checked', !jQuery(this).prop('checked'));
-			return;
-		}
-		jQuery("input[name='limitstart']").val(0);
-		jQuery('#elements-wrapper').html('');
-		loadStrings(true);
-	});
-}
-
 /**
  * Toggle Elements (Tables and language files)
  */
-function toggleElementVisibility() {
+function toggleElementVisibilityEditor() {
 
 	var row = jQuery(this).parent('.element-row');
 	var data_id = row.data('id');
@@ -114,6 +81,39 @@ function toggleElementVisibility() {
 			jQuery('[data-parent="' + descendant_data_id + '"]').addClass('hide');
 		});
 	}
+}
+
+
+function bindEvents() {
+	jQuery('.multiselect *').unbind('click');
+
+	jQuery('.btn-toggle').click(function (e) {
+		jQuery('#' + jQuery(this).attr('data-toggle')).slideToggle('fast');
+		jQuery(this).toggleClass('open');
+		jQuery(this).blur();
+	});
+
+	jQuery('#table-multiselect .cell-expand').click(toggleElementVisibilityEditor);
+
+	jQuery('#table-multiselect input[type=checkbox]').unbind('click').click(function () {
+		if (confirmNotSavingChanges() === false) {
+			jQuery(this).prop('checked', !jQuery(this).prop('checked'));
+			return;
+		}
+		jQuery("input[name='limitstart']").val(0);
+		jQuery('#elements-wrapper').html('');
+		checkUncheckFamilyCheckboxes(jQuery(this));
+		loadStrings(true);
+	});
+	jQuery('#status-multiselect input[type=checkbox], #method-multiselect input[type=checkbox]').unbind('click').click(function () {
+		if (confirmNotSavingChanges() === false) {
+			jQuery(this).prop('checked', !jQuery(this).prop('checked'));
+			return;
+		}
+		jQuery("input[name='limitstart']").val(0);
+		jQuery('#elements-wrapper').html('');
+		loadStrings(true);
+	});
 }
 
 /**
