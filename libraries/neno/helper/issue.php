@@ -200,7 +200,7 @@ class NenoHelperIssue
 	 *
 	 * @return  mixed The result
 	 */
-	private static function solveIssue($pk)
+	public static function solveIssue($pk)
 	{
 		$user  = JFactory::getUser();
 		$db    = JFactory::getDbo();

@@ -45,11 +45,20 @@ if (!NenoHelperBackend::isDatabaseDriverEnabled())
 
 if (NenoHelper::menuItemsAliasIssueExists())
 {
-	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, null, true);
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, NULL, true);
 
 	if (empty($menuItemAliasIssue))
 	{
 		NenoHelperIssue::generateIssue(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
+	}
+}
+else
+{
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, NULL, true);
+
+	if (!empty($menuItemAliasIssue))
+	{
+		NenoHelperIssue::solveIssue($menuItemAliasIssue[0]->id);
 	}
 }
 
