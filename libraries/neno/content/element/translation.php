@@ -347,7 +347,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	/**
 	 * Setter for original text
 	 *
-	 * @param   string  $string 
+	 * @param   string $string
 	 */
 	public function setOriginalText($string)
 	{
@@ -1330,7 +1330,7 @@ class NenoContentElementTranslation extends NenoContentElement
 						}
 					}
 
-					$existingStrings[$translationData['constant']] = $this->string;
+					$existingStrings[$translationData['constant']] = $this->ensureStringIntegrity($this->string);
 
 					NenoHelperFile::saveIniFile($filePath, $existingStrings);
 				}
@@ -1338,6 +1338,27 @@ class NenoContentElementTranslation extends NenoContentElement
 		}
 
 		return false;
+	}
+
+	/**
+	 * Ensure that translated string has no conflicts with some PHP methods like sprintf.
+	 *
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	protected function ensureStringIntegrity($string)
+	{
+		$matches = NULL;
+		if (preg_match_all('/((\d*)%)\B/', $string, $matches) != 0)
+		{
+			foreach ($matches[0] as $match)
+			{
+				$string = preg_replace('/' . preg_quote($match) . '\B/', str_replace('%', '&#37;', htmlentities($match)), $string);
+			}
+		}
+
+		return $string;
 	}
 
 	/**
