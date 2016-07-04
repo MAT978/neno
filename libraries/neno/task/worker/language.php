@@ -27,23 +27,48 @@ class NenoTaskWorkerLanguage extends NenoTaskWorker
 		if (!empty($taskData['language']))
 		{
 			$languageTag = $taskData['language'];
-			$groups      = NenoHelper::getGroups(false);
+			$groups      = NenoHelper::getGroups(false, true, $languageTag);
+			$groupsList  = NenoSettings::get('installing_language_' . $languageTag, NULL);
+
+			if ($groupsList === NULL)
+			{
+				$groupsList = array();
+				/* @var $group NenoContentElementGroup */
+				foreach ($groups as $group)
+				{
+					$groupsList[] = $group->getId();
+				}
+			}
 
 			/* @var $group NenoContentElementGroup */
 			foreach ($groups as $group)
 			{
-				$group->generateContentForLanguage($languageTag);
+				if (in_array($group->getId(), $groupsList))
+				{
+					$group->generateContentForLanguage($languageTag);
+					$index = array_search($group->getId(), $groupsList);
+
+					if ($index !== false)
+					{
+						unset($groupsList[$index]);
+					}
+
+					NenoSettings::set('installing_language_' . $languageTag, $groupsList);
+				}
+
 			}
 
 			// Publish language content
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
-				->update('#__languages')
-				->set('published = 1')
-				->where('lang_code = ' . $db->quote($languageTag));
+			  ->update('#__languages')
+			  ->set('published = 1')
+			  ->where('lang_code = ' . $db->quote($languageTag));
 			$db->setQuery($query);
 			$db->execute();
+
+			NenoSettings::set('installing_language_' . $languageTag, NULL);
 		}
 	}
 }

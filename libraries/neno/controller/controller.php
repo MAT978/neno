@@ -660,4 +660,26 @@ class NenoController extends JControllerLegacy
 
 		JFactory::getApplication()->close();
 	}
+
+	public function getDiscoverMessage()
+	{
+		$language = NenoHelperBackend::getLanguageBeingInstalled();
+
+		if ($language !== false && NenoHelper::isInstallationCompleted())
+		{
+			$layoutData                    = new stdClass;
+			$layoutData->cronMode          = NenoSettings::get('schedule_task_option');
+			$layoutData->tableToBeDiscover = NenoHelperBackend::getTablesCountToBeInstalledByLanguage($language);
+			$layoutData->tableDiscovered   = NenoHelperBackend::getTablesThatHasBeenProcessAlready($language);
+			$layoutData->tablesRemain      = $layoutData->tableToBeDiscover - $layoutData->tableDiscovered;
+			echo JLayoutHelper::render('discoveralert', $layoutData, JPATH_NENO_LAYOUTS);
+		}
+		else
+		{
+			echo '';
+		}
+
+
+		JFactory::getApplication()->close();
+	}
 }
