@@ -1610,4 +1610,81 @@ class NenoHelperBackend
 
 		return $randomString;
 	}
+
+	/**
+	 * Returns the language that is being installed currently.
+	 *
+	 * @return bool|string
+	 */
+	public static function getLanguageBeingInstalled()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query
+		  ->select('task_data')
+		  ->from('#__neno_tasks')
+		  ->where('task = ' . $db->quote('language'));
+		$db->setQuery($query, 0, 1);
+		$taskData = $db->loadResult();
+
+		if (!empty($taskData))
+		{
+			$taskData = json_decode($taskData, true);
+
+			return $taskData['language'];
+		}
+
+		return false;
+	}
+
+	/**
+	 *
+	 * @param string $language
+	 *
+	 * @return int
+	 */
+	public static function getTablesCountToBeInstalledByLanguage($language)
+	{
+		$db = JFactory::getDbo();
+		$db->setQuery(static::getTableDiscoveredQuery($language));
+
+		return (int) $db->loadResult();
+	}
+
+	/**
+	 * @param $language
+	 *
+	 * @return int
+	 */
+	public static function getTablesThatHasBeenProcessAlready($language)
+	{
+		$db    = JFactory::getDbo();
+		$query = static::getTableDiscoveredQuery($language)
+		  ->where('EXISTS(SELECT 1 FROM #__neno_content_element_translations AS tr INNER JOIN #__neno_content_element_fields AS f ON tr.content_id = f.id WHERE t.id = f.table_id AND tr.content_type = \'db_string\' AND tr.language = ' . $db->quote($language) . ' )');
+		$db->setQuery($query);
+
+		return (int) $db->loadResult();
+	}
+
+	/**
+	 * @param $language
+	 *
+	 * @return \JDatabaseQuery
+	 */
+	protected static function getTableDiscoveredQuery($language)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select('COUNT(t.id) AS counter')
+		  ->from('#__neno_content_element_tables AS t')
+		  ->where(
+			array(
+			  't.translate = 1'
+			)
+		  );
+
+		return $query;
+	}
 }

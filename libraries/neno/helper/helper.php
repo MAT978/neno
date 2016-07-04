@@ -1050,7 +1050,7 @@ class NenoHelper
 	 *
 	 * @return  array
 	 */
-	public static function getGroups($loadExtraData = true, $avoidDoNotTranslate = false)
+	public static function getGroups($loadExtraData = true, $avoidDoNotTranslate = false, $orderByTranslationCounter = false)
 	{
 		$cacheId   = NenoCache::getCacheId(__FUNCTION__, array(1));
 		$cacheData = NenoCache::getCacheData($cacheId);
@@ -1079,7 +1079,34 @@ class NenoHelper
 			  ->select('1')
 			  ->from('#__neno_content_element_language_files AS lf')
 			  ->where('lf.group_id = g.id');
-			
+
+			$order = array(
+			  'IFNULL((SELECT DISTINCT 1 FROM #__neno_content_element_groups_x_translation_methods AS gtm WHERE gtm.group_id = g.id) ,0)',
+			  'group_name'
+			);
+
+			if ($orderByTranslationCounter !== NULL)
+			{
+				$queryTranslationCounter = $db->getQuery(true);
+
+				$queryTranslationCounter
+				  ->select('COUNT(tr.id)')
+				  ->from('#__neno_content_element_translations AS tr')
+				  ->innerJoin('#__neno_content_element_fields AS f ON f.id = tr.content_id')
+				  ->innerJoin('#__neno_content_element_tables AS t ON t.id = f.table_id')
+				  ->where(
+					array(
+					  'tr.content_type = ' . $db->quote('db_string'),
+					  't.group_id = g.id',
+					  'tr.language = ' . $db->quote($orderByTranslationCounter)
+					)
+				  );
+
+				$query->select('(' . (string) $queryTranslationCounter . ') AS translationCounter');
+
+				$order = array_merge(array('translationCounter'), $order);
+			}
+
 			$query
 			  ->select('g.id')
 			  ->from('`#__neno_content_element_groups` AS g')
@@ -1089,13 +1116,8 @@ class NenoHelper
 				  'EXISTS (' . (string) $subquery2 . ')',
 				  '(NOT EXISTS (' . (string) $subquery1 . ') AND NOT EXISTS (' . (string) $subquery2 . ') AND NOT EXISTS(SELECT 1 FROM #__neno_content_element_groups_x_extensions AS ge WHERE g.id = ge.group_id))'
 				), 'OR')
-			  ->order(
-				array(
-				  'IFNULL((SELECT DISTINCT 1 FROM #__neno_content_element_groups_x_translation_methods AS gtm WHERE gtm.group_id = g.id) ,0)',
-				  'group_name'
-				)
-			  );
-			
+			  ->order($order);
+
 			$db->setQuery($query);
 			$groups = $db->loadObjectList();
 			
@@ -4357,6 +4379,16 @@ class NenoHelper
 		}
 		
 		return $callback;
+	}
+	
+	/**
+	 * Checks if the installation process has finished
+	 *
+	 * @return bool
+	 */
+	public static function isInstallationCompleted()
+	{
+		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 7;
 	}
 
 	/**
