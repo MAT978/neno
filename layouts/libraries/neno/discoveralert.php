@@ -13,9 +13,10 @@ defined('_JEXEC') or die;
 ?>
 
 <div class="alert alert-info" id="discover-alert">
-	New tables have been discovered and we are currently processing them. Please keep a browser window open to speed up this process. <?php echo $displayData->tablesRemain; ?> table(s) remaining.
+	<?php echo JText::sprintf('COM_NENO_DISCOVER_LANGUAGE_MESSAGE', $displayData->tablesRemain); ?>
 
 	<div class="progress progress-striped active">
-		<div class="bar" style="width: <?php echo (($displayData->tableDiscovered * 100) / $displayData->tableToBeDiscover);?>%;"></div>
+		<div class="bar"
+		     style="width: <?php echo(($displayData->tableDiscovered * 100) / $displayData->tableToBeDiscover); ?>%;"></div>
 	</div>
-  </div>
+</div>
