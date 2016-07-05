@@ -268,9 +268,9 @@ function changeTranslateState() {
 	var status = parseInt(jQuery(this).val());
 
 	if (status == 0) {
-		jQuery('#filter-rows-table-'+id).hide();
+		jQuery('#filter-rows-table-'+id).addClass('hidden');
 	} else {
-		jQuery('#filter-rows-table-'+id).show();
+		jQuery('#filter-rows-table-'+id).removeClass('hidden');
 	}
 
 	bindGroupElementEvents();
@@ -840,5 +840,5 @@ function getDiscoverAlert() {
 jQuery(document).ready(function () {
     getDiscoverAlert();
 
-    setInterval(getDiscoverAlert, 2000);
+    setInterval(getDiscoverAlert, 10000);
 });
