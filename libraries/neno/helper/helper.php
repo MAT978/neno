@@ -1050,7 +1050,7 @@ class NenoHelper
 	 *
 	 * @return  array
 	 */
-	public static function getGroups($loadExtraData = true, $avoidDoNotTranslate = false)
+	public static function getGroups($loadExtraData = true, $avoidDoNotTranslate = false, $orderByTranslationCounter = false)
 	{
 		$cacheId   = NenoCache::getCacheId(__FUNCTION__, array(1));
 		$cacheData = NenoCache::getCacheData($cacheId);
@@ -1079,7 +1079,34 @@ class NenoHelper
 			  ->select('1')
 			  ->from('#__neno_content_element_language_files AS lf')
 			  ->where('lf.group_id = g.id');
-			
+
+			$order = array(
+			  'IFNULL((SELECT DISTINCT 1 FROM #__neno_content_element_groups_x_translation_methods AS gtm WHERE gtm.group_id = g.id) ,0)',
+			  'group_name'
+			);
+
+			if ($orderByTranslationCounter !== NULL)
+			{
+				$queryTranslationCounter = $db->getQuery(true);
+
+				$queryTranslationCounter
+				  ->select('COUNT(tr.id)')
+				  ->from('#__neno_content_element_translations AS tr')
+				  ->innerJoin('#__neno_content_element_fields AS f ON f.id = tr.content_id')
+				  ->innerJoin('#__neno_content_element_tables AS t ON t.id = f.table_id')
+				  ->where(
+					array(
+					  'tr.content_type = ' . $db->quote('db_string'),
+					  't.group_id = g.id',
+					  'tr.language = ' . $db->quote($orderByTranslationCounter)
+					)
+				  );
+
+				$query->select('(' . (string) $queryTranslationCounter . ') AS translationCounter');
+
+				$order = array_merge(array('translationCounter'), $order);
+			}
+
 			$query
 			  ->select('g.id')
 			  ->from('`#__neno_content_element_groups` AS g')
@@ -1089,13 +1116,8 @@ class NenoHelper
 				  'EXISTS (' . (string) $subquery2 . ')',
 				  '(NOT EXISTS (' . (string) $subquery1 . ') AND NOT EXISTS (' . (string) $subquery2 . ') AND NOT EXISTS(SELECT 1 FROM #__neno_content_element_groups_x_extensions AS ge WHERE g.id = ge.group_id))'
 				), 'OR')
-			  ->order(
-				array(
-				  'IFNULL((SELECT DISTINCT 1 FROM #__neno_content_element_groups_x_translation_methods AS gtm WHERE gtm.group_id = g.id) ,0)',
-				  'group_name'
-				)
-			  );
-			
+			  ->order($order);
+
 			$db->setQuery($query);
 			$groups = $db->loadObjectList();
 			
@@ -1772,6 +1794,93 @@ class NenoHelper
 		
 		$db->setQuery($query);
 		$db->execute();
+	}
+
+	/**
+	 * Check if the issue with the same alias in different menu items but with different languages exist.
+	 *
+	 * @return bool
+	 */
+	public static function menuItemsAliasIssueExists()
+	{
+		$db    = JFactory::getDbo();
+		$query = static::generateMenuItemAliasIssueDatabaseQuery();
+
+		$query->select('COUNT(*)');
+
+		$db->setQuery($query);
+		$results = $db->loadColumn();
+
+		return !empty($results);
+	}
+
+	/**
+	 * Get an array of menu items affected by this issue
+	 *
+	 * @return array
+	 */
+	public static function getMenuItemsAffectedByAliasIssue()
+	{
+		$db         = JFactory::getDbo();
+		$whereQuery = static::generateMenuItemAliasIssueDatabaseQuery();
+		$query      = clone $whereQuery;
+		$whereQuery->select('alias');
+
+		$query
+		  ->clear('group')
+		  ->clear('having')
+		  ->select('*')
+		  ->where(
+			array(
+			  'alias IN (' . (string) $whereQuery . ')'
+			)
+		  );
+
+		$db->setQuery($query);
+		$menuItemsAffected = $db->loadAssocList();
+
+		$aliases = array();
+
+		foreach ($menuItemsAffected as $menuItemAffected)
+		{
+			if (!isset($aliases[$menuItemAffected['alias']]))
+			{
+				$aliases[$menuItemAffected['alias']] = array();
+			}
+
+			$aliases[$menuItemAffected['alias']][] = $menuItemAffected;
+		}
+
+		return $aliases;
+	}
+
+	/**
+	 * Generate query for alias issue on menu item
+	 *
+	 * @return \NenoDatabaseQueryMysqlx
+	 */
+	protected static function generateMenuItemAliasIssueDatabaseQuery()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->from('#__menu')
+		  ->where(
+			array(
+			  '(language = \'*\' OR language = ' . $db->quote(NenoSettings::get('source_language')) . ')',
+			  'client_id = 0'
+			)
+		  )
+		  ->group(
+			array(
+			  'parent_id',
+			  'alias'
+			)
+		  )
+		  ->having('COUNT(*) > 1');
+
+		return $query;
 	}
 	
 	/**
@@ -4029,7 +4138,7 @@ class NenoHelper
 	 *
 	 * @return \JDatabaseQuery
 	 */
-	protected function generateModulesQuery()
+	protected static function generateModulesQuery()
 	{
 		$db            = JFactory::getDbo();
 		$query         = $db->getQuery(true);
@@ -4270,6 +4379,16 @@ class NenoHelper
 		}
 		
 		return $callback;
+	}
+	
+	/**
+	 * Checks if the installation process has finished
+	 *
+	 * @return bool
+	 */
+	public static function isInstallationCompleted()
+	{
+		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 7;
 	}
 
 	/**

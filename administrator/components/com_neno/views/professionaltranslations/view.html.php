@@ -68,7 +68,7 @@ class NenoViewProfessionalTranslations extends JViewLegacy
 		$this->items                = $this->get('Items');
 		$this->fundsNeeded          = $this->get('FundsNeeded');
 		$this->comment              = $this->get('Comment');
-		$this->fundsAvailable       = NenoHelperApi::getTcAvailable();
+		$this->fundsAvailable       = NenoHelperApi::getFundsAvailable();
 		$this->fundsNeededToBeAdded = $this->fundsAvailable < $this->fundsNeeded;
 
 		// Check for errors.

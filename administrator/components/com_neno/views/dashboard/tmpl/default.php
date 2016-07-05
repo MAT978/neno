@@ -77,22 +77,22 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 			var language = jQuery(this).data('language');
 
 			jQuery.post(
-				'index.php?option=com_neno&task=saveExternalTranslatorsComment',
-				{
-					placement: 'language',
-					language : language,
-					comment  : jQuery(".comment-to-translator[data-language='" + language + "']").val()
-				},
-				function (response) {
+			  'index.php?option=com_neno&task=saveExternalTranslatorsComment',
+			  {
+				  placement: 'language',
+				  language: language,
+				  comment: jQuery(".comment-to-translator[data-language='" + language + "']").val()
+			  },
+			  function (response) {
 
-					if (response == 'ok') {
-						var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT', true); ?>';
-						text = text.replace('%s', language);
-						jQuery(".add-comment-to-translator-button[data-language='" + language + "']").html('<span class="icon-pencil"></span> ' + text);
-					}
+				  if (response == 'ok') {
+					  var text = '<?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_EDIT', true); ?>';
+					  text = text.replace('%s', language);
+					  jQuery(".add-comment-to-translator-button[data-language='" + language + "']").html('<span class="icon-pencil"></span> ' + text);
+				  }
 
-					jQuery('#addCommentFor' + language).modal('toggle');
-				}
+				  jQuery('#addCommentFor' + language).modal('toggle');
+			  }
 			);
 		});
 
@@ -105,17 +105,21 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 
 </script>
 
-<form action="index.php?option=com_neno&view=dashboard" method="post" name="adminForm"
-	id="adminForm">
+<form action="index.php?option=com_neno&view=dashboard" method="post"
+      name="adminForm"
+      id="adminForm">
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" class="span10">
-		<input type="hidden" name="task" value="" />
-		<input type="hidden" name="boxchecked" value="0" />
+		<input type="hidden" name="task" value=""/>
+		<input type="hidden" name="boxchecked" value="0"/>
 		<?php echo JHtml::_('form.token'); ?>
 		<?php if (!$this->isLanguageSwitcherPublished): ?>
 			<?php echo JLayoutHelper::render('languageswitcheralert', $this->positionField, JPATH_NENO_LAYOUTS); ?>
+		<?php endif; ?>
+		<?php if (!empty($this->menuItemAliasIssue)): ?>
+			<?php echo NenoHelperIssue::renderIssue($this->menuItemAliasIssue[0]); ?>
 		<?php endif; ?>
 		<div class="languages-holder">
 			<?php foreach ($this->items as $item): ?>
@@ -123,7 +127,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 				<?php echo JLayoutHelper::render('languageconfiguration', $item, JPATH_NENO_LAYOUTS); ?>
 			<?php endforeach; ?>
 			<button type="button" class="btn btn-primary"
-				id="add-languages-button">
+			        id="add-languages-button">
 				<?php echo JText::_('COM_NENO_INSTALLATION_TARGET_LANGUAGES_ADD_LANGUAGE_BUTTON'); ?>
 			</button>
 		</div>
@@ -132,17 +136,20 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 <div class="modal hide fade" id="languages-modal">
 	<div class="modal-header">
 		&nbsp;
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<button type="button" class="close" data-dismiss="modal"
+		        aria-hidden="true">&times;</button>
 	</div>
 	<div class="modal-body" style="height: 400px"></div>
 	<div class="modal-footer">
-		<a href="#" class="btn" data-dismiss="modal"><?php echo JText::_('JTOOLBAR_CLOSE'); ?></a>
+		<a href="#" class="btn"
+		   data-dismiss="modal"><?php echo JText::_('JTOOLBAR_CLOSE'); ?></a>
 	</div>
 </div>
 
 <div class="modal hide fade" id="translationMethodModal">
 	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<button type="button" class="close" data-dismiss="modal"
+		        aria-hidden="true">&times;</button>
 		<h3><?php echo JText::_('COM_NENO_TRANSLATION_METHOD_MODAL_TITLE'); ?></h3>
 	</div>
 	<div class="modal-body">
@@ -151,15 +158,17 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		</p>
 	</div>
 	<div class="modal-footer">
-		<a href="#" class="btn" data-dismiss="modal"><?php echo JText::_('JNO'); ?></a>
-		<button type="button" class="btn btn-primary yes-btn"><?php echo JText::_('JYES'); ?></button>
+		<a href="#" class="btn"
+		   data-dismiss="modal"><?php echo JText::_('JNO'); ?></a>
+		<button type="button"
+		        class="btn btn-primary yes-btn"><?php echo JText::_('JYES'); ?></button>
 	</div>
 </div>
 
 <script>
 	jQuery('#add-languages-button').click(function () {
 		jQuery.ajax({
-			url    : 'index.php?option=com_neno&task=showInstallLanguagesModal&placement=dashboard',
+			url: 'index.php?option=com_neno&task=showInstallLanguagesModal&placement=dashboard',
 			success: function (html) {
 				var modal = jQuery('#languages-modal');
 				modal.find('.modal-body').empty().append(html);

@@ -31,15 +31,37 @@ class NenoTaskWorkerLanguage extends NenoTaskWorker
 			  ->setUserState('com_neno.working_language', $languageTag);
 			$groups                 = NenoHelper::getGroups(false);
 			$mostTranslatedLanguage = NenoHelper::getMostTranslatedLanguage();
+			$groupsList             = @json_decode(NenoSettings::get('installing_language_' . $languageTag, NULL), true);
+
+			if (empty($groupsList))
+			{
+				$groupsList = array();
+				/* @var $group NenoContentElementGroup */
+				foreach ($groups as $group)
+				{
+					$groupsList[] = $group->getId();
+				}
+			}
 
 			/* @var $group NenoContentElementGroup */
 			foreach ($groups as $group)
 			{
-				$group->copyTranslationMethodFromLanguage($mostTranslatedLanguage, $languageTag);
-				$assignedTranslationMethods = $group->getAssignedTranslationMethods();
-				if (!empty($assignedTranslationMethods))
+				if (in_array($group->getId(), $groupsList))
 				{
-					$group->generateContentForLanguage($languageTag);
+					$group->copyTranslationMethodFromLanguage($mostTranslatedLanguage, $languageTag);
+					$assignedTranslationMethods = $group->getAssignedTranslationMethods();
+					if (!empty($assignedTranslationMethods))
+					{
+						$group->generateContentForLanguage($languageTag);
+						$index = array_search($group->getId(), $groupsList);
+
+						if ($index !== false)
+						{
+							unset($groupsList[$index]);
+						}
+
+						NenoSettings::set('installing_language_' . $languageTag, json_encode($groupsList));
+					}
 				}
 			}
 			

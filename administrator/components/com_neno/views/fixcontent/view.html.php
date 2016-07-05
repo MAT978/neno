@@ -62,7 +62,7 @@ class NenoViewFixContent extends JViewLegacy
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getTcAvailable());
+		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 
 		JToolbarHelper::title(JText::_('COM_NENO_FIX_CONTENT_TITLE'), 'screen');
 

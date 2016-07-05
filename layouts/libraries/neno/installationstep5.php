@@ -35,6 +35,10 @@ JHtml::_('bootstrap.tooltip');
 	#proceed-button {
 		margin-top : 15px;
 	}
+	
+	#nenomodal-table-filters .modal-body{
+		overflow-y: visible !important;
+	}
 </style>
 
 <div class="installation-step">

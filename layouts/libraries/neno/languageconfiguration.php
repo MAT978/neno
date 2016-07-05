@@ -51,7 +51,7 @@ $n                        = 0;
 		<?php if ($item['placement'] == 'dashboard' || $item['placement'] == 'module'): ?>
 			<?php echo NenoHelper::renderWordCountProgressBar($item['wordCount'], $item['isInstalled'], $item['isInstalled']) ?>
 			<a class="btn <?php echo $item['isInstalled'] == false ? 'not-ready' : ''; ?>"
-			   href="<?php echo JRoute::_('index.php?option=com_neno&task=setWorkingLang&lang=' . $item['lang_code'] . '&next=editor'); ?>">
+			   href="<?php echo JRoute::_('index.php?option=com_neno&task=setWorkingLang&lang=' . $item['lang_code'] . '&next=editor&r=' . NenoHelperBackend::generateRandomString()); ?>">
 				<?php if ($item['isInstalled'] == false) : ?>
 					<?php echo JText::_('COM_NENO_LANGUAGE_SETTING_UP_MESSAGE') . '<i class="icon-clock"></i>'; ?>
 					<script>isLangReady(jQuery(this).data('language'));</script>
@@ -73,7 +73,7 @@ $n                        = 0;
 		<span class="link-ge">
 			&nbsp;
 			<?php if ($item['placement'] == 'dashboard'): ?>
-				<?php echo JText::sprintf('COM_NENO_DASHBOARD_GROUPS_ELEMENTS_LINK', JRoute::_('index.php?option=com_neno&task=setWorkingLang&lang=' . $item['lang_code'] . '&next=groupselements')); ?>
+				<?php echo JText::sprintf('COM_NENO_DASHBOARD_GROUPS_ELEMENTS_LINK', JRoute::_('index.php?option=com_neno&task=setWorkingLang&lang=' . $item['lang_code'] . '&next=groupselements&r=' . NenoHelperBackend::generateRandomString())); ?>
 			<?php endif; ?>
 		</span>
 
@@ -138,7 +138,7 @@ $n                        = 0;
 
 			<p><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_PRE'); ?></p>
 
-			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=externaltranslations&open=comment')); ?></p>
+			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=externaltranslations&open=comment&r=' . NenoHelperBackend::generateRandomString())); ?></p>
 
 			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_POST', NenoSettings::get('source_language'), $item['lang_code']); ?></p>
 

@@ -145,7 +145,7 @@ if (!empty($this->extraSidebar))
 				<?php endforeach; ?>
 				<?php if ($professionalTranslationsAvailable === false): ?>
 					<div
-					  class="alert alert-info"><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_NO_TRANSLATIONS_AVAILABLE', JRoute::_('index.php?option=com_neno&view=groupselements')); ?></div>
+					  class="alert alert-info"><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_NO_TRANSLATIONS_AVAILABLE', JRoute::_('index.php?option=com_neno&view=groupselements&r=' . NenoHelperBackend::generateRandomString())); ?></div>
 				<?php endif; ?>
 
 				<a
@@ -222,7 +222,7 @@ if (!empty($this->extraSidebar))
 								<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_INTRO'); ?>
 								<br/>
 								<a
-								  href="<?php echo JRoute::_('index.php?option=com_neno&view=jobs'); ?>"><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_LINK'); ?></a>
+								  href="<?php echo JRoute::_('index.php?option=com_neno&view=jobs&r=' . NenoHelperBackend::generateRandomString()); ?>"><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_JOBS_LINK'); ?></a>
 							</p>
 						</div>
 					</div>
@@ -240,7 +240,7 @@ if (!empty($this->extraSidebar))
 
 			<p><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_PRE'); ?></p>
 
-			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=dashboard'), JRoute::_('index.php?option=com_neno&view=editor')); ?></p>
+			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString()), JRoute::_('index.php?option=com_neno&view=editor&r=' . NenoHelperBackend::generateRandomString())); ?></p>
 
 			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_GENERAL_MODAL_ADD_BODY_POST', NenoSettings::get('source_language')); ?></p>
 

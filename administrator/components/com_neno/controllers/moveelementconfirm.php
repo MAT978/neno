@@ -121,7 +121,7 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 		$tables = $input->get('tables', array(), 'array');
 		$files  = $input->get('files', array(), 'files');
 
-		$url = JRoute::_('index.php?option=com_neno&view=groupselements', false);
+		$url = JRoute::_('index.php?option=com_neno&view=groupselements&r=' . NenoHelperBackend::generateRandomString(), false);
 
 		// Ensure that group_id was set
 		if (empty($groupId))
@@ -187,7 +187,7 @@ class NenoControllerMoveElementConfirm extends JControllerAdmin
 	 */
 	public function cancel()
 	{
-		$url = JRoute::_('index.php?option=com_neno&view=groupselements', false);
+		$url = JRoute::_('index.php?option=com_neno&view=groupselements&r=' . NenoHelperBackend::generateRandomString(), false);
 		$this->setRedirect($url);
 		$this->redirect();
 	}

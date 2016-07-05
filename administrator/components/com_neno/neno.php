@@ -43,6 +43,26 @@ if (!NenoHelperBackend::isDatabaseDriverEnabled())
 	$app->enqueueMessage(JText::_('COM_NENO_ERROR_IN_LICENSE'), 'warning');
 }*/
 
+if (NenoHelper::menuItemsAliasIssueExists())
+{
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, NULL, true);
+
+	if (empty($menuItemAliasIssue))
+	{
+		NenoHelperIssue::generateIssue(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS);
+	}
+}
+else
+{
+	$menuItemAliasIssue = NenoHelperIssue::getIssuesByCode(NenoHelperIssue::MENU_ITEMS_HAVE_SAME_ALIAS, NULL, true);
+
+	if (!empty($menuItemAliasIssue))
+	{
+		NenoHelperIssue::solveIssue($menuItemAliasIssue[0]->id);
+	}
+}
+
+
 // Include dependencies
 jimport('joomla.application.component.controller');
 

@@ -45,12 +45,12 @@ if (!empty($this->extra_sidebar))
 					sidebar.show();
 				}
 
-				bindEvents(html.step);
+				bindEventsInstallation(html.step);
 			}
 		});
 	}
 
-	function bindEvents(step) {
+	function bindEventsInstallation(step) {
 		step = typeof step !== 'undefined' ? step : 5;
 		if (step != 5) {
 			jQuery('.next-step-button').off('click').on('click', processInstallationStep);
