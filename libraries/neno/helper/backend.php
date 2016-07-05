@@ -29,37 +29,37 @@ class NenoHelperBackend
 	{
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_DASHBOARD'),
-		  'index.php?option=com_neno&view=dashboard',
+		  'index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'dashboard') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_EDITOR'),
-		  'index.php?option=com_neno&view=editor',
+		  'index.php?option=com_neno&view=editor&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'editor') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_GROUPSELEMENTS'),
-		  'index.php?option=com_neno&view=groupselements',
+		  'index.php?option=com_neno&view=groupselements&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'groupselements') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_PROFESSIONAL_TRANSLATIONS'),
-		  'index.php?option=com_neno&view=professionaltranslations',
+		  'index.php?option=com_neno&view=professionaltranslations&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'professionaltranslations') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_SETTINGS'),
-		  'index.php?option=com_neno&view=settings',
+		  'index.php?option=com_neno&view=settings&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'settings') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_DEBUG_REPORT'),
-		  'index.php?option=com_neno&view=debug',
+		  'index.php?option=com_neno&view=debug&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'debug') ? true : false
 		);
 	}
