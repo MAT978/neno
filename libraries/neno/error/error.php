@@ -14,6 +14,16 @@ defined('_JEXEC') or die;
  */
 class NenoError
 {
+	/**
+	 * Error handler
+	 *
+	 * @param int    $errorNumber  Error code number
+	 * @param string $errorMessage Error message
+	 * @param string $file         File where the error occurs
+	 * @param int    $line         Line inside of the file
+	 *
+	 * @return void
+	 */
 	public static function error($errorNumber, $errorMessage, $file, $line)
 	{
 		$errorType = 'none';
