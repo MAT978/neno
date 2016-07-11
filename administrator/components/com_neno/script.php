@@ -61,9 +61,17 @@ class com_NenoInstallerScript
 			$app->enqueueMessage('Error installing layouts: ' . $mediaError);
 		}
 
-		if (version_compare((string) $parent->getManifest()->version, '2.1.3', '>=')  && $type == 'update')
+		if (version_compare((string) $parent->getManifest()->version, '2.1.3', '>=') && $type == 'update')
 		{
 			$app->enqueueMessage('Notice! Neno no longer supports ordering paid machine translation. If you had set any content to be automatically machine translated it has been changed to "manual" translation instead. You can configure how you would like your content translated under "Groups & Elements"', 'warning');
+		}
+
+		// Delete old logging file
+		if (version_compare((string) $parent->getManifest()->version, '2.1.11', '>=') && $type == 'update')
+		{
+			$config = JFactory::getConfig();
+
+			JFile::delete($config->get('log_path') . DIRECTORY_SEPARATOR . 'neno_log.php');
 		}
 
 		JFile::move($installationPath . '/cli/neno.php', JPATH_ROOT . '/cli/neno.php');
