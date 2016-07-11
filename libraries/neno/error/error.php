@@ -28,9 +28,6 @@ class NenoError
 			case E_PARSE:
 				$errorType = 'parse';
 				break;
-			case E_NOTICE:
-				$errorType = 'notice';
-				break;
 			case E_CORE_ERROR:
 				$errorType = 'core error';
 				break;
@@ -43,23 +40,14 @@ class NenoError
 			case E_USER_WARNING:
 				$errorType = 'user warning';
 				break;
-			case E_USER_NOTICE:
-				$errorType = 'user notice';
-				break;
-			case E_STRICT:
-				$errorType = 'strict';
-				break;
 			case E_RECOVERABLE_ERROR:
 				$errorType = 'recoverable error';
 				break;
-			case E_DEPRECATED:
-				$errorType = 'deprecated';
-				break;
-			case E_USER_DEPRECATED:
-				$errorType = 'user deprecated';
-				break;
 		}
 
-		NenoLog::log("Encountered $errorType error in $file, line $line: $errorMessage", '', 0, NenoLog::PRIORITY_ERROR);
+		if ($errorType !== 'none')
+		{
+			NenoLog::log("Encountered $errorType error in $file, line $line: $errorMessage", '', 0, NenoLog::PRIORITY_ERROR);
+		}
 	}
 }
