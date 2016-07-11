@@ -505,10 +505,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @param array  $commonData
 	 * @param array  $primaryKeyData
 	 * @param array  $translationMethods Translation method list
+	 * @param bool   $keepState Keep translation state unchanged
 	 *
 	 * @return void
 	 */
-	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods)
+	protected function persistStringForLanguage($string, $language, $commonData, $primaryKeyData, $translationMethods, $keepState = false)
 	{
 		$commonData['language'] = $language;
 		$commonData['string']   = $string['string'] === NULL ? '' : $string['string'];
@@ -520,7 +521,10 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		}
 		else
 		{
-			$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
+			if ($keepState == false)
+			{
+				$commonData['state'] = NenoContentElementTranslation::NOT_TRANSLATED_STATE;
+			}
 		}
 
 		$translation     = new NenoContentElementTranslation($commonData);
@@ -549,6 +553,13 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 		{
 			$translation = NenoContentElementTranslation::getTranslationBySourceElementData($sourceData, $language, $this->getId());
 			$translation->setElement($this);
+
+			if ($keepState)
+			{
+				$translation->loadOriginalText();
+				$translation->setState($string['state']);
+				$translation->setString($string['string']);
+			}
 
 			if ($translation->refresh())
 			{
@@ -625,10 +636,11 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 	 * @param array  $commonData
 	 * @param array  $primaryKeyData
 	 * @param array  $translationMethods Translation method list
+	 * @param bool   $keepState Keep translation state unchanged
 	 *
 	 * @return void
 	 */
-	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods)
+	protected function persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, $keepState = false)
 	{
 		$this->persistProgressCounters();
 
@@ -638,7 +650,7 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 			{
 				if ($defaultLanguage !== $language->lang_code)
 				{
-					$this->persistStringForLanguage($string, $language->lang_code, $commonData, $primaryKeyData, $translationMethods);
+					$this->persistStringForLanguage($string, $language->lang_code, $commonData, $primaryKeyData, $translationMethods, $keepState);
 				}
 			}
 		}
@@ -707,7 +719,56 @@ class NenoContentElementField extends NenoContentElement implements NenoContentE
 
 		return true;
 	}
+	
+	public function convertContentToTranslation($record, $asocId, $lang)
+	{
+		if ($this->translate)
+		{
+			$commonData = array(
+				'contentType' => NenoContentElementTranslation::DB_STRING,
+				'contentId'   => $this->getId(),
+				'content'     => $this,
+				'state'       => NenoContentElementTranslation::TRANSLATED_STATE,
+				'timeAdded'   => new DateTime,
+				'comment'     => $this->comment
+			);
 
+			$languageData            = new stdClass;
+			$languageData->lang_code = $lang;
+			$languages               = array($languageData);
+
+			$defaultLanguage                = NenoSettings::get('source_language');
+			$this->translations             = array();
+			$primaryKeyData                 = $this->getTable()->getPrimaryKey();
+			$strings                        = $this->getStrings($record);
+			$strings[0][$primaryKeyData[0]] = $asocId;
+
+			$translationMethods = NenoHelper::getTranslationMethodsByTableId($this->table->getId());
+
+			foreach ($strings as $string)
+			{
+				if (!empty($string))
+				{
+					$this->persistString($string, $languages, $defaultLanguage, $commonData, $primaryKeyData, $translationMethods, true);
+				}
+			}
+		}
+		else
+		{
+			$translationsCount = count($this->translations);
+			for ($i = 0; $i < $translationsCount; $i++)
+			{
+				$translation = $this->translations[$i];
+				/* @var $translation NenoContentElementTranslation */
+				$translation->refresh();
+
+				$this->translations[$i] = $translation;
+			}
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Get installation progress counters
 	 *

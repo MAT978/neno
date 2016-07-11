@@ -84,7 +84,7 @@ class NenoJob extends NenoObject
 	/**
 	 * @var int
 	 */
-	protected $translationCredits;
+	protected $fundsNeeded;
 	/**
 	 * @var Datetime
 	 */
@@ -203,21 +203,9 @@ class NenoJob extends NenoObject
 			  ->where('jt.job_id = ' . $this->id)
 			  ->group('jt.job_id');
 			$db->setQuery($query);
-			$wordCount          = $db->loadResult();
-			$translationCredits = 0;
-
-			switch (NenoHelper::convertTranslationMethodIdToName($this->translationMethod->id))
-			{
-				case 'machine':
-					$translationCredits = $wordCount;
-					break;
-				case 'professional':
-					$translationCredits = $wordCount * 200;
-					break;
-			}
-
-			$this->wordCount          = $wordCount;
-			$this->translationCredits = $translationCredits;
+			$wordCount         = $db->loadResult();
+			$this->wordCount   = $wordCount;
+			$this->fundsNeeded = NenoHelper::getPriceByLanguagePair($this->getFromLanguage(), $this->toLanguage) * $wordCount;
 
 			return parent::persist();
 		}
@@ -297,7 +285,7 @@ class NenoJob extends NenoObject
 	 *
 	 * @return $this
 	 */
-	public function setCompletedTime(Datetime $completedTime)
+	public function setCompletedTime(DateTime $completedTime)
 	{
 		$this->completedTime = $completedTime;
 
@@ -642,5 +630,26 @@ class NenoJob extends NenoObject
 	public function getWordCount()
 	{
 		return $this->wordCount;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @return bool
+	 */
+	public function remove()
+	{
+		// Delete strings
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->delete('#__neno_jobs_x_translations')
+		  ->where('job_id = ' . $db->quote($this->getId()));
+
+		$db->setQuery($query);
+		$db->execute();
+
+		return parent::remove();
 	}
 }

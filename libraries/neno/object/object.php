@@ -20,7 +20,8 @@ abstract class NenoObject
 	/**
 	 * @var string
 	 */
-	private static $databaseTableNames = array();
+	protected static $databaseTableNames = array();
+
 	/**
 	 * @var mixed
 	 */

@@ -48,7 +48,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		<?php endforeach; ?>
 	</ul>
 
-	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=debug'); ?>" class="btn btn-primary">
+	<a href="<?php echo JRoute::_('index.php?option=com_neno&view=debug&r=' . NenoHelperBackend::generateRandomString()); ?>" class="btn btn-primary">
 		<?php echo JText::_('COM_NENO_FIX_CONTENT_DONE'); ?>
 	</a>
 </div>

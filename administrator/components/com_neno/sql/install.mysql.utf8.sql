@@ -48,7 +48,6 @@ CREATE TABLE IF NOT EXISTS `#__neno_translation_methods` (
   `id`                              INT(11)      NOT NULL AUTO_INCREMENT,
   `name_constant`                   VARCHAR(255) NOT NULL,
   `acceptable_follow_up_method_ids` VARCHAR(255) NOT NULL,
-  `pricing_per_word`                INT          NOT NULL,
   PRIMARY KEY (`id`)
 )
   ENGINE = InnoDB
@@ -84,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `#__neno_jobs` (
   `from_language`       VARCHAR(5)   NOT NULL,
   `to_language`         VARCHAR(5)   NOT NULL,
   `word_count`          INT(11)      NOT NULL,
-  `translation_credits` INT(11)      NOT NULL,
+  `funds` INT(11)      NOT NULL,
   `estimated_time`      DATETIME     NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_jobs_x_tm_idx` (`translation_method`)
@@ -362,7 +361,6 @@ CREATE TABLE IF NOT EXISTS `#__neno_language_pairs_pricing` (
   `id`               INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `target_language`  VARCHAR(6)     NOT NULL,
   `translation_type` VARCHAR(25)    NOT NULL,
-  `price_per_word`   DECIMAL(6, 4) NOT NULL,
   `time_updated`     DATETIME       NOT NULL,
   UNIQUE (`target_language`, `translation_type`)
 );
@@ -376,6 +374,23 @@ CREATE TABLE IF NOT EXISTS `#__neno_translation_states` (
   `name` VARCHAR(45) NULL,
   `description` VARCHAR(255) NULL,
   PRIMARY KEY (`id`));
+
+--
+-- Table structure for table `#__neno_content_issues`
+--
+CREATE TABLE IF NOT EXISTS `#__neno_content_issues` (
+  `id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `discovered`  DATETIME      NOT NULL,
+  `error_code`  VARCHAR(45)   NOT NULL,
+  `item_id`     VARCHAR(11)   DEFAULT NULL,
+  `table_name`  VARCHAR(255)  DEFAULT NULL,
+  `lang`        VARCHAR(8)    DEFAULT NULL,
+  `info`        TEXT          NOT NULL,
+  `fixed`       DATETIME      NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `fixed_by`    INT(11)       NOT NULL DEFAULT '0'
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
 
 --
 -- Values for translation states
@@ -415,13 +430,13 @@ INSERT IGNORE INTO `#__neno_machine_translation_apis`
 VALUES (1, 'Google', 'machine'), (3, 'Yandex', 'machine'), (4, 'Bing', 'machine');
 
 INSERT IGNORE INTO `#__neno_translation_methods`
-VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0', 0), (2, 'COM_NENO_TRANSLATION_METHOD_MACHINE', '1,3', 1),
-  (3, 'COM_NENO_TRANSLATION_METHOD_PROFESSIONAL', '0', 200);
+VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0'),
+  (3, 'COM_NENO_TRANSLATION_METHOD_PROFESSIONAL', '0');
 
 INSERT IGNORE INTO `#__neno_settings` (`setting_key`, `setting_value`, `read_only`)
 VALUES ('translate_automatically_professional', '0', 0),
 	('translate_automatically_machine', '1', 0),
-	('api_server_url', 'http://api.neno-translate.com/en/api/', 1),
+	('api_server_url', 'http://api.neno-translate.com/en/api/v1/', 1),
 	('license_code', '', 0), ('translator', '', 0),
 	('translator_api_key', '', 0),
 	('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),

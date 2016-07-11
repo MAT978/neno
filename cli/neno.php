@@ -36,9 +36,9 @@ ini_set('display_errors', 1);
 $lang = JFactory::getLanguage();
 
 // Try the files_joomla file in the current language (without allowing the loading of the file in the default language)
-$lang->load('files_joomla.sys', JPATH_SITE, null, false, false)
+$lang->load('files_joomla.sys', JPATH_SITE, NULL, false, false)
 // Fallback to the files_joomla file in the default language
-|| $lang->load('files_joomla.sys', JPATH_SITE, null, true);
+|| $lang->load('files_joomla.sys', JPATH_SITE, NULL, true);
 
 /**
  * A command line cron job to attempt to remove files that should have been deleted at update.
@@ -47,6 +47,11 @@ $lang->load('files_joomla.sys', JPATH_SITE, null, false, false)
  */
 class NenoCli extends JApplicationCli
 {
+    /**
+     * @var \Joomla\Registry\Registry
+     */
+    protected $userState;
+
     /**
      * Entry point for CLI script
      *
@@ -68,11 +73,23 @@ class NenoCli extends JApplicationCli
             JFactory::$application = $this;
 
             // Load custom driver.
-            JFactory::$database = null;
+            JFactory::$database = NULL;
             JFactory::$database = NenoFactory::getDbo();
         }
 
+        $this->userState = new Joomla\Registry\Registry();
+
         NenoTaskMonitor::runTask();
+    }
+
+    public function getUserState($key)
+    {
+        return $this->userState->get($key);
+    }
+
+    public function setUserState($key, $value)
+    {
+        $this->userState->set($key, $value);
     }
 }
 

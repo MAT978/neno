@@ -361,7 +361,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				if (!empty($file))
 				{
 					$file->loadStringsFromFile();
-					$languageStrings = $file->getLanguageStrings();
+					$languageStrings = $file->getLanguageStrings(true, true);
 
 					if (!empty($languageStrings))
 					{
@@ -505,7 +505,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				  'created_by',
 				  'created_user_id',
 				  'modified_by',
-				  'modified_user_id'
+				  'modified_user_id',
+				  'catid'
 				);
 
 				if (in_array($fieldName, $commonFields))
@@ -527,6 +528,16 @@ class NenoControllerGroupsElements extends JControllerAdmin
 					. $db->quote($filter['value'])
 				  );
 			}
+
+			$db->setQuery($query);
+			$db->execute();
+
+			// Change table status
+			$query
+			  ->clear()
+			  ->update('#__neno_content_element_tables')
+			  ->set('translate = 2')
+			  ->where('id = ' . $db->quote($tableId));
 
 			$db->setQuery($query);
 			$db->execute();

@@ -29,37 +29,37 @@ class NenoHelperBackend
 	{
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_DASHBOARD'),
-		  'index.php?option=com_neno&view=dashboard',
+		  'index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'dashboard') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_EDITOR'),
-		  'index.php?option=com_neno&view=editor',
+		  'index.php?option=com_neno&view=editor&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'editor') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-		  JText::_('COM_NENO_NAV_LINK_EXTERNAL_GROUPSELEMENTS'),
-		  'index.php?option=com_neno&view=groupselements',
+		  JText::_('COM_NENO_NAV_LINK_GROUPSELEMENTS'),
+		  'index.php?option=com_neno&view=groupselements&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'groupselements') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-		  JText::_('COM_NENO_NAV_LINK_EXTERNAL_TRANSLATIONS'),
-		  'index.php?option=com_neno&view=externaltranslations',
-		  ($vName == 'externaltranslations') ? true : false
+		  JText::_('COM_NENO_NAV_LINK_PROFESSIONAL_TRANSLATIONS'),
+		  'index.php?option=com_neno&view=professionaltranslations&r=' . NenoHelperBackend::generateRandomString(),
+		  ($vName == 'professionaltranslations') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
-		  JText::_('COM_NENO_NAV_LINK_EXTERNAL_SETTINGS'),
-		  'index.php?option=com_neno&view=settings',
+		  JText::_('COM_NENO_NAV_LINK_SETTINGS'),
+		  'index.php?option=com_neno&view=settings&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'settings') ? true : false
 		);
 
 		JHtmlSidebar::addEntry(
 		  JText::_('COM_NENO_NAV_LINK_DEBUG_REPORT'),
-		  'index.php?option=com_neno&view=debug',
+		  'index.php?option=com_neno&view=debug&r=' . NenoHelperBackend::generateRandomString(),
 		  ($vName == 'debug') ? true : false
 		);
 	}
@@ -1578,47 +1578,6 @@ class NenoHelperBackend
 	}
 
 	/**
-	 * Refreshes pricing for language pairs installed
-	 *
-	 * @return void
-	 */
-	public static function refreshLanguagePairsPricing()
-	{
-		$targetLanguages = NenoHelper::getLanguages(false, false);
-		$db              = JFactory::getDbo();
-		$query           = $db->getQuery(true);
-
-		$query
-		  ->select(
-			array(
-			  'target_language',
-			)
-		  )
-		  ->from('#__neno_language_pairs_pricing')
-		  ->where('TIMESTAMPDIFF(HOUR, time_updated, NOW()) < 24')
-		  ->group('target_language');
-
-		$db->setQuery($query);
-		$languagesUpToDate = $db->loadColumn();
-
-		foreach ($targetLanguages as $targetLanguage)
-		{
-			// If the language is not on the up to date, let's refresh it
-			if (!in_array($targetLanguage->lang_code, $languagesUpToDate))
-			{
-				list($professionalPricing, $machinePricing) = NenoHelperApi::getQuote($targetLanguage->lang_code);
-
-				$query = 'INSERT INTO `#__neno_language_pairs_pricing` (`target_language`,`translation_type`,`price_per_word`,`time_updated`)
-							VALUES (' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('professional') . ', ' . $db->quote($professionalPricing) . ', NOW()),
-							(' . $db->quote($targetLanguage->lang_code) . ',' . $db->quote('machine') . ', ' . $db->quote($machinePricing) . ', NOW())
-							ON DUPLICATE KEY UPDATE `price_per_word` = VALUES(`price_per_word`),`time_updated` = NOW()';
-				$db->setQuery($query);
-				$db->execute();
-			}
-		}
-	}
-
-	/**
 	 * Checks whether the incoming request is being made via Ajax or not
 	 *
 	 * @return bool
@@ -1630,5 +1589,102 @@ class NenoHelperBackend
 		$requestedWith = $input->server->get('HTTP_X_REQUESTED_WITH');
 
 		return !empty($requestedWith) && strtolower($requestedWith) == 'xmlhttprequest';
+	}
+
+	/**
+	 * Generate a random string
+	 *
+	 * @param int $length String lenght
+	 *
+	 * @return string
+	 */
+	public static function generateRandomString($length = 10)
+	{
+		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString     = '';
+		for ($i = 0; $i < $length; $i++)
+		{
+			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		}
+
+		return $randomString;
+	}
+
+	/**
+	 * Returns the language that is being installed currently.
+	 *
+	 * @return bool|string
+	 */
+	public static function getLanguageBeingInstalled()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query
+		  ->select('task_data')
+		  ->from('#__neno_tasks')
+		  ->where('task = ' . $db->quote('language'));
+		$db->setQuery($query, 0, 1);
+		$taskData = $db->loadResult();
+
+		if (!empty($taskData))
+		{
+			$taskData = json_decode($taskData, true);
+
+			return $taskData['language'];
+		}
+
+		return false;
+	}
+
+	/**
+	 *
+	 * @param string $language
+	 *
+	 * @return int
+	 */
+	public static function getTablesCountToBeInstalledByLanguage($language)
+	{
+		$db = JFactory::getDbo();
+		$db->setQuery(static::getTableDiscoveredQuery($language));
+
+		return (int) $db->loadResult();
+	}
+
+	/**
+	 * @param $language
+	 *
+	 * @return int
+	 */
+	public static function getTablesThatHasBeenProcessAlready($language)
+	{
+		$db    = JFactory::getDbo();
+		$query = static::getTableDiscoveredQuery($language)
+		  ->where('EXISTS(SELECT 1 FROM #__neno_content_element_translations AS tr INNER JOIN #__neno_content_element_fields AS f ON tr.content_id = f.id WHERE t.id = f.table_id AND tr.content_type = \'db_string\' AND tr.language = ' . $db->quote($language) . ' )');
+		$db->setQuery($query);
+
+		return (int) $db->loadResult();
+	}
+
+	/**
+	 * @param $language
+	 *
+	 * @return \JDatabaseQuery
+	 */
+	protected static function getTableDiscoveredQuery($language)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select('COUNT(t.id) AS counter')
+		  ->from('#__neno_content_element_tables AS t')
+		  ->where(
+			array(
+			  't.translate = 1'
+			)
+		  );
+
+		return $query;
 	}
 }

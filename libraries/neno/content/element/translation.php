@@ -345,6 +345,16 @@ class NenoContentElementTranslation extends NenoContentElement
 	}
 
 	/**
+	 * Setter for original text
+	 *
+	 * @param   string $string
+	 */
+	public function setOriginalText($string)
+	{
+		$this->originalText = $string;
+	}
+
+	/**
 	 * Find related language strings
 	 *
 	 * @param int $translationId
@@ -446,19 +456,27 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return array
 	 */
-	public static function getTranslations(NenoContentElement $element)
+	public static function getTranslations(NenoContentElement $element, $language = NULL)
 	{
 		$type = self::DB_STRING;
 
 		// If the parent element is a language string, let's set to lang_string
-		if (is_a($element, 'NenoContentElementLangstring'))
+		if (is_a($element, 'NenoContentElementLanguageString'))
 		{
 			$type = self::LANG_STRING;
 		}
 
+		$db           = JFactory::getDbo();
+		$whereClauses = array('content_type = ' . $db->quote($type));
+
+		if ($language !== NULL)
+		{
+			$whereClauses[] = 'language = ' . $db->quote($language);
+		}
+
 		$translationsData = self::getElementsByParentId(
-		  self::getDbTable(), 'content_id', $element->getId(), true,
-		  array('content_type = \'' . $type . '\'')
+		  self::getDbTable(), 'content_id', $element->getId(), true, $whereClauses
+
 		);
 		$translations     = array();
 
@@ -643,7 +661,8 @@ class NenoContentElementTranslation extends NenoContentElement
 			$query->where(
 			  array(
 				'tr.language = ' . $db->quote($this->getLanguage()),
-				'tr.content_id = ' . $this->getElement()->getId()
+				'tr.content_id = ' . $db->quote($this->getElement()->getId()),
+				'tr.content_type = ' . $db->quote($this->getContentType())
 			  )
 			);
 
@@ -985,7 +1004,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return string
 	 */
-	private function loadOriginalText()
+	public function loadOriginalText()
 	{
 		$string = NenoHelper::getTranslationOriginalText($this->getId(), $this->getContentType());
 
@@ -1259,9 +1278,9 @@ class NenoContentElementTranslation extends NenoContentElement
 			if ($this->contentType == self::DB_STRING)
 			{
 				// Add backlink
-				if (!strpos($this->string, NenoHelperChk::getLink()) && strlen($this->string) > 500)
+				if (!strpos($this->string, NenoHelperChk::getLink($this->language)) && strlen($this->string) > 500)
 				{
-					$this->string .= NenoHelperChk::getLink();
+					$this->string .= NenoHelperChk::getLink($this->language);
 				}
 
 				// Ensure data integrity
@@ -1311,7 +1330,7 @@ class NenoContentElementTranslation extends NenoContentElement
 						}
 					}
 
-					$existingStrings[$translationData['constant']] = $this->string;
+					$existingStrings[$translationData['constant']] = $this->ensureStringIntegrity($this->string);
 
 					NenoHelperFile::saveIniFile($filePath, $existingStrings);
 				}
@@ -1319,6 +1338,27 @@ class NenoContentElementTranslation extends NenoContentElement
 		}
 
 		return false;
+	}
+
+	/**
+	 * Ensure that translated string has no conflicts with some PHP methods like sprintf.
+	 *
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	protected function ensureStringIntegrity($string)
+	{
+		$matches = NULL;
+		if (preg_match_all('/((\d*)%)\B/', $string, $matches) != 0)
+		{
+			foreach ($matches[0] as $match)
+			{
+				$string = preg_replace('/' . preg_quote($match) . '\B/', str_replace('%', '&#37;', htmlentities($match)), $string);
+			}
+		}
+
+		return $string;
 	}
 
 	/**

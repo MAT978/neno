@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoControllerExternalTranslations extends JControllerAdmin
+class NenoControllerProfessionalTranslations extends JControllerAdmin
 {
 	/**
 	 * Task to set value for automatic translations

@@ -71,6 +71,10 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 * @var bool
 	 */
 	private $propagateQuery;
+	/**
+	 * @var
+	 */
+	private $handlingMissingTableIssue = false;
 
 	/**
 	 * Set Autoincrement index in a shadow table
@@ -158,7 +162,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	public function replacePrefix($sql, $prefix = '#__')
 	{
 		// Check if the query should be parsed.
-		if ($this->isInstallationCompleted() && $this->languageHasChanged() && $this->hasToBeParsed($sql))
+		if (NenoHelper::isInstallationCompleted() && $this->languageHasChanged() && $this->hasToBeParsed($sql))
 		{
 			// Get query type
 			$queryType = $this->getQueryType($sql);
@@ -172,16 +176,6 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		}
 
 		return parent::replacePrefix($sql, $prefix);
-	}
-
-	/**
-	 * Checks if the installation process has finished
-	 *
-	 * @return bool
-	 */
-	protected function isInstallationCompleted()
-	{
-		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 7;
 	}
 
 	/**
@@ -430,7 +424,8 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 
 		return $this->getQueryType((string) $this->sql) === self::INSERT_QUERY
 		&& $language->getTag() !== NenoSettings::get('source_language')
-		&& $app->isSite() && !$this->isNenoSql((string) $this->sql);
+		&& $app->isSite() && !$this->isNenoSql((string) $this->sql)
+		&& self::hasToBeParsed((string) $this->sql);
 	}
 
 	/**
@@ -555,12 +550,48 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 				// If the table(s) doesn't exists, let's create them
 				if ($ex->getCode() == 1146)
 				{
-					$this->handleMissingTableIssue();
+					$isShadowTable = false;
+					$tables        = $this->extractTableNamesFromSqlQuery();
+
+					if (!empty($tables))
+					{
+						foreach ($tables as $tableName)
+						{
+							if ($this->isShadowTable($tableName))
+							{
+								$isShadowTable = true;
+							}
+							else
+							{
+								// Delete table because it's not longer there
+
+								/* @var $table NenoContentElementTable */
+								$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
+
+								if (!empty($table))
+								{
+									$table->remove();
+								}
+							}
+						}
+					}
+
+					if ($isShadowTable)
+					{
+						$this->handleMissingTableIssue();
+					}
 				}
 			}
 		}
 
 		return false;
+	}
+
+	public function isShadowTable($tableName)
+	{
+		$shadowTableTemp = $this->generateShadowTableName(NenoHelper::unifyTableName($tableName), $this->getLanguageTagSelected());
+
+		return $tableName === $shadowTableTemp;
 	}
 
 	protected function extractTableNamesFromSqlQuery()
