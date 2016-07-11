@@ -33,20 +33,10 @@ class NenoModelDebug extends JModelList
 			$config['filter_fields'] = array(
 			  'id',
 			  'a.id',
-			  'string',
-			  'a.string',
-			  'word_counter',
-			  'a.word_counter',
-			  'group',
-			  'a.group',
-			  'key',
-			  'a.key',
-			  'element_name',
-			  'a.element_name',
-			  'word_counter',
-			  'a.word_counter',
-			  'characters',
-			  'a.characters'
+			  'level',
+			  'a.level',
+			  '`trigger`',
+			  'a.`trigger`',
 			);
 		}
 
@@ -69,9 +59,43 @@ class NenoModelDebug extends JModelList
 		  ->select('a.*')
 		  ->from('#__neno_log_entries AS a');
 
+		// Filter by level.
+		if ($level = $this->getState('filter.level'))
+		{
+			$query->where('a.level = ' . (int) $level);
+		}
+
+		// Filter by level.
+		if ($trigger = $this->getState('filter.trigger'))
+		{
+			$query->where('a.`trigger` = ' . (int) $trigger);
+		}
+
+		// Filter by search in title
+		$search = $this->getState('filter.search');
+
+		if (!empty($search))
+		{
+			if (stripos($search, 'id:') === 0)
+			{
+				$query->where('a.id = ' . (int) substr($search, 3));
+			}
+			else
+			{
+				$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
+				$query->where('a.message LIKE ' . $search);
+			}
+		}
+
+
 		return $query;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @return mixed
+	 */
 	public function getItems()
 	{
 		$items = parent::getItems();
@@ -96,5 +120,46 @@ class NenoModelDebug extends JModelList
 		}
 
 		return $items;
+	}
+
+	protected function populateState($ordering = NULL, $direction = NULL)
+	{
+		// Load the filter state.
+		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+		$this->setState('filter.search', $search);
+
+		$level = $this->getUserStateFromRequest($this->context . '.filter.level', 'filter_level', NULL, 'int');
+		$this->setState('filter.level', $level);
+
+		$trigger = $this->getUserStateFromRequest($this->context . '.filter.trigger', 'filter_trigger', '', 'int');
+		$this->setState('filter.trigger', $trigger);
+
+		// Load the parameters.
+		$params = JComponentHelper::getParams('com_neno');
+		$this->setState('params', $params);
+
+		// List state information.
+		parent::populateState('a.time_added', 'asc');
+	}
+
+	/**
+	 * Method to get a store id based on model configuration state.
+	 *
+	 * This is necessary because the model is used by the component and
+	 * different modules that might need different sets of data or different
+	 * ordering requirements.
+	 *
+	 * @param   string $id A prefix for the store id.
+	 *
+	 * @return  string  A store id.
+	 */
+	protected function getStoreId($id = '')
+	{
+		// Compile the store id.
+		$id .= ':' . $this->getState('filter.search');
+		$id .= ':' . $this->getState('filter.level');
+		$id .= ':' . $this->getState('filter.trigger');
+
+		return parent::getStoreId($id);
 	}
 }

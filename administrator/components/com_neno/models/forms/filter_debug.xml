@@ -21,7 +21,7 @@
             <option value="3">COM_NENO_DEBUG_PRIORITY_ENTRY_INFO</option>
         </field>
         <field
-                name="foreign"
+                name="trigger"
                 type="sql"
                 label="JOPTION_FILTER_CATEGORY"
                 description="JOPTION_FILTER_CATEGORY_DESC"
