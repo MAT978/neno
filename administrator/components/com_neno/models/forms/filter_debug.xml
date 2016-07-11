@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="filter">
+        <field
+                name="search"
+                type="text"
+                label="COM_NEWSFEEDS_FILTER_SEARCH_DESC"
+                hint="JSEARCH_FILTER"
+        />
+        <field
+                name="level"
+                type="list"
+                label="COM_NEWSFEEDS_FILTER_PUBLISHED"
+                description="COM_NEWSFEEDS_FILTER_PUBLISHED_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">COM_NENO_DEBUG_PRIORITY_DEFAULT_SELECTOR</option>
+            <option value="1">COM_NENO_DEBUG_PRIORITY_ENTRY_IMPORTANT</option>
+            <option value="4">COM_NENO_DEBUG_PRIORITY_ENTRY_VERBOSE</option>
+            <option value="2">COM_NENO_DEBUG_PRIORITY_ENTRY_WARNING</option>
+            <option value="3">COM_NENO_DEBUG_PRIORITY_ENTRY_INFO</option>
+        </field>
+        <field
+                name="foreign"
+                type="sql"
+                label="JOPTION_FILTER_CATEGORY"
+                description="JOPTION_FILTER_CATEGORY_DESC"
+                onchange="this.form.submit();"
+                query="(SELECT '' as `id`,'COM_NENO_DEBUG_TRIGGERED_DEFAULT_SELECTOR' AS name) UNION (SELECT '0' as `id`,'COM_NENO_DEBUG_TRIGGERED_SYSTEM' AS name) UNION (SELECT id,name FROM #__users AS u WHERE EXISTS (SELECT 1 FROM #__neno_log_entries AS ne WHERE ne.`trigger` = u.id))"
+                translate="true"
+                key_field="id"
+                value_field="name"
+        />
+    </fields>
+    <fields name="list">
+        <field
+                name="fullordering"
+                type="list"
+                label="COM_NEWSFEEDS_LIST_FULL_ORDERING"
+                description="COM_NEWSFEEDS_LIST_FULL_ORDERING_DESC"
+                onchange="this.form.submit();"
+                default="a.name ASC"
+        >
+            <option value="">JGLOBAL_SORT_BY</option>
+            <option value="a.ordering ASC">JGRID_HEADING_ORDERING_ASC</option>
+            <option value="a.ordering DESC">JGRID_HEADING_ORDERING_DESC</option>
+            <option value="a.published ASC">JSTATUS_ASC</option>
+            <option value="a.published DESC">JSTATUS_DESC</option>
+            <option value="a.name ASC">JGLOBAL_TITLE_ASC</option>
+            <option value="a.name DESC">JGLOBAL_TITLE_DESC</option>
+            <option value="category_title ASC">JCATEGORY_ASC</option>
+            <option value="category_title DESC">JCATEGORY_DESC</option>
+            <option value="a.access ASC">JGRID_HEADING_ACCESS_ASC</option>
+            <option value="a.access DESC">JGRID_HEADING_ACCESS_DESC</option>
+            <option value="numarticles ASC">COM_NEWSFEEDS_NUM_ARTICLES_HEADING_ASC</option>
+            <option value="numarticles DESC">COM_NEWSFEEDS_NUM_ARTICLES_HEADING_DESC</option>
+            <option value="a.cache_time ASC">COM_NEWSFEEDS_CACHE_TIME_HEADING_ASC</option>
+            <option value="a.cache_time DESC">COM_NEWSFEEDS_CACHE_TIME_HEADING_DESC</option>
+            <option value="a.language ASC">JGRID_HEADING_LANGUAGE_ASC</option>
+            <option value="a.language DESC">JGRID_HEADING_LANGUAGE_DESC</option>
+            <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+        </field>
+        <field
+                name="limit"
+                type="limitbox"
+                class="input-mini"
+                default="25"
+                label="COM_NEWSFEEDS_LIST_LIMIT"
+                description="COM_NEWSFEEDS_LIST_LIMIT_DESC"
+                onchange="this.form.submit();"
+        />
+    </fields>
+</form>
