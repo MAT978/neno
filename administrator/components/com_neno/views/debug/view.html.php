@@ -24,29 +24,57 @@ class NenoViewDebug extends JViewLegacy
 	 * @var string
 	 */
 	protected $sidebar;
+	/**
+	 * @var array
+	 */
+	protected $items;
+	/**
+	 * @var Joomla\Registry\Registry
+	 */
+	protected $state;
+	/**
+	 * @var JPagination
+	 */
+	protected $pagination;
 
 	/**
-	 * Show view
+	 * Display the view
 	 *
-	 * @param   string|null $tpl Template to use
+	 * @param   string $tpl Template
 	 *
-	 * @return mixed
+	 * @return void
+	 *
+	 * @throws Exception This will happen if there are errors during the process to load the data
+	 *
+	 * @since 1.0
 	 */
-	public function display($tpl = null)
+	public function display($tpl = NULL)
 	{
-		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
+		$this->state      = $this->get('State');
+		$this->items      = $this->get('Items');
+		$this->pagination = $this->get('Pagination');
 
-		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
-
-		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
-
-		JToolbarHelper::custom('debug.listIssues', 'cube', 'cube', JText::_('COM_NENO_ISSUES_TITLE'), false);
-
-		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
+		// Check for errors.
+		if (count($errors = $this->get('Errors')))
+		{
+			throw new Exception(implode("\n", $errors));
+		}
 
 		NenoHelperBackend::addSubmenu('debug');
+
+		$toolbar = JToolbar::getInstance();
+		$toolbar->addButtonPath(JPATH_NENO . '/button');
+		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
+
 		$this->sidebar = JHtmlSidebar::render();
 
-		return parent::display($tpl);
+		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
+		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
+		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
+		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
+		JToolbarHelper::custom('debug.listIssues', 'cube', 'cube', JText::_('COM_NENO_ISSUES_TITLE'), false);
+		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
+
+		parent::display($tpl);
 	}
 }
