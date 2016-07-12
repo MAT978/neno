@@ -25,12 +25,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function discoverExtensions()
 	{
-		NenoLog::log('Method discoverExtension of NenoControllerGroupsElements called', 3);
-
 		// Check all the extensions that haven't been discover yet
 		NenoHelperBackend::groupingTablesNotDiscovered();
-
-		NenoLog::log('Redirecting to groupselements view', 3);
 
 		$this
 		  ->setRedirect('index.php?option=com_neno&view=groupselements')
@@ -44,14 +40,10 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function enableDisableContentElementTable()
 	{
-		NenoLog::log('Method enableDisableContentElementTable of NenoControllerGroupsElements called', 3);
-
 		$input = JFactory::getApplication()->input;
 
 		$tableId         = $input->getInt('tableId');
 		$translateStatus = $input->getBool('translateStatus');
-
-		NenoLog::log('Call to getTableById of NenoContentElementTable', 3);
 
 		$table  = NenoContentElementTable::getTableById($tableId);
 		$result = 0;
@@ -59,8 +51,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		// If the table exists, let's work with it.
 		if ($table !== false)
 		{
-			NenoLog::log('Table exists', 2);
-
 			$table->markAsTranslatable($translateStatus);
 			$table->persist();
 
@@ -78,8 +68,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function toggleContentElementField()
 	{
-		NenoLog::log('Method toggleContentElementField of NenoControllerGroupsElements called', 3);
-
 		$input = JFactory::getApplication()->input;
 
 		$fieldId         = $input->getInt('fieldId');
@@ -95,7 +83,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			if ($field->persist() === false)
 			{
-				NenoLog::log('Error saving new state!', NenoLog::PRIORITY_ERROR);
+				NenoLog::log('Error saving new field state!', '', 0, NenoLog::PRIORITY_ERROR);
 			}
 		}
 
@@ -109,8 +97,6 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	 */
 	public function toggleContentElementTable()
 	{
-		NenoLog::log('Method toggleContentElementTable of NenoControllerGroupsElements called', 3);
-
 		$input = JFactory::getApplication()->input;
 
 		$tableId         = $input->getInt('tableId');
@@ -126,7 +112,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			if ($table->persist() === false)
 			{
-				NenoLog::log('Error saving new state!', NenoLog::PRIORITY_ERROR);
+				NenoLog::log('Error saving new table state!', '', 0, NenoLog::PRIORITY_ERROR);
 			}
 		}
 

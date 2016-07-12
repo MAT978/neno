@@ -230,18 +230,8 @@ class NenoHelperIssue
 	 */
 	public static function fixIssue($pk)
 	{
-		$db     = JFactory::getDbo();
-		$query  = $db->getQuery(true);
 		$result = 1;
-
-		$query
-		  ->select('*')
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('id') . ' = ' . (int) $pk);
-
-		$db->setQuery($query);
-
-		$issue = $db->loadObject();
+		$issue  = static::getIssue($pk);
 
 		// Check the issue status
 		if ($issue == NULL)
@@ -282,6 +272,29 @@ class NenoHelperIssue
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get an issue from the database
+	 *
+	 * @param int $pk Issue id
+	 *
+	 * @return stdClass
+	 */
+	public static function getIssue($pk)
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query
+		  ->select('*')
+		  ->from($db->quoteName('#__neno_content_issues'))
+		  ->where($db->quoteName('id') . ' = ' . (int) $pk);
+
+		$db->setQuery($query);
+
+		$issue = $db->loadObject();
+
+		return $issue;
 	}
 
 	private static function isFixed($issue)
@@ -446,6 +459,8 @@ class NenoHelperIssue
 
 			$db->setQuery($query);
 			$result = $db->execute();
+
+			NenoLog::log('Issue ' . $code . '-' . $lang . ' created', NenoLog::ACTION_ISSUE_CREATED, 0);
 		}
 		else
 		{

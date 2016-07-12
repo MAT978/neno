@@ -123,7 +123,14 @@ class NenoSettings
 
 		if ($refresh)
 		{
-			return self::saveSettingsToDb($settingName);
+			$result = self::saveSettingsToDb($settingName);
+
+			if ($result)
+			{
+				NenoLog::log("Setting $settingName has been saved successfully.", NenoLog::ACTION_SETTING_CHANGED, JFactory::getUser()->id);
+			}
+
+			return $result;
 		}
 
 		return false;

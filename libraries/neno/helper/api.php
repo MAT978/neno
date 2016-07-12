@@ -53,7 +53,7 @@ class NenoHelperApi
 
 		$apiEndpoint    = NenoSettings::get('api_server_url');
 		$licenseCode    = NenoSettings::get('license_code');
-		$response       = null;
+		$response       = NULL;
 		$responseStatus = false;
 
 		if (!empty($apiEndpoint) && !empty($licenseCode))
@@ -78,12 +78,12 @@ class NenoHelperApi
 					$parameters = array_merge($parameters, self::getUserInformation());
 
 					$apiResponse = self::$httpClient->{$method}(
-						$apiEndpoint . $apiCall,
-						json_encode($parameters),
-						array(
-							'Content-Type'  => 'application/json',
-							'Authorization' => $licenseCode
-						)
+					  $apiEndpoint . $apiCall,
+					  json_encode($parameters),
+					  array(
+						'Content-Type'  => 'application/json',
+						'Authorization' => $licenseCode
+					  )
 					);
 				}
 
@@ -115,11 +115,11 @@ class NenoHelperApi
 	protected static function getUserInformation()
 	{
 		return array(
-			'user_information' => array(
-				'domain'           => JUri::root(),
-				'source_language'  => NenoSettings::get('source_language'),
-				'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
-			)
+		  'user_information' => array(
+			'domain'           => JUri::root(),
+			'source_language'  => NenoSettings::get('source_language'),
+			'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
+		  )
 		);
 	}
 
@@ -130,7 +130,7 @@ class NenoHelperApi
 	 */
 	protected static function getHttp()
 	{
-		if (self::$httpClient === null)
+		if (self::$httpClient === NULL)
 		{
 			self::$httpClient = JHttpFactory::getHttp();
 		}
@@ -154,7 +154,7 @@ class NenoHelperApi
 		}
 		else
 		{
-			NenoLog::log($fileContents, NenoLog::PRIORITY_ERROR, true);
+			NenoLog::log($fileContents, '', 0, NenoLog::PRIORITY_ERROR, true);
 		}
 
 		return $status;
