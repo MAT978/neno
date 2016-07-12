@@ -3,9 +3,9 @@
 --
 
 CREATE TABLE IF NOT EXISTS `#__neno_machine_translation_apis` (
-  `id`               INT(11)                          NOT NULL AUTO_INCREMENT,
-  `translator_name`  VARCHAR(45)                      NOT NULL,
-  `translation_type` ENUM('machine', 'pro', 'manual') NOT NULL,
+  `id`               INT(11)                           NOT NULL AUTO_INCREMENT,
+  `translator_name`  VARCHAR(45)                       NOT NULL,
+  `translation_type` ENUM ('machine', 'pro', 'manual') NOT NULL,
   PRIMARY KEY (`id`)
 )
   ENGINE = InnoDB
@@ -73,18 +73,18 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_language_defaults` (
 --
 
 CREATE TABLE IF NOT EXISTS `#__neno_jobs` (
-  `id`                  INT(11)      NOT NULL AUTO_INCREMENT,
-  `state`               TINYINT(4)   NOT NULL DEFAULT '1',
-  `file_name`           VARCHAR(255) NOT NULL,
-  `created_time`        DATETIME     NOT NULL,
-  `sent_time`           DATETIME     NOT NULL,
-  `completed_time`      DATETIME     NOT NULL,
-  `translation_method`  INT(11)      NOT NULL,
-  `from_language`       VARCHAR(5)   NOT NULL,
-  `to_language`         VARCHAR(5)   NOT NULL,
-  `word_count`          INT(11)      NOT NULL,
-  `funds` INT(11)      NOT NULL,
-  `estimated_time`      DATETIME     NOT NULL,
+  `id`                 INT(11)      NOT NULL AUTO_INCREMENT,
+  `state`              TINYINT(4)   NOT NULL DEFAULT '1',
+  `file_name`          VARCHAR(255) NOT NULL,
+  `created_time`       DATETIME     NOT NULL,
+  `sent_time`          DATETIME     NOT NULL,
+  `completed_time`     DATETIME     NOT NULL,
+  `translation_method` INT(11)      NOT NULL,
+  `from_language`      VARCHAR(5)   NOT NULL,
+  `to_language`        VARCHAR(5)   NOT NULL,
+  `word_count`         INT(11)      NOT NULL,
+  `funds`              INT(11)      NOT NULL,
+  `estimated_time`     DATETIME     NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_jobs_x_tm_idx` (`translation_method`)
 )
@@ -227,21 +227,21 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_element_language_strings` (
 --
 
 CREATE TABLE IF NOT EXISTS `#__neno_content_element_translations` (
-  `id`               INT(11)                          NOT NULL AUTO_INCREMENT,
-  `content_type`     ENUM('lang_string', 'db_string') NOT NULL,
-  `content_id`       INT(11)                          NOT NULL,
-  `language`         VARCHAR(5)                       NOT NULL,
-  `state`            TINYINT(1)                       NOT NULL,
-  `string`           TEXT                             NOT NULL,
-  `time_added`       DATETIME                         NOT NULL,
-  `time_changed`     DATETIME                         NOT NULL,
-  `time_requested`   DATETIME                         NOT NULL,
-  `time_completed`   DATETIME                         NOT NULL,
-  `word_counter`     INT(11)                          NOT NULL,
-  `original_text`    TEXT                             NOT NULL,
-  `comment`          TEXT                             NOT NULL,
-  `checked_out`      INT                              NOT NULL,
-  `checked_out_time` DATETIME                         NOT NULL,
+  `id`               INT(11)                           NOT NULL AUTO_INCREMENT,
+  `content_type`     ENUM ('lang_string', 'db_string') NOT NULL,
+  `content_id`       INT(11)                           NOT NULL,
+  `language`         VARCHAR(5)                        NOT NULL,
+  `state`            TINYINT(1)                        NOT NULL,
+  `string`           TEXT                              NOT NULL,
+  `time_added`       DATETIME                          NOT NULL,
+  `time_changed`     DATETIME                          NOT NULL,
+  `time_requested`   DATETIME                          NOT NULL,
+  `time_completed`   DATETIME                          NOT NULL,
+  `word_counter`     INT(11)                           NOT NULL,
+  `original_text`    TEXT                              NOT NULL,
+  `comment`          TEXT                              NOT NULL,
+  `checked_out`      INT                               NOT NULL,
+  `checked_out_time` DATETIME                          NOT NULL,
   PRIMARY KEY (`id`),
   KEY `content_id` (`content_id`),
   KEY `content_type` (`content_type`, `content_id`),
@@ -358,10 +358,10 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_element_table_filters` (
 -- Table structure for table `#__neno_language_pairs_pricing`
 --
 CREATE TABLE IF NOT EXISTS `#__neno_language_pairs_pricing` (
-  `id`               INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `target_language`  VARCHAR(6)     NOT NULL,
-  `translation_type` VARCHAR(25)    NOT NULL,
-  `time_updated`     DATETIME       NOT NULL,
+  `id`               INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `target_language`  VARCHAR(6)  NOT NULL,
+  `translation_type` VARCHAR(25) NOT NULL,
+  `time_updated`     DATETIME    NOT NULL,
   UNIQUE (`target_language`, `translation_type`)
 );
 
@@ -369,25 +369,26 @@ CREATE TABLE IF NOT EXISTS `#__neno_language_pairs_pricing` (
 -- Table structure for table `#__neno_translation_states`
 --
 CREATE TABLE IF NOT EXISTS `#__neno_translation_states` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `state` TINYINT UNSIGNED NULL,
-  `name` VARCHAR(45) NULL,
-  `description` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`));
+  `id`          INT              NOT NULL AUTO_INCREMENT,
+  `state`       TINYINT UNSIGNED NULL,
+  `name`        VARCHAR(45)      NULL,
+  `description` VARCHAR(255)     NULL,
+  PRIMARY KEY (`id`)
+);
 
 --
 -- Table structure for table `#__neno_content_issues`
 --
 CREATE TABLE IF NOT EXISTS `#__neno_content_issues` (
-  `id`          INT(11)       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `discovered`  DATETIME      NOT NULL,
-  `error_code`  VARCHAR(45)   NOT NULL,
-  `item_id`     VARCHAR(11)   DEFAULT NULL,
-  `table_name`  VARCHAR(255)  DEFAULT NULL,
-  `lang`        VARCHAR(8)    DEFAULT NULL,
-  `info`        TEXT          NOT NULL,
-  `fixed`       DATETIME      NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `fixed_by`    INT(11)       NOT NULL DEFAULT '0'
+  `id`         INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `discovered` DATETIME    NOT NULL,
+  `error_code` VARCHAR(45) NOT NULL,
+  `item_id`    VARCHAR(11)          DEFAULT NULL,
+  `table_name` VARCHAR(255)         DEFAULT NULL,
+  `lang`       VARCHAR(8)           DEFAULT NULL,
+  `info`       TEXT        NOT NULL,
+  `fixed`      DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `fixed_by`   INT(11)     NOT NULL DEFAULT '0'
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
@@ -396,34 +397,46 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_issues` (
 -- Values for translation states
 --
 INSERT IGNORE INTO `#__neno_translation_states` (`id`, `state`, `name`, `description`) VALUES
-(NULL, 1, 'Translated', 'The item has been translated'),
-(NULL, 2, 'Waiting', 'The item is in queue for being traslated'),
-(NULL, 3, 'Changed', 'The original source has changed'),
-(NULL, 4, 'Not Translated', 'The item is not translated yet');
+  (NULL, 1, 'Translated', 'The item has been translated'),
+  (NULL, 2, 'Waiting', 'The item is in queue for being traslated'),
+  (NULL, 3, 'Changed', 'The original source has changed'),
+  (NULL, 4, 'Not Translated', 'The item is not translated yet');
 
 --
 -- Log entries table
 --
 
-CREATE TABLE IF NOT EXISTS `#__neno_log_entries`(
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `time_added` DATETIME NOT NULL,
-  `action` VARCHAR(50) NOT NULL,
-  `message` TEXT NOT NULL,
-  `level` TINYINT(1) NOT NULL,
-  `trigger` INT NOT NULL
-);
+CREATE TABLE IF NOT EXISTS `#__neno_log_entries` (
+  `id`         INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `time_added` DATETIME     NOT NULL,
+  `action`     VARCHAR(50)  NOT NULL,
+  `message`    VARCHAR(400) NOT NULL,
+  `level`      TINYINT(1)   NOT NULL,
+  `trigger`    INT          NOT NULL
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+ALTER TABLE `#__neno_log_entries`
+  ADD INDEX (`level`);
+ALTER TABLE `#__neno_log_entries`
+  ADD INDEX (`trigger`);
+ALTER TABLE `#__neno_log_entries`
+  ADD INDEX (`level`, `trigger`);
+ALTER TABLE `#__neno_log_entries`
+  ADD INDEX (`message`);
 
 --
 -- Values for content history
 --
 INSERT IGNORE INTO `#__content_types` (`type_id`, `type_title`, `type_alias`, `table`, `rules`, `field_mappings`, `router`, `content_history_options`)
 VALUES
-(NULL, 'Translations', 'com_neno.translation',
-'{"special":	{"dbtable":"#__neno_content_element_translations", "key":"id", "type":"Translation", "prefix":"NenoContentElementTable"}}','','','',
-'{"formFile":"administrator\\/components\\/com_neno\\/models\\/forms\\/translation.xml",
-"hideFields": ["id","content_type","content_id","language","checked_out","checked_out_time","params","language"],
-"displayLookup":[{"sourceColumn":"state","targetTable":"#__neno_translation_states", "targetColumn":"id","displayColumn":"name"}]}');
+  (NULL, 'Translations', 'com_neno.translation',
+   '{"special":	{"dbtable":"#__neno_content_element_translations", "key":"id", "type":"Translation", "prefix":"NenoContentElementTable"}}',
+   '', '', '',
+   '{"formFile":"administrator\\/components\\/com_neno\\/models\\/forms\\/translation.xml",
+   "hideFields": ["id","content_type","content_id","language","checked_out","checked_out_time","params","language"],
+   "displayLookup":[{"sourceColumn":"state","targetTable":"#__neno_translation_states", "targetColumn":"id","displayColumn":"name"}]}');
 
 
 INSERT IGNORE INTO `#__neno_machine_translation_apis`
@@ -435,15 +448,15 @@ VALUES (1, 'COM_NENO_TRANSLATION_METHOD_MANUAL', '0'),
 
 INSERT IGNORE INTO `#__neno_settings` (`setting_key`, `setting_value`, `read_only`)
 VALUES ('translate_automatically_professional', '0', 0),
-	('translate_automatically_machine', '1', 0),
-	('api_server_url', 'http://api.neno-translate.com/en/api/v1/', 1),
-	('license_code', '', 0), ('translator', '', 0),
-	('translator_api_key', '', 0),
-	('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),
-	('hide_empty_strings', '1', 0), ('installation_completed', '0', 0), ('default_translate_action', '', 2),
-	('copy_unpublished', '1', 2), ('copy_trashed', '0', 2),
-	('server_url', 'https://www.neno-translate.com/', 1), ('external_translators_notes', '', 0), ('only_prefix', 1, 0),
-	('load_related_content', '', 0), ('default_translate_action', '0', 0), ('save_history', '1', 0);
+  ('translate_automatically_machine', '1', 0),
+  ('api_server_url', 'http://api.neno-translate.com/en/api/v1/', 1),
+  ('license_code', '', 0), ('translator', '', 0),
+  ('translator_api_key', '', 0),
+  ('source_language', 'en-GB', 0), ('schedule_task_option', 'ajax', 0),
+  ('hide_empty_strings', '1', 0), ('installation_completed', '0', 0), ('default_translate_action', '', 2),
+  ('copy_unpublished', '1', 2), ('copy_trashed', '0', 2),
+  ('server_url', 'https://www.neno-translate.com/', 1), ('external_translators_notes', '', 0), ('only_prefix', 1, 0),
+  ('load_related_content', '', 0), ('default_translate_action', '0', 0), ('save_history', '1', 0);
 
 INSERT IGNORE INTO `#__neno_machine_translation_api_language_pairs`
 VALUES (1, 1, 'af', 'ar'), (2, 1, 'af', 'az'), (3, 1, 'af', 'be'), (4, 1, 'af', 'bg'), (5, 1, 'af', 'bn'),

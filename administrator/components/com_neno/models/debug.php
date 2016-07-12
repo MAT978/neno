@@ -37,6 +37,8 @@ class NenoModelDebug extends JModelList
 			  'a.level',
 			  '`trigger`',
 			  'a.`trigger`',
+			  'message',
+			  'a.message',
 			);
 		}
 
@@ -87,6 +89,14 @@ class NenoModelDebug extends JModelList
 			}
 		}
 
+		// Add the list ordering clause.
+		$orderCol       = $this->state->get('list.ordering');
+		$orderDirection = $this->state->get('list.direction');
+
+		if ($orderCol && $orderDirection)
+		{
+			$query->order($db->escape($orderCol . ' ' . $orderDirection));
+		}
 
 		return $query;
 	}
