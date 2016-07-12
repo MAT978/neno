@@ -144,6 +144,8 @@ class NenoController extends JControllerLegacy
 			  ->setState(NenoJob::JOB_STATE_COMPLETED)
 			  ->persist();
 
+			NenoLog::log('Job #' . $job->getId() . ' received', NenoLog::ACTION_TRANSLATION_JOB_RECEIVED);
+
 			// Create task into the queue
 			NenoTaskMonitor::addTask('job_fetcher');
 

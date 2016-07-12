@@ -443,6 +443,9 @@ class NenoJob extends NenoObject
 					case 402:
 						$this->setState(self::JOB_STATE_NO_TC);
 						break;
+					default:
+						NenoLog::log('Job #' . $this->getId() . ' sent successfully', NenoLog::ACTION_TRANSLATION_JOB_SENT, JFactory::getUser()->id);
+						break;
 				}
 
 			}

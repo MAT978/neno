@@ -1335,6 +1335,8 @@ class NenoContentElementTranslation extends NenoContentElement
 					NenoHelperFile::saveIniFile($filePath, $existingStrings);
 				}
 			}
+
+			NenoLog::log('Translation "' . $this->getString() . '" moved successfully', NenoLog::ACTION_MOVE_TRANSLATION);
 		}
 
 		return false;

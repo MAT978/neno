@@ -24,7 +24,6 @@ class PlgSystemNeno extends JPlugin
 	 * @var array
 	 */
 	protected static $recordsApprovedToSave = array();
-
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -129,10 +128,10 @@ class PlgSystemNeno extends JPlugin
 		  ->select('*')
 		  ->from('#__extensions')
 		  ->where(
-			  array(
-				  'extension_id = ' . (int) $extensionId,
-				  'type IN (' . implode(',', $extensions) . ')',
-			  )
+			array(
+			  'extension_id = ' . (int) $extensionId,
+			  'type IN (' . implode(',', $extensions) . ')',
+			)
 		  );
 
 		$db->setQuery($query);
@@ -140,6 +139,7 @@ class PlgSystemNeno extends JPlugin
 
 		if (!empty($extensionData) && strpos($extensionData['element'], 'neno') === false)
 		{
+			NenoLog::log('Extension ' . $extensionData['element'] . ' discovered', NenoLog::ACTION_CONTENT_DISCOVERED);
 			NenoHelper::discoverExtension($extensionData);
 		}
 	}
@@ -176,9 +176,9 @@ class PlgSystemNeno extends JPlugin
 		// Check if there's some issue on the item
 		$context = $app->input->get('option');
 		$issued  = json_decode($app->getUserState($context . '.issue'));
-		$app->setUserState($context . '.issue', null);
+		$app->setUserState($context . '.issue', NULL);
 
-		if ($issued != null)
+		if ($issued != NULL)
 		{
 			$tableName    = $issued->table;
 			$associations = JLanguageAssociations::getAssociations($context, $tableName, $context . '.item', $issued->id);
@@ -196,7 +196,7 @@ class PlgSystemNeno extends JPlugin
 				$code = 'NOT_SOURCE_LANG_CONTENT';
 			}
 
-			if (NenoHelperIssue::generateIssue($code, $issued->id, $tableName,  $issued->lang, $info))
+			if (NenoHelperIssue::generateIssue($code, $issued->id, $tableName, $issued->lang, $info))
 			{
 				$message = JText::_('PLG_NENO_ISSUE_' . $code) . ' ' . JText::_('PLG_NENO_CONTENT_USE_NENO');
 				$app->enqueueMessage($message, 'warning');
@@ -258,6 +258,8 @@ class PlgSystemNeno extends JPlugin
 								$field->persistTranslations($primaryKeyData);
 							}
 						}
+
+						NenoLog::log('Translations added from ' . $content->getTableName() . ' - #' . $content->get($content->getPrimaryKey()), NenoLog::ACTION_TRANSLATION_ADDED_CONTENT_AFTER_SAVE);
 					}
 
 					// Check if language is not source/all
@@ -268,7 +270,8 @@ class PlgSystemNeno extends JPlugin
 						$issue->lang  = $content->language;
 						$issue->table = $tableName;
 
-						JFactory::getApplication()->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
+						JFactory::getApplication()
+						  ->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
 					}
 					else
 					{

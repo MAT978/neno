@@ -2890,6 +2890,8 @@ class NenoHelper
 		{
 			$installer->uninstall($extension['type'], $extension['extension_id']);
 		}
+
+		NenoLog::log($languageTag . ' language removed successfully', NenoLog::ACTION_LANGUAGE_UNINSTALLED, JFactory::getUser()->id);
 		
 		return true;
 	}
@@ -3066,9 +3068,9 @@ class NenoHelper
 	public static function findLanguages($allSupported = false)
 	{
 		$enGbExtensionId = self::getEnGbExtensionId();
-		$languagesFound = array();
-		$db             = JFactory::getDbo();
-		$query          = $db->getQuery(true);
+		$languagesFound  = array();
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
 		
 		if (!empty($enGbExtensionId))
 		{
@@ -3095,8 +3097,8 @@ class NenoHelper
 			// Find updates for languages
 			$updater = JUpdater::getInstance();
 			$updater->findUpdates($enGbExtensionId);
-			$updateSiteId = self::getLanguagesUpdateSite($enGbExtensionId);
-			$updates = self::getUpdates($updateSiteId);
+			$updateSiteId   = self::getLanguagesUpdateSite($enGbExtensionId);
+			$updates        = self::getUpdates($updateSiteId);
 			$languagesFound = $updates;
 		}
 		
@@ -3254,6 +3256,8 @@ class NenoHelper
 			
 			return self::createContentRow($jiso, $languageData, $publishContent);
 		}
+
+		NenoLog::log($jiso . ' installed successfully', NenoLog::ACTION_LANGUAGE_INSTALLED, JFactory::getUser()->id);
 		
 		return self::isLanguageInstalled($jiso);
 	}
@@ -4399,7 +4403,8 @@ class NenoHelper
 	{
 		$xml        = simplexml_load_file($contentElementFilePath);
 		$filterType = $xml->xpath('/neno/reference/table/field[@name=\'' . $fieldName . '\']/@' . $attributeName . '');
-		return (string) $filterType[0][ $attributeName ];
+
+		return (string) $filterType[0][$attributeName];
 	}
 
 	/**
