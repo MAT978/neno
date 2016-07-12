@@ -115,18 +115,6 @@ abstract class NenoContentElement extends NenoObject
 	}
 
 	/**
-	 * {@inheritdoc}
-	 *
-	 * @return bool
-	 */
-	public function remove()
-	{
-		NenoLog::log('Element deleted successfully', 2);
-
-		return parent::remove();
-	}
-
-	/**
 	 * Set that the content has changed
 	 *
 	 * @return $this

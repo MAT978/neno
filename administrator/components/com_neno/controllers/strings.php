@@ -27,76 +27,76 @@ class NenoControllerStrings extends JControllerAdmin
 	 */
 	public function getStrings()
 	{
-		NenoLog::log('Method getStrings of NenoControllerStrings called', 3);
 		$input          = JFactory::getApplication()->input;
 		$filterJson     = $input->getString('jsonGroupsElements');
 		$filterArray    = json_decode($filterJson);
-		$filterGroups   = array ();
-		$filterElements = array ();
-		$filterField    = array ();
-		$filterFile    = array ();
-		$filterMethods  = array ();
-		$filterStatus   = array ();
+		$filterGroups   = array();
+		$filterElements = array();
+		$filterField    = array();
+		$filterFile     = array();
+		$filterMethods  = array();
+		$filterStatus   = array();
 		$outputLayout   = strtolower($input->getString('outputLayout'));
 		$filterSearch   = strtolower($input->get('filter_search', '', 'RAW'));
 		$app            = JFactory::getApplication();
 
-		NenoLog::log('Processing filtered json data for NenoControllerStrings::getStrings', 3);
-        
-        if (!empty($filterArray))
-        {
-            foreach ($filterArray as $filterItem)
-            {
-                if (NenoHelper::startsWith($filterItem, 'group-') !== false)
-                {
-                    $filterGroups[] = str_replace('group-', '', $filterItem);
-                }
-                elseif (NenoHelper::startsWith($filterItem, 'table-') !== false)
-                {
-                    $filterElements[] = str_replace('table-', '', $filterItem);
-                }
-                elseif (NenoHelper::startsWith($filterItem, 'field-') !== false)
-                {
-                    $filterField[] = str_replace('field-', '', $filterItem);
-                }
-                elseif (NenoHelper::startsWith($filterItem, 'file-') !== false)
-                {
-                    $filterFile[] = str_replace('file-', '', $filterItem);
-                }
-            }
-        }
+		if (!empty($filterArray))
+		{
+			foreach ($filterArray as $filterItem)
+			{
+				if (NenoHelper::startsWith($filterItem, 'group-') !== false)
+				{
+					$filterGroups[] = str_replace('group-', '', $filterItem);
+				}
+				elseif (NenoHelper::startsWith($filterItem, 'table-') !== false)
+				{
+					$filterElements[] = str_replace('table-', '', $filterItem);
+				}
+				elseif (NenoHelper::startsWith($filterItem, 'field-') !== false)
+				{
+					$filterField[] = str_replace('field-', '', $filterItem);
+				}
+				elseif (NenoHelper::startsWith($filterItem, 'file-') !== false)
+				{
+					$filterFile[] = str_replace('file-', '', $filterItem);
+				}
+			}
+		}
 
 		// Set filters into the request.
 		$input->set('group', $filterGroups);
 		$input->set('table', $filterElements);
 		$input->set('field', $filterField);
 		$input->set('file', $filterFile);
-		$input->set('list', array ('limit' => $input->get('limit'), 'start' => $input->get('limitStart')));
+		$input->set('list', array(
+		  'limit' => $input->get('limit'),
+		  'start' => $input->get('limitStart')
+		));
 		$input->set('limitstart', $input->get('limitStart'));
 
 		$filterJson  = $input->getString('jsonMethod');
 		$filterArray = json_decode($filterJson);
-        
-        if (!empty($filterArray))
-        {
-            foreach ($filterArray as $filterItem)
-            {
-                $filterMethods[] = str_replace('method-', '', $filterItem);
-            }
-        }
+
+		if (!empty($filterArray))
+		{
+			foreach ($filterArray as $filterItem)
+			{
+				$filterMethods[] = str_replace('method-', '', $filterItem);
+			}
+		}
 
 		$input->set('type', $filterMethods);
 
 		$filterJson  = $input->getString('jsonStatus');
 		$filterArray = json_decode($filterJson);
-        
-        if (!empty($filterArray))
-        {
-            foreach ($filterArray as $filterItem)
-            {
-                $filterStatus[] = (int) str_replace('status-', '', $filterItem);
-            }
-        }
+
+		if (!empty($filterArray))
+		{
+			foreach ($filterArray as $filterItem)
+			{
+				$filterStatus[] = (int) str_replace('status-', '', $filterItem);
+			}
+		}
 
 		$input->set('status', $filterStatus);
 
@@ -128,7 +128,7 @@ class NenoControllerStrings extends JControllerAdmin
 	 *
 	 * @return NenoModelStrings
 	 */
-	public function getModel($name = 'Strings', $prefix = 'NenoModel', $config = array ())
+	public function getModel($name = 'Strings', $prefix = 'NenoModel', $config = array())
 	{
 		return parent::getModel($name, $prefix, $config);
 	}
@@ -144,9 +144,9 @@ class NenoControllerStrings extends JControllerAdmin
 		$stringsModel = $this->getModel();
 
 		$state     = (array) $stringsModel->getState();
-		$queryVars = array (
-			'option' => 'com_neno',
-			'view'   => 'editor'
+		$queryVars = array(
+		  'option' => 'com_neno',
+		  'view'   => 'editor'
 		);
 
 		foreach ($state as $filter => $options)
@@ -205,7 +205,8 @@ class NenoControllerStrings extends JControllerAdmin
 			}
 		}
 
-		JFactory::getApplication()->redirect('index.php?' . substr($query, 0, strlen($query) - 1));
+		JFactory::getApplication()
+		  ->redirect('index.php?' . substr($query, 0, strlen($query) - 1));
 	}
 
 	/**
@@ -227,7 +228,7 @@ class NenoControllerStrings extends JControllerAdmin
 			$tables = $group->getTables(false, false, true);
 			$files  = $group->getLanguageFiles();
 
-			$displayData = array ();
+			$displayData = array();
 
 			/* @var $model NenoModelStrings */
 			$model                 = $this->getModel();
@@ -244,9 +245,9 @@ class NenoControllerStrings extends JControllerAdmin
 					}
 				}
 			}
-			$displayData['files']  = NenoHelper::convertNenoObjectListToJobjectList($files);
-			$displayData['state']  = $model->getState();
-			$tablesHTML            = JLayoutHelper::render('multiselecttables', $displayData, JPATH_NENO_LAYOUTS);
+			$displayData['files'] = NenoHelper::convertNenoObjectListToJobjectList($files);
+			$displayData['state'] = $model->getState();
+			$tablesHTML           = JLayoutHelper::render('multiselecttables', $displayData, JPATH_NENO_LAYOUTS);
 			echo $tablesHTML;
 		}
 

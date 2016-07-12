@@ -402,6 +402,7 @@ class NenoControllerInstallation extends JControllerAdmin
 		if ($moveForward)
 		{
 			NenoSettings::set('installation_status', $step + 1);
+			NenoLog::log("Step $step completed!", NenoLog::ACTION_INSTALLATION_STEP_COMPLETED, JFactory::getUser()->id);
 		}
 		else
 		{
@@ -805,15 +806,15 @@ class NenoControllerInstallation extends JControllerAdmin
 			$query = $db->getQuery(true);
 
 			$query
-				->select($db->quoteName('id'))
-				->from($db->quoteName('#__neno_content_element_language_strings', 'ls'))
-				->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
-				->where(
-					array(
-						'ls.discovered = 0',
-						'lf.translate = 1'
-					)
-				);
+			  ->select($db->quoteName('id'))
+			  ->from($db->quoteName('#__neno_content_element_language_strings', 'ls'))
+			  ->innerJoin('#__neno_content_element_language_files AS lf ON lf.id = ls.languagefile_id')
+			  ->where(
+				array(
+				  'ls.discovered = 0',
+				  'lf.translate = 1'
+				)
+			  );
 
 			$db->setQuery($query, 0, 1);
 			$languageStringId = $db->loadResult();

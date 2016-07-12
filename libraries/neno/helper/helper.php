@@ -2890,6 +2890,8 @@ class NenoHelper
 		{
 			$installer->uninstall($extension['type'], $extension['extension_id']);
 		}
+
+		NenoLog::log($languageTag . ' language removed successfully', NenoLog::ACTION_LANGUAGE_UNINSTALLED, JFactory::getUser()->id);
 		
 		return true;
 	}
@@ -3066,10 +3068,9 @@ class NenoHelper
 	public static function findLanguages($allSupported = false)
 	{
 		$enGbExtensionId = self::getEnGbExtensionId();
-		NenoLog::log('en-GB Extension ID ' . $enGbExtensionId);
-		$languagesFound = array();
-		$db             = JFactory::getDbo();
-		$query          = $db->getQuery(true);
+		$languagesFound  = array();
+		$db              = JFactory::getDbo();
+		$query           = $db->getQuery(true);
 		
 		if (!empty($enGbExtensionId))
 		{
@@ -3096,10 +3097,8 @@ class NenoHelper
 			// Find updates for languages
 			$updater = JUpdater::getInstance();
 			$updater->findUpdates($enGbExtensionId);
-			$updateSiteId = self::getLanguagesUpdateSite($enGbExtensionId);
-			NenoLog::log('UpdateSiteID: ' . $updateSiteId);
-			$updates = self::getUpdates($updateSiteId);
-			NenoLog::log('Updates: ' . json_encode($updateSiteId));
+			$updateSiteId   = self::getLanguagesUpdateSite($enGbExtensionId);
+			$updates        = self::getUpdates($updateSiteId);
 			$languagesFound = $updates;
 		}
 		
@@ -3257,6 +3256,8 @@ class NenoHelper
 			
 			return self::createContentRow($jiso, $languageData, $publishContent);
 		}
+
+		NenoLog::log($jiso . ' installed successfully', NenoLog::ACTION_LANGUAGE_INSTALLED, JFactory::getUser()->id);
 		
 		return self::isLanguageInstalled($jiso);
 	}
@@ -4402,6 +4403,74 @@ class NenoHelper
 	{
 		$xml        = simplexml_load_file($contentElementFilePath);
 		$filterType = $xml->xpath('/neno/reference/table/field[@name=\'' . $fieldName . '\']/@' . $attributeName . '');
-		return (string) $filterType[0][ $attributeName ];
+
+		return (string) $filterType[0][$attributeName];
+	}
+
+	/**
+	 * Make a word plural
+	 *
+	 * @param $word
+	 *
+	 * @return string
+	 */
+	public static function makeItPlural($word)
+	{
+		$specialNouns = array(
+		  'woman'      => 'women',
+		  'man'        => 'men',
+		  'child'      => 'children',
+		  'tooth'      => 'teeth',
+		  'foot'       => 'feet',
+		  'person'     => 'people',
+		  'leaf'       => 'leaves',
+		  'mouse'      => 'mice',
+		  'goose'      => 'geese',
+		  'half'       => 'halves',
+		  'knife'      => 'knives',
+		  'wife'       => 'wives',
+		  'life'       => 'lives',
+		  'elf'        => 'elves',
+		  'loaf'       => 'leaves',
+		  'potato'     => 'potatoes',
+		  'tomato'     => 'tomatoes',
+		  'cactus'     => 'cacti',
+		  'focus'      => 'foci',
+		  'fungus'     => 'fungi',
+		  'nucleus'    => 'nuclei',
+		  'syllabus'   => 'syllabi',
+		  'analysis'   => 'analyses',
+		  'diagnosis'  => 'diagnoses',
+		  'oasis'      => 'oases',
+		  'thesis'     => 'theses',
+		  'crisis'     => 'crises',
+		  'phenomenon' => 'phenomena',
+		  'criterion'  => 'criteria',
+		  'datums'     => 'data',
+		  'sheep'      => 'sheep',
+		  'fish'       => 'fish',
+		  'deer'       => 'deer',
+		  'species'    => 'species',
+		  'aircraft'   => 'aircraft'
+		);
+
+		if (self::endsWith($word, 's') || self::endsWith($word, 'x') || self::endsWith($word, 'z') || self::endsWith($word, 'ch') || self::endsWith($word, 'sh'))
+		{
+			$word = $word . 'es';
+		}
+		elseif (self::endsWith($word, 'y'))
+		{
+			$word = substr($word, 0, strlen($word) - 1) . 'ies';
+		}
+		elseif (isset($specialNouns[$word]))
+		{
+			$word = $specialNouns[$word];
+		}
+		else
+		{
+			$word = $word . 's';
+		}
+
+		return $word;
 	}
 }

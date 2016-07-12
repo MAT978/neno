@@ -20,22 +20,18 @@ class NenoTask extends NenoObject
 	 * @var string
 	 */
 	protected $task;
-
 	/**
 	 * @var Datetime
 	 */
 	protected $timeAdded;
-
 	/**
 	 * @var Datetime
 	 */
 	protected $timeStarted;
-
 	/**
 	 * @var integer
 	 */
 	protected $numberOfAttempts;
-
 	/**
 	 * @var array
 	 */
@@ -81,9 +77,7 @@ class NenoTask extends NenoObject
 	 */
 	public function generateId()
 	{
-		NenoLog::log('New task added', 2);
-
-		return null;
+		return NULL;
 	}
 
 	/**
@@ -146,7 +140,7 @@ class NenoTask extends NenoObject
 		// Set the time when the task started
 		$this->timeStarted = new DateTime;
 
-		// Increase the number of attemps
+		// Increase the number of attempts
 		$this->numberOfAttempts++;
 
 		// Save this task on the database
@@ -155,7 +149,7 @@ class NenoTask extends NenoObject
 		// Get and execute the task through a worker.
 		$worker = $this->getWorker();
 
-		NenoLog::log('Executing task', 2);
+		NenoLog::log('Executing task: ' . $this->getTask(), '', 0, NenoLog::PRIORITY_VERBOSE);
 
 		$worker->run($this->taskData);
 	}
@@ -179,7 +173,7 @@ class NenoTask extends NenoObject
 		}
 		else
 		{
-			NenoLog::log('Worker not found for this task', 1);
+			NenoLog::log('Worker not found for this task', '', 0, NenoLog::PRIORITY_ERROR);
 
 			throw new UnexpectedValueException('Worker not found for this task');
 		}

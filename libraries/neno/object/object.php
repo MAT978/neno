@@ -20,13 +20,12 @@ abstract class NenoObject
 	/**
 	 * @var string
 	 */
-	private static $databaseTableNames = array();
+	protected static $databaseTableNames = array();
 
 	/**
 	 * @var mixed
 	 */
 	protected $id;
-
 	/**
 	 * @var boolean
 	 */
@@ -52,7 +51,7 @@ abstract class NenoObject
 		// Go through them and assign a value to them if they exist in the argument passed as parameter.
 		foreach ($properties as $property)
 		{
-			if ($data->get($property->getName()) !== null)
+			if ($data->get($property->getName()) !== NULL)
 			{
 				$this->{$property->getName()} = $data->get($property->getName());
 			}
@@ -108,7 +107,7 @@ abstract class NenoObject
 		$db = JFactory::getDbo();
 		foreach ($fields as $field => $value)
 		{
-			if (!in_array($field, array( '_order', '_limit', '_offset' )))
+			if (!in_array($field, array('_order', '_limit', '_offset')))
 			{
 				if (is_array($value))
 				{
@@ -116,9 +115,9 @@ abstract class NenoObject
 					if (!empty($value['_field']) && !empty($value['_condition']) && !empty($value['_value']))
 					{
 						$query->where(
-							$db->quoteName(NenoHelper::convertPropertyNameToDatabaseColumnName($value['_field'])) .
-							' ' . $value['_condition'] . ' ' .
-							$db->quote($value['_value'])
+						  $db->quoteName(NenoHelper::convertPropertyNameToDatabaseColumnName($value['_field'])) .
+						  ' ' . $value['_condition'] . ' ' .
+						  $db->quote($value['_value'])
 						);
 					}
 				}
@@ -226,15 +225,15 @@ abstract class NenoObject
 	{
 		if (!is_array($pk))
 		{
-			$pk = array( 'id' => $pk );
+			$pk = array('id' => $pk);
 		}
 
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		$query
-			->select(empty($pk['_select']) ? '*' : $pk['_select'])
-			->from(self::getDbTable());
+		  ->select(empty($pk['_select']) ? '*' : $pk['_select'])
+		  ->from(self::getDbTable());
 
 		$query  = self::generateWhereClauses($query, $pk);
 		$query  = self::generateOtherClauses($query, $pk);
@@ -257,14 +256,14 @@ abstract class NenoObject
 	{
 		$className = get_called_class();
 
-		if (empty(self::$databaseTableNames[ $className ]))
+		if (empty(self::$databaseTableNames[$className]))
 		{
-			$classNameComponents = NenoHelper::splitCamelCaseString($className);
-			$classNameComponents[ count($classNameComponents) - 1 ] .= 's';
-			self::$databaseTableNames[ $className ] = '#__' . implode('_', $classNameComponents);
+			$classNameComponents                                  = NenoHelper::splitCamelCaseString($className);
+			$classNameComponents[count($classNameComponents) - 1] = NenoHelper::makeItPlural($classNameComponents[count($classNameComponents) - 1]);
+			self::$databaseTableNames[$className]                 = '#__' . implode('_', $classNameComponents);
 		}
 
-		return self::$databaseTableNames[ $className ];
+		return self::$databaseTableNames[$className];
 	}
 
 	/**
@@ -353,11 +352,11 @@ abstract class NenoObject
 					{
 						if ($recursive && $value instanceof NenoObject)
 						{
-							$dataArray[ $key ] = $value->toObject($allFields, $recursive, $convertToDatabase);
+							$dataArray[$key] = $value->toObject($allFields, $recursive, $convertToDatabase);
 						}
 						elseif (!$value instanceof NenoObject)
 						{
-							$dataArray[ $key ] = $value;
+							$dataArray[$key] = $value;
 						}
 					}
 
@@ -377,7 +376,8 @@ abstract class NenoObject
 		return $data;
 	}
 
-	public function toArray($allFields = false, $recursive = false, $convertToDatabase = true){
+	public function toArray($allFields = false, $recursive = false, $convertToDatabase = true)
+	{
 		return get_object_vars($this->toObject($allFields, $recursive, $convertToDatabase));
 	}
 
@@ -403,8 +403,8 @@ abstract class NenoObject
 
 		// Getting all the properties marked as 'protected'
 		$properties = array_diff(
-			$mainProperties,
-			$classReflection->getProperties(ReflectionProperty::IS_STATIC)
+		  $mainProperties,
+		  $classReflection->getProperties(ReflectionProperty::IS_STATIC)
 		);
 
 		$propertyNames = array();
@@ -435,7 +435,7 @@ abstract class NenoObject
 	 */
 	public function generateId()
 	{
-		return null;
+		return NULL;
 	}
 
 	/**

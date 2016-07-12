@@ -23,16 +23,16 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Constructor.
 	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @param   array $config An optional associative array of configuration settings.
 	 *
 	 * @see     JController
 	 * @since   1.6
 	 */
-	public function __construct($config = array ())
+	public function __construct($config = array())
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array ();
+			$config['filter_fields'] = array();
 		}
 
 		parent::__construct($config);
@@ -41,7 +41,7 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Consolidate Translation
 	 *
-	 * @param   int  $translationId  Translation id
+	 * @param   int $translationId Translation id
 	 *
 	 * @return  bool True on success
 	 */
@@ -53,32 +53,34 @@ class NenoModelEditor extends NenoModelStrings
 		if (!empty($translation))
 		{
 			$translationsToConsolidate = NenoContentElementTranslation::load(
-				array (
-					'original_text' => $translation->getOriginalText(),
-					'language'      => $translation->getLanguage(),
-					'id'            => array (
-						'_field'     => 'id',
-						'_condition' => '<>',
-						'_value'     => $translation->getId()
-					)
-				),
-				false,
-				true
+			  array(
+				'original_text' => $translation->getOriginalText(),
+				'language'      => $translation->getLanguage(),
+				'id'            => array(
+				  '_field'     => 'id',
+				  '_condition' => '<>',
+				  '_value'     => $translation->getId()
+				)
+			  ),
+			  false,
+			  true
 			);
 
 			// Making sure that is an array
 			if (!is_array($translationsToConsolidate))
 			{
-				$translationsToConsolidate = array ($translationsToConsolidate);
+				$translationsToConsolidate = array($translationsToConsolidate);
 			}
 
 			/* @var $translationToConsolidate NenoContentElementTranslation */
 			foreach ($translationsToConsolidate as $translationToConsolidate)
 			{
 				$translationToConsolidate
-					->setString($translation->getString())
-					->setState(NenoContentElementTranslation::TRANSLATED_STATE)
-					->persist();
+				  ->setString($translation->getString())
+				  ->setState(NenoContentElementTranslation::TRANSLATED_STATE)
+				  ->persist();
+
+				NenoLog::log('Translation "' . $translationToConsolidate->getString() . '" consolidated successfully"', NenoLog::ACTION_TRANSLATION_CONSOLIDATED);
 			}
 		}
 
@@ -88,9 +90,9 @@ class NenoModelEditor extends NenoModelStrings
 	/**
 	 * Get the amount of translations that contains the same text
 	 *
-	 * @param   int     $translationId        Translation Id
-	 * @param   string  $translationLanguage  Translation language
-	 * @param   string  $translationText      Translation Text
+	 * @param   int    $translationId       Translation Id
+	 * @param   string $translationLanguage Translation language
+	 * @param   string $translationText     Translation Text
 	 *
 	 * @return int
 	 */
@@ -100,16 +102,16 @@ class NenoModelEditor extends NenoModelStrings
 		$query = $db->getQuery(true);
 
 		$query
-			->select('COUNT(*)')
-			->from('#__neno_content_element_translations')
-			->where(
-				array (
-					'original_text = ' . $db->quote($translationText),
-					'language = ' . $db->quote($translationLanguage),
-					'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
-					'id <> ' . $translationId,
-				)
-			);
+		  ->select('COUNT(*)')
+		  ->from('#__neno_content_element_translations')
+		  ->where(
+			array(
+			  'original_text = ' . $db->quote($translationText),
+			  'language = ' . $db->quote($translationLanguage),
+			  'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
+			  'id <> ' . $translationId,
+			)
+		  );
 
 		$db->setQuery($query);
 

@@ -320,7 +320,7 @@ class NenoJob extends NenoObject
 		}
 		catch (RuntimeException $e)
 		{
-			NenoLog::log($e->getMessage(), NenoLog::PRIORITY_ERROR, true);
+			NenoLog::log($e->getMessage(), '', 0, NenoLog::PRIORITY_ERROR, true);
 
 			return false;
 		}
@@ -442,6 +442,9 @@ class NenoJob extends NenoObject
 					// More TC needed
 					case 402:
 						$this->setState(self::JOB_STATE_NO_TC);
+						break;
+					default:
+						NenoLog::log('Job #' . $this->getId() . ' sent successfully', NenoLog::ACTION_TRANSLATION_JOB_SENT, JFactory::getUser()->id);
 						break;
 				}
 

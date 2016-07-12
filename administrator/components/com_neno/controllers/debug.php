@@ -25,8 +25,8 @@ class NenoControllerDebug extends JControllerAdmin
 	 */
 	public function listIssues()
 	{
-		$app = JFactory::getApplication();
-		$lang = $app->input->get('lang', null);
+		$app  = JFactory::getApplication();
+		$lang = $app->input->get('lang', NULL);
 
 		$view          = $this->getView('issues', 'html');
 		$view->pending = NenoHelperIssue::getList($lang);
@@ -44,9 +44,10 @@ class NenoControllerDebug extends JControllerAdmin
 	{
 		$app  = JFactory::getApplication();
 		$pk   = $app->input->get('id');
-		$lang = $app->input->get('lang', null);
+		$lang = $app->input->get('lang', NULL);
 
-		$lang = ($lang == null) ? '' : '&lang=' . $lang;
+		$lang  = ($lang == NULL) ? '' : '&lang=' . $lang;
+		$issue = NenoHelperIssue::getIssue($pk);
 
 		switch (NenoHelperIssue::fixIssue($pk))
 		{
@@ -58,6 +59,7 @@ class NenoControllerDebug extends JControllerAdmin
 			// Success
 			case 1 :
 				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_SUCCESS'), 'success');
+				NenoLog::log('Issue ' . $issue->error_code . '-' . $issue->lang . ' fixed', NenoLog::ACTION_ISSUE_FIXED, JFactory::getUser()->id);
 				break;
 			
 			// Already fixed
@@ -79,7 +81,7 @@ class NenoControllerDebug extends JControllerAdmin
 	 */
 	public function fixMenus()
 	{
-		$menus = NenoHelper::createMenuStructure('fixMenus');
+		$menus  = NenoHelper::createMenuStructure('fixMenus');
 		$result = array();
 
 		if (is_array($menus) && count($menus) > 0)
@@ -94,8 +96,8 @@ class NenoControllerDebug extends JControllerAdmin
 			$result = NenoHelperBackend::renderMenuFixingMessage(false);
 		}
 
-		$view         = $this->getView('FixContent', 'html');
-		$view->menus  = $result;
+		$view        = $this->getView('FixContent', 'html');
+		$view->menus = $result;
 		$view->display('menus');
 	}
 
@@ -118,10 +120,10 @@ class NenoControllerDebug extends JControllerAdmin
 			$destinationTable = $db->generateShadowTableName('#__content', $language->lang_code);
 
 			$query
-				->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
-				->set('c1.attribs = c2.attribs')
-				->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
-				->where('c1.id = c2.id');
+			  ->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
+			  ->set('c1.attribs = c2.attribs')
+			  ->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
+			  ->where('c1.id = c2.id');
 
 			$db->setQuery($query);
 
@@ -147,15 +149,15 @@ class NenoControllerDebug extends JControllerAdmin
 		$query = $db->getQuery(true);
 
 		$query
-			->select($db->quoteName(array('tr.id', 'f.field_name')))
-			->from($db->quoteName('#__neno_content_element_translations', 'tr'))
-			->join('left', $db->quoteName('#__neno_content_element_fields', 'f') . 'ON (' . $db->quoteName('tr.content_id') . ' = ' . $db->quoteName('f.id') .')')
-			->where('tr.content_type = \'db_string\'')
-			->where('tr.string = ' . $db->quote('null'));
+		  ->select($db->quoteName(array('tr.id', 'f.field_name')))
+		  ->from($db->quoteName('#__neno_content_element_translations', 'tr'))
+		  ->join('left', $db->quoteName('#__neno_content_element_fields', 'f') . 'ON (' . $db->quoteName('tr.content_id') . ' = ' . $db->quoteName('f.id') . ')')
+		  ->where('tr.content_type = \'db_string\'')
+		  ->where('tr.string = ' . $db->quote('null'));
 
 		$db->setQuery($query);
 		$translationsWithNull = $db->loadObjectList();
-		$result               = null;
+		$result               = NULL;
 
 		foreach ($translationsWithNull as $translationWithNull)
 		{
@@ -171,8 +173,8 @@ class NenoControllerDebug extends JControllerAdmin
 				if ($translation->getString() === 'null')
 				{
 					$ok = $translation
-							->setString($translation->getOriginalText())
-							->persist();
+					  ->setString($translation->getOriginalText())
+					  ->persist();
 
 					$item        = new stdClass;
 					$item->text  = $translation->getOriginalText();
@@ -187,8 +189,22 @@ class NenoControllerDebug extends JControllerAdmin
 			}
 		}
 
-		$view        = $this->getView('FixContent', 'html');
-		$view->item  = $result;
+		$view       = $this->getView('FixContent', 'html');
+		$view->item = $result;
 		$view->display('nullissue');
+	}
+
+	/**
+	 * Generate and force to download report
+	 *
+	 * @throws \Exception
+	 */
+	public function downloadReport()
+	{
+		header("Content-type: text/plain");
+		header("Content-Disposition: attachment; filename=report-" . date('YmdHis') . ".txt");
+
+		echo NenoHelperBackend::printServerInformation(NenoHelperBackend::getServerInfo());
+		JFactory::getApplication()->close();
 	}
 }
