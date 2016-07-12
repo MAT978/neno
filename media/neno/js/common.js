@@ -263,19 +263,19 @@ function saveFilter(event) {
  *
  */
 function changeTranslateState() {
-	var id = jQuery(this).parent('fieldset').attr('data-field');
-	var type = jQuery(this).parent('fieldset').attr('data-type');
-	var status = parseInt(jQuery(this).val());
+    var id = jQuery(this).parent('fieldset').attr('data-field');
+    var type = jQuery(this).parent('fieldset').attr('data-type');
+    var status = parseInt(jQuery(this).val());
 
-	if (status == 0) {
-		jQuery('#filter-rows-table-'+id).addClass('hidden');
-	} else {
-		jQuery('#filter-rows-table-'+id).removeClass('hidden');
-	}
+    if (status == 0) {
+        jQuery('#filter-rows-table-' + id).addClass('hidden');
+    } else {
+        jQuery('#filter-rows-table-' + id).removeClass('hidden');
+    }
 
-	bindGroupElementEvents();
-	markLabelAsActiveByStatus(id, type, status, status == 2);
-	setTranslateStatus(id, type, status);
+    bindGroupElementEvents();
+    markLabelAsActiveByStatus(id, type, status, status == 2);
+    setTranslateStatus(id, type, status);
 }
 
 /**
@@ -411,28 +411,28 @@ function bindToggleFieldVisibilityEvent(toggler) {
  * @param currentStatus
  */
 function showTableFiltersModal(id, currentStatus) {
-	//Load group form html
-	jQuery.ajax({
-			url    : 'index.php?option=com_neno&task=groupselements.getTableFilterModalLayout&tableId=' + id,
-			success: function (html) {
+    //Load group form html
+    jQuery.ajax({
+            url: 'index.php?option=com_neno&task=groupselements.getTableFilterModalLayout&tableId=' + id,
+            success: function (html) {
 
-				statusChanged = false;
+                statusChanged = false;
 
-				//Inject HTML into the modal
-				var modal = jQuery('#nenomodal-table-filters');
-				modal.data('current-status', currentStatus);
-				modal.data('table-id', id);
-				modal.find('.modal-body').html(html);
-				modal.modal('show');
+                //Inject HTML into the modal
+                var modal = jQuery('#nenomodal-table-filters');
+                modal.data('current-status', currentStatus);
+                modal.data('table-id', id);
+                modal.find('.modal-body').html(html);
+                modal.modal('show');
 
-				// Bind events
-				bindGroupElementEvents();
+                // Bind events
+                bindGroupElementEvents();
 
-				//Handle saving and submitting the form
-				jQuery('#save-filters-btn').off('click').on('click', saveTableFilters);
-			}
-		}
-	);
+                //Handle saving and submitting the form
+                jQuery('#save-filters-btn').off('click').on('click', saveTableFilters);
+            }
+        }
+    );
 }
 
 /**
@@ -556,88 +556,88 @@ function checkStatus() {
  */
 function toggleElementVisibility() {
 
-	var row = jQuery(this).parents('.row-group');
-	var id = getGroupIdFromChildElement(jQuery(this));
+    var row = jQuery(this).parents('.row-group');
+    var id = getGroupIdFromChildElement(jQuery(this));
 
-	//Get the state of the current toggler to see if we need to expand or collapse
-	if (jQuery(this).hasClass('toggler-collapsed')) {
+    //Get the state of the current toggler to see if we need to expand or collapse
+    if (jQuery(this).hasClass('toggler-collapsed')) {
 
-		// Expand
-		jQuery(this).removeClass('toggler-collapsed').addClass('toggler-expanded').html('<span class="icon-arrow-down-3"></span>');
+        // Expand
+        jQuery(this).removeClass('toggler-collapsed').addClass('toggler-expanded').html('<span class="icon-arrow-down-3"></span>');
 
-		// Show a loader row while loading
-		row.after('<tr id="loader-' + id + '"><td colspan="9" class="loading-row">&nbsp;</td></tr>');
+        // Show a loader row while loading
+        row.after('<tr id="loader-' + id + '"><td colspan="9" class="loading-row">&nbsp;</td></tr>');
 
-		jQuery.ajax({
-				url    : 'index.php?option=com_neno&task=groupselements.getElements&group_id=' + id,
-				success: function (html) {
-					jQuery('#loader-' + id).replaceWith(html);
+        jQuery.ajax({
+                url: 'index.php?option=com_neno&task=groupselements.getElements&group_id=' + id,
+                success: function (html) {
+                    jQuery('#loader-' + id).replaceWith(html);
 
-					//Bind events to new fields
-					bindGroupElementEvents();
-				}
-			}
-		);
-	} else {
+                    //Bind events to new fields
+                    bindGroupElementEvents();
+                }
+            }
+        );
+    } else {
 
-		//Collapse
-		jQuery(this).removeClass('toggler-expanded').addClass('toggler-collapsed').html('<span class="icon-arrow-right-3"></span>');
+        //Collapse
+        jQuery(this).removeClass('toggler-expanded').addClass('toggler-collapsed').html('<span class="icon-arrow-right-3"></span>');
 
-		//Remove children
-		jQuery('[data-parent="' + id + '"]').remove();
-		jQuery('[data-grandparent="' + id + '"]').remove();
-	}
+        //Remove children
+        jQuery('[data-parent="' + id + '"]').remove();
+        jQuery('[data-grandparent="' + id + '"]').remove();
+    }
 }
 
 function toggleFieldVisibility() {
 
-	var row = jQuery(this).parent('.row-table');
-	var id_parts = row.attr('data-id').split('-');
-	var id = id_parts[1];
+    var row = jQuery(this).parent('.row-table');
+    var id_parts = row.attr('data-id').split('-');
+    var id = id_parts[1];
 
-	//Get the state of the current toggler to see if we need to expand or collapse
-	if (jQuery(this).hasClass('toggler-collapsed')) {
+    //Get the state of the current toggler to see if we need to expand or collapse
+    if (jQuery(this).hasClass('toggler-collapsed')) {
 
-		// Expand
-		jQuery(this).removeClass('toggler-collapsed').addClass('toggler-expanded').html('<span class="icon-arrow-down-3"></span>');
+        // Expand
+        jQuery(this).removeClass('toggler-collapsed').addClass('toggler-expanded').html('<span class="icon-arrow-down-3"></span>');
 
-		jQuery('[data-parent="' + id + '"]').show();
+        jQuery('[data-parent="' + id + '"]').show();
 
-	} else {
+    } else {
 
-		//Collapse
-		jQuery(this).removeClass('toggler-expanded').addClass('toggler-collapsed').html('<span class="icon-arrow-right-3"></span>');
+        //Collapse
+        jQuery(this).removeClass('toggler-expanded').addClass('toggler-collapsed').html('<span class="icon-arrow-right-3"></span>');
 
-		//hide children
-		jQuery('[data-parent="' + id + '"]').hide();
+        //hide children
+        jQuery('[data-parent="' + id + '"]').hide();
 
-	}
+    }
 }
 
 function changeFieldTranslateState() {
 
-	var id = jQuery(this).parent('fieldset').attr('data-field');
-	var status = jQuery(this).val();
+    var id = jQuery(this).parent('fieldset').attr('data-field');
+    var status = jQuery(this).val();
 
-	if (status == 1) {
-		jQuery(this).parents('.row-field').find('.bar').removeClass('bar-disabled');
-		jQuery('[for="check-toggle-translate-' + id + '-1"]').addClass('active btn-success');
-		jQuery('[for="check-toggle-translate-' + id + '-0"]').removeClass('active btn-danger');
-	} else {
-		jQuery(this).parents('.row-field').find('.bar').addClass('bar-disabled');
-		jQuery('[for="check-toggle-translate-' + id + '-0"]').addClass('active btn-danger');
-		jQuery('[for="check-toggle-translate-' + id + '-1"]').removeClass('active btn-success');
-	}
+    if (status == 1) {
+        jQuery(this).parents('.row-field').find('.bar').removeClass('bar-disabled');
+        jQuery('[for="check-toggle-translate-' + id + '-1"]').addClass('active btn-success');
+        jQuery('[for="check-toggle-translate-' + id + '-0"]').removeClass('active btn-danger');
+    } else {
+        jQuery(this).parents('.row-field').find('.bar').addClass('bar-disabled');
+        jQuery('[for="check-toggle-translate-' + id + '-0"]').addClass('active btn-danger');
+        jQuery('[for="check-toggle-translate-' + id + '-1"]').removeClass('active btn-success');
+    }
 
-	//Show an alert that count no longer is accurate
-	jQuery('#reload-notice').remove();
-	jQuery('.navbar-fixed-top .navbar-inner').append('<div style="padding:10px 30px;" id="reload-notice"><div class="alert alert-warning">' + warning_message + '<a href="index.php?option=com_neno&view=groupselements" class="btn btn-info pull-right" style="height: 16px; font-size: 12px;margin-top:-4px">' + warning_button + '</a></div></div>').height('92');
-	jQuery('body').css('padding-top', '93px');
+    //Show an alert that count no longer is accurate
+    jQuery('#reload-notice').remove();
+    jQuery('.navbar-fixed-top .navbar-inner').append('<div style="padding:10px 30px;" id="reload-notice"><div class="alert alert-warning">' + warning_message + '<a href="index.php?option=com_neno&view=groupselements" class="btn btn-info pull-right" style="height: 16px; font-size: 12px;margin-top:-4px">' + warning_button + '</a></div></div>').height('92');
+    jQuery('body').css('padding-top', '93px');
 
-	jQuery.ajax({
-			url: 'index.php?option=com_neno&task=groupselements.toggleContentElementField&fieldId=' + id + '&translateStatus=' + status
-		}
-	);
+    jQuery.ajax({
+            url: 'index.php?option=com_neno&task=groupselements.toggleContentElementField&fieldId=' + id + '&translateStatus=' + status
+        }
+    );
 }
 
 /**
@@ -647,54 +647,54 @@ function changeFieldTranslateState() {
  */
 function checkUncheckFamilyCheckboxes(element) {
 
-	if(typeof element === 'undefined'){
-		element = jQuery(this);
-	}
-	//Set some vars
-	var state = element.prop('checked');
-	var this_data_id = element.closest('tr').attr('data-id');
-	var this_parts = this_data_id.split('-');
-	var this_id = this_parts[1];
+    if (typeof element === 'undefined') {
+        element = jQuery(this);
+    }
+    //Set some vars
+    var state = element.prop('checked');
+    var this_data_id = element.closest('tr').attr('data-id');
+    var this_parts = this_data_id.split('-');
+    var this_id = this_parts[1];
 
-	//Check uncheck all children
-	jQuery('[data-parent="' + this_id + '"]').find('input[type=checkbox]').prop('checked', state);
+    //Check uncheck all children
+    jQuery('[data-parent="' + this_id + '"]').find('input[type=checkbox]').prop('checked', state);
 
-	//Uncheck parents
-	if (state === false) {
-		var parent_id = jQuery('[data-id="' + this_data_id + '"').attr('data-parent');
-		if (parent_id) {
-			jQuery('[data-id="group-' + parent_id + '"]').find('input[type=checkbox]').prop('checked', false);
-		}
-	}
+    //Uncheck parents
+    if (state === false) {
+        var parent_id = jQuery('[data-id="' + this_data_id + '"').attr('data-parent');
+        if (parent_id) {
+            jQuery('[data-id="group-' + parent_id + '"]').find('input[type=checkbox]').prop('checked', false);
+        }
+    }
 
-	// Make available to Joomla if a checkbox is checked to prevent submitting without a checked item
-	Joomla.isChecked(state);
+    // Make available to Joomla if a checkbox is checked to prevent submitting without a checked item
+    Joomla.isChecked(state);
 }
 
 
 function showModalGroupForm(isNew) {
-	var id = 0;
-	if (isNew !== true) {
-		id = getGroupIdFromChildElement(jQuery(this));
-	}
+    var id = 0;
+    if (isNew !== true) {
+        id = getGroupIdFromChildElement(jQuery(this));
+    }
 
-	//Load group form html
-	jQuery.ajax({
-			url    : 'index.php?option=com_neno&view=groupelement&id=' + id + '&format=raw',
-			success: function (html) {
+    //Load group form html
+    jQuery.ajax({
+            url: 'index.php?option=com_neno&view=groupelement&id=' + id + '&format=raw',
+            success: function (html) {
 
-				//Inject HTML into the modal
-				var modal = jQuery('#nenomodal');
-				modal.find('.modal-body').html(html);
-				modal.modal('show');
+                //Inject HTML into the modal
+                var modal = jQuery('#nenomodal');
+                modal.find('.modal-body').html(html);
+                modal.modal('show');
 
-				//Handle saving and submitting the form
-				jQuery('#save-modal-btn').off('click').on('click', function () {
-					jQuery('#groupelement-form').submit();
-				});
-			}
-		}
-	);
+                //Handle saving and submitting the form
+                jQuery('#save-modal-btn').off('click').on('click', function () {
+                    jQuery('#groupelement-form').submit();
+                });
+            }
+        }
+    );
 }
 
 
@@ -703,43 +703,43 @@ function showModalGroupForm(isNew) {
  */
 function getGroupIdFromChildElement(e) {
 
-	var row = e.parents('.row-group');
-	var id_parts = row.data('id');
-	var id = 0;
+    var row = e.parents('.row-group');
+    var id_parts = row.data('id');
+    var id = 0;
 
-	if (typeof id_parts != 'undefined') {
-		id_parts = id_parts.split('-');
-		id = id_parts[1];
-	}
+    if (typeof id_parts != 'undefined') {
+        id_parts = id_parts.split('-');
+        id = id_parts[1];
+    }
 
-	return id;
+    return id;
 
 }
 
 function bindGroupElementEvents() {
 
-	// Bind load elements
-	jQuery('.toggle-elements').off('click').on('click', toggleElementVisibility);
+    // Bind load elements
+    jQuery('.toggle-elements').off('click').on('click', toggleElementVisibility);
 
-	// Bind toggle fields
-	jQuery('.toggler.toggle-fields').off('click').on('click', toggleFieldVisibility);
+    // Bind toggle fields
+    jQuery('.toggler.toggle-fields').off('click').on('click', toggleFieldVisibility);
 
-	//Bind checking and unchecking checkboxes
-	jQuery('#table-groups-elements').find('input[type=checkbox]').off('click').on('click', checkUncheckFamilyCheckboxes);
+    //Bind checking and unchecking checkboxes
+    jQuery('#table-groups-elements').find('input[type=checkbox]').off('click').on('click', checkUncheckFamilyCheckboxes);
 
-	//Attach the field translate state toggler
-	jQuery('.check-toggle-translate-radio').off('change').on('change', changeFieldTranslateState);
+    //Attach the field translate state toggler
+    jQuery('.check-toggle-translate-radio').off('change').on('change', changeFieldTranslateState);
 
-	//Attach the translate state toggler
-	jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
+    //Attach the translate state toggler
+    jQuery('.check-toggle-translate-table-radio').off('change').on('change', changeTranslateState);
 
-	//Attach the translate state toggler
-	jQuery('.check-toggle-translate-file-radio').off('change').on('change', changeTranslateState);
+    //Attach the translate state toggler
+    jQuery('.check-toggle-translate-file-radio').off('change').on('change', changeTranslateState);
 
-	//Bind modal clicks
-	jQuery('.modalgroupform').off('click').on('click', showModalGroupForm);
+    //Bind modal clicks
+    jQuery('.modalgroupform').off('click').on('click', showModalGroupForm);
 
-	bindTranslateSomeButtonEvents();
+    bindTranslateSomeButtonEvents();
 }
 
 
@@ -764,8 +764,8 @@ function bindTranslateSomeButtonEvents() {
 }
 
 function duplicateFilterRow() {
-	jQuery(this).closest('tr').clone().appendTo('#filters-table');
-	bindGroupElementEvents();
+    jQuery(this).closest('tr').clone().appendTo('#filters-table');
+    bindGroupElementEvents();
 }
 
 function removeFilterRow() {
@@ -831,14 +831,15 @@ function refreshRecordCounter(id, type) {
 function getDiscoverAlert() {
     jQuery.get('index.php?option=com_neno&task=getDiscoverMessage', function (data) {
         jQuery('#discover-alert').remove();
-        if(data != ''){
+        if (data != '') {
             jQuery('#j-main-container').prepend(data);
+            setTimeout(getDiscoverAlert, 10000);
+        } else{
+            setTimeout(getDiscoverAlert, 30000);
         }
     });
 }
 
 jQuery(document).ready(function () {
-    getDiscoverAlert();
-
-    setInterval(getDiscoverAlert, 10000);
+    setTimeout(getDiscoverAlert, 10000);
 });
