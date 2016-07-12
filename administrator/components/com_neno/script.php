@@ -71,7 +71,10 @@ class com_NenoInstallerScript
 		{
 			$config = JFactory::getConfig();
 
-			JFile::delete($config->get('log_path') . DIRECTORY_SEPARATOR . 'neno_log.php');
+			if (JFile::exists($config->get('log_path') . DIRECTORY_SEPARATOR . 'neno_log.php'))
+			{
+				JFile::delete($config->get('log_path') . DIRECTORY_SEPARATOR . 'neno_log.php');
+			}
 		}
 
 		JFile::move($installationPath . '/cli/neno.php', JPATH_ROOT . '/cli/neno.php');
