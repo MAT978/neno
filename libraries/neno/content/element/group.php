@@ -751,7 +751,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			$this->tables = array_values($this->tables);
 		}
 
-		if (empty($this->languageFiles))
+		if (!empty($this->languageFiles))
 		{
 			/** @var  $file NenoContentElementLanguageFile */
 			foreach ($this->languageFiles as $file)
