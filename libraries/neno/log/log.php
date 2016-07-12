@@ -152,8 +152,8 @@ class NenoLog extends JLog
 	/**
 	 * Get level for actions.
 	 *
-	 * @param string $action @see constant
-	 * @param int $default @see constant
+	 * @param string $action  @see constant
+	 * @param int    $default @see constant
 	 *
 	 * @return int
 	 */
@@ -203,7 +203,7 @@ class NenoLog extends JLog
 	protected static function generateNenoEntry($message, $priority, $date = NULL, $action = '', $trigger = 0)
 	{
 		$entryData = array(
-		  'timeAdded' => $date,
+		  'timeAdded' => $date == NULL ? new DateTime() : $date,
 		  'action'    => $action,
 		  'message'   => (string) $message,
 		  'level'     => $priority,
