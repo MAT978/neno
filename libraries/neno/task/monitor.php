@@ -189,7 +189,7 @@ class NenoTaskMonitor
 		  )
 		);
 
-		NenoLog::log('Adding translation job to execute', '', 0, NenoLog::PRIORITY_VERBOSE);
+		NenoLog::log('Adding \''. $task->getTask() . '\' task to the task queue', '', 0, NenoLog::PRIORITY_VERBOSE);
 
 		return $task->persist();
 	}

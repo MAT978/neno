@@ -140,7 +140,7 @@ class NenoTask extends NenoObject
 		// Set the time when the task started
 		$this->timeStarted = new DateTime;
 
-		// Increase the number of attemps
+		// Increase the number of attempts
 		$this->numberOfAttempts++;
 
 		// Save this task on the database

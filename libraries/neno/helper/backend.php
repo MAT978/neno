@@ -937,11 +937,23 @@ class NenoHelperBackend
 	public static function getServerInfo()
 	{
 		ob_start();
-		$phpInfo                   = array();
-		$xml                       = new SimpleXMLElement(file_get_contents(JPATH_ADMINISTRATOR . '/components/com_neno/neno.xml'));
-		$phpInfo['neno_version']   = (string) $xml->version;
-		$config                    = JFactory::getConfig();
-		$phpInfo['neno_log']       = self::tailCustom($config->get('log_path') . '/neno_log.php', 100);
+		$phpInfo                 = array();
+		$xml                     = new SimpleXMLElement(file_get_contents(JPATH_ADMINISTRATOR . '/components/com_neno/neno.xml'));
+		$phpInfo['neno_version'] = (string) $xml->version;
+
+		/* @var $debugModel NenoModelDebug */
+		$debugModel = JModelLegacy::getInstance('Debug', 'NenoModel');
+		$debugModel->getState();
+		$debugModel->setState('list.limit', 1000);
+		$logItems = $debugModel->getItems();
+		$logLines = array();
+
+		foreach ($logItems as $logItem)
+		{
+			$logLines[] = $logItem->time_added . "\t" . strtoupper($logItem->level) . "\t" . $logItem->message;
+		}
+
+		$phpInfo['neno_log']       = implode("\n", $logLines);
 		$phpInfo['joomla_version'] = JVERSION;
 
 		/* @var $db NenoDatabaseDriverMysqlx */
