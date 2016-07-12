@@ -49,27 +49,27 @@ class NenoLog extends JLog
 	 */
 	const ACTION_LANGUAGE_INSTALLED = 'language_installed';
 	/**
-	 *
+	 * Installation step completed
 	 */
 	const ACTION_INSTALLATION_STEP_COMPLETED = 'installation_step_completed';
 	/**
-	 *
+	 * Issue created
 	 */
 	const ACTION_ISSUE_CREATED = 'issue_created';
 	/**
-	 *
+	 * Issue fixed
 	 */
 	const ACTION_ISSUE_FIXED = 'issue_fixed';
 	/**
-	 *
+	 * Fix bath content
 	 */
 	const ACTION_FIX_BATCH_CONTENT = 'fix_batch_content';
 	/**
-	 *
+	 * Translation job sent
 	 */
 	const ACTION_TRANSLATION_JOB_SENT = 'translation_job_sent';
 	/**
-	 *
+	 * Translation job received
 	 */
 	const ACTION_TRANSLATION_JOB_RECEIVED = 'translation_job_received';
 	/**

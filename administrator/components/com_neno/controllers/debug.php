@@ -46,7 +46,8 @@ class NenoControllerDebug extends JControllerAdmin
 		$pk   = $app->input->get('id');
 		$lang = $app->input->get('lang', NULL);
 
-		$lang = ($lang == NULL) ? '' : '&lang=' . $lang;
+		$lang  = ($lang == NULL) ? '' : '&lang=' . $lang;
+		$issue = NenoHelperIssue::getIssue($pk);
 
 		switch (NenoHelperIssue::fixIssue($pk))
 		{
@@ -58,6 +59,7 @@ class NenoControllerDebug extends JControllerAdmin
 			// Success
 			case 1 :
 				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_SUCCESS'), 'success');
+				NenoLog::log('Issue ' . $issue->error_code . '-' . $issue->lang . ' fixed', NenoLog::ACTION_ISSUE_FIXED, JFactory::getUser()->id);
 				break;
 			
 			// Already fixed
@@ -200,7 +202,7 @@ class NenoControllerDebug extends JControllerAdmin
 	public function downloadReport()
 	{
 		header("Content-type: text/plain");
-		header("Content-Disposition: attachment; filename=report-".date('YmdHis').".txt");
+		header("Content-Disposition: attachment; filename=report-" . date('YmdHis') . ".txt");
 
 		echo NenoHelperBackend::printServerInformation(NenoHelperBackend::getServerInfo());
 		JFactory::getApplication()->close();
