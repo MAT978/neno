@@ -239,6 +239,9 @@ class NenoLog extends JLog
 			$entry = self::generateNenoEntry($entry, $priority, $date);
 		}
 
-		$entry->persist();
+		if (($entry->getLevel() === static::PRIORITY_VERBOSE && JDEBUG) || $entry->getLevel() !== static::PRIORITY_VERBOSE)
+		{
+			$entry->persist();
+		}
 	}
 }
