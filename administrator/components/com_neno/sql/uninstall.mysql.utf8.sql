@@ -27,3 +27,4 @@ DROP TABLE IF EXISTS `#__neno_language_external_translators_comments`;
 DROP TABLE IF EXISTS `#__neno_content_element_table_filters`;
 DROP TABLE IF EXISTS `#__neno_translation_states`;
 DROP TABLE IF EXISTS `#__neno_language_pairs_pricing`;
+DROP TABLE IF EXISTS `#__neno_log_entries`
