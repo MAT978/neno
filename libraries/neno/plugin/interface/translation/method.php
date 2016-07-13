@@ -10,8 +10,11 @@
 defined('_JEXEC') or die;
 
 /**
- * Class NenoPluginInterfaceTranslationMethod
+ * Interface NenoPluginInterfaceTranslationMethod
  */
-class NenoPluginInterfaceTranslationMethod
+interface NenoPluginInterfaceTranslationMethod
 {
+	public function onPull();
+
+	public function onPush();
 }
