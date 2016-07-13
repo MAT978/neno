@@ -77,8 +77,8 @@ abstract class NenoPlugin extends JPlugin
 	/**
 	 * Render interface for this plugin
 	 *
-	 * @param int $limit
-	 * @param int $offset
+	 * @param int $limit limit value for the query
+	 * @param int $offset offset value for the query
 	 *
 	 * @return string
 	 */
