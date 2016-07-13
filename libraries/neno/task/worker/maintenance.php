@@ -34,5 +34,20 @@ class NenoTaskWorkerMaintenance extends NenoTaskWorker
 				$table->applyFiltersToExistingContent();
 			}
 		}
+
+		// Strip
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+		  ->select('COUNT(*)')
+		  ->from('#__neno_log_entries');
+
+		$db->setQuery($query);
+		$counter = $db->loadResult();
+
+		$query = 'DELETE FROM #__neno_log_entries ORDER BY time_added ASC LIMIT ' . ($counter - 100) . ')';
+		$db->setQuery($query);
+		$db->execute();
 	}
 }
