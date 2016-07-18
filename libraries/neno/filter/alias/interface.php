@@ -12,5 +12,14 @@ defined('_JEXEC') or die;
 
 interface NenoFilterAliasInterface
 {
-
+	/**
+	 * Converts string to the given encoding
+	 *
+	 * @since 2.1.15
+	 *
+	 * @param string $string
+	 *
+	 * @return mixed
+	 */
+	public function transliterate($string);
 }
