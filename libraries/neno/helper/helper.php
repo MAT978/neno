@@ -3504,7 +3504,8 @@ class NenoHelper
 		  'TRIM',
 		  'PATH',
 		  'USERNAME',
-		  'RAW'
+		  'RAW',
+		  'ALIAS'
 		);
 		
 		return JLayoutHelper::render('dropdownbutton', array(
