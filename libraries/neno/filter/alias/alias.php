@@ -50,7 +50,7 @@ class NenoFilterAlias extends NenoFilter
 		}
 		else
 		{
-
+			$transliterator = new NenoFilterAliasInterfaceLegacy();
 		}
 
 		return $transliterator;
