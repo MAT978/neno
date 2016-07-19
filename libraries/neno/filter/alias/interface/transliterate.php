@@ -19,12 +19,11 @@ class NenoFilterAliasInterfaceTransliterate implements NenoFilterAliasInterface
 	 * @since 2.1.15
 	 *
 	 * @param string $string
-	 * @param string $targetEncoding
 	 *
 	 * @return mixed
 	 */
 	public function transliterate($string)
 	{
-		transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $string);
+		return transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();", $string);
 	}
 }

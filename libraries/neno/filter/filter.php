@@ -24,13 +24,17 @@ abstract class NenoFilter
 	public abstract function filter($source);
 
 	/**
-	 * @param string $type
+	 * Get filter class
+	 *
+	 * @param string $type Filter type
+	 *
+	 * @since 2.1.15
 	 *
 	 * @return NenoFilter|boolean
 	 */
 	public static function getFilter($type)
 	{
-		$className = 'NenoFilter' . ucfirst($type);
+		$className = 'NenoFilter' . ucfirst(strtolower($type));
 
 		if (class_exists($className))
 		{
