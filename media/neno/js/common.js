@@ -671,6 +671,13 @@ function checkUncheckFamilyCheckboxes(element) {
     Joomla.isChecked(state);
 }
 
+/**
+ * Check/Uncheck event for Groups & Elements view
+ */
+function checkUncheckFamilyCheckboxesInGroupsElements(){
+    checkUncheckFamilyCheckboxes(jQuery(this));
+}
+
 
 function showModalGroupForm(isNew) {
     var id = 0;
@@ -725,7 +732,7 @@ function bindGroupElementEvents() {
     jQuery('.toggler.toggle-fields').off('click').on('click', toggleFieldVisibility);
 
     //Bind checking and unchecking checkboxes
-    jQuery('#table-groups-elements').find('input[type=checkbox]').off('click').on('click', checkUncheckFamilyCheckboxes);
+    jQuery('#table-groups-elements').find('input[type=checkbox]').off('click').on('click', checkUncheckFamilyCheckboxesInGroupsElements);
 
     //Attach the field translate state toggler
     jQuery('.check-toggle-translate-radio').off('change').on('change', changeFieldTranslateState);
