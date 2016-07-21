@@ -3117,7 +3117,12 @@ class NenoHelper
 					)
 				)
 				->from('#__extensions')
-				->where('type = ' . $db->quote('language'))
+				->where(
+					array(
+						'type = ' . $db->quote('language'),
+						'name NOT LIKE ' . $db->quote('joomla_%')
+					)
+				)
 				->group('element');
 			$db->setQuery($query);
 			$languagesFound = array_merge($db->loadAssocList(), $languagesFound);
