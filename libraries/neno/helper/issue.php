@@ -22,18 +22,26 @@ class NenoHelperIssue
 	 *
 	 */
 	const NOT_LANG_CONTENT_AVAILABLE = 'NOT_LANG_CONTENT_AVAILABLE';
+
 	/**
 	 *
 	 */
 	const TRANSLATED_OUT_NENO = 'TRANSLATED_OUT_NENO';
+
 	/**
 	 *
 	 */
 	const NOT_SOURCE_LANG_CONTENT = 'NOT_SOURCE_LANG_CONTENT';
+
 	/**
 	 *
 	 */
 	const MENU_ITEMS_HAVE_SAME_ALIAS = 'MENU_ITEMS_HAVE_SAME_ALIAS';
+
+	/**
+	 *
+	 */
+	const SHADOW_TABLE_DESYNCHRONIZED = 'SHADOW_TABLE_DESYNCHRONIZED';
 
 	/**
 	 * Formats a given date
@@ -58,7 +66,7 @@ class NenoHelperIssue
 	 *
 	 * @return array
 	 */
-	public static function getIssuesByCode($code, $language = NULL, $pending = false)
+	public static function getIssuesByCode($code, $language = null, $pending = false)
 	{
 		$db = JFactory::getDbo();
 
@@ -78,12 +86,12 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select('1')
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('error_code') . ' = ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
-		  ->where($db->quoteName('table_name') . ' = ' . $db->quote('#__languages'))
-		  ->where($db->quoteName('fixed') . ' = \'0000-00-00 00:00:00\'')
-		  ->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+			->select('1')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('error_code') . ' = ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote('#__languages'))
+			->where($db->quoteName('fixed') . ' = \'0000-00-00 00:00:00\'')
+			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
 
 		$db->setQuery($query);
 
@@ -107,10 +115,10 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select('COUNT(' . $db->quoteName('id') . ')')
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
-		  ->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
+			->select('COUNT(' . $db->quoteName('id') . ')')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
+			->where($db->quoteName('lang') . ' = ' . $db->quote($lang));
 
 		if ($pending)
 		{
@@ -131,9 +139,9 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select($db->quoteName(array('item_id', 'table_name')))
-		  ->from('#__neno_content_issues')
-		  ->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+			->select($db->quoteName(array('item_id', 'table_name')))
+			->from('#__neno_content_issues')
+			->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
 		$db->setQuery($query);
 		$issues = $db->loadObjectList();
@@ -144,10 +152,10 @@ class NenoHelperIssue
 
 			$query->clear();
 			$query
-			  ->delete($db->quoteName('#__neno_content_issues'))
-			  ->where(' NOT EXISTS ' . $subquery)
-			  ->where($db->quoteName('error_code') . ' <> ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
-			  ->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+				->delete($db->quoteName('#__neno_content_issues'))
+				->where(' NOT EXISTS ' . $subquery)
+				->where($db->quoteName('error_code') . ' <> ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
+				->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
 			$db->setQuery($query);
 			$db->execute();
@@ -162,23 +170,23 @@ class NenoHelperIssue
 	 *
 	 * @return array  The list
 	 */
-	public static function getList($language = NULL, $pending = true, $extraWhereStatements = array())
+	public static function getList($language = null, $pending = true, $extraWhereStatements = array())
 	{
 		// Clean pending unlinked issues
 		self::cleanIssues();
 
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
-		
+
 		// List pending or solved issues
 		$comp = ($pending) ? ' = ' : ' <> ';
-		
-		$query
-		  ->select('*')
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('fixed') . $comp . $db->quote('0000-00-00 00:00:00'));
 
-		if ($language != NULL)
+		$query
+			->select('*')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('fixed') . $comp . $db->quote('0000-00-00 00:00:00'));
+
+		if ($language != null)
 		{
 			$query->where($db->quoteName('lang') . ' = ' . $db->quote($language));
 		}
@@ -189,7 +197,7 @@ class NenoHelperIssue
 		}
 
 		$db->setQuery($query);
-		
+
 		return $db->loadObjectList();
 	}
 
@@ -207,14 +215,14 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->update('#__neno_content_issues')
-		  ->set(
-			array(
-			  $db->quoteName('fixed_by') . ' = ' . (int) $user->id,
-			  $db->quoteName('fixed') . ' = NOW()'
+			->update('#__neno_content_issues')
+			->set(
+				array(
+					$db->quoteName('fixed_by') . ' = ' . (int) $user->id,
+					$db->quoteName('fixed') . ' = NOW()'
+				)
 			)
-		  )
-		  ->where($db->quoteName('id') . ' = ' . (int) $pk);
+			->where($db->quoteName('id') . ' = ' . (int) $pk);
 
 		$db->setQuery($query);
 
@@ -234,7 +242,7 @@ class NenoHelperIssue
 		$issue  = static::getIssue($pk);
 
 		// Check the issue status
-		if ($issue == NULL)
+		if ($issue == null)
 		{
 			$result = 0;
 		}
@@ -286,9 +294,9 @@ class NenoHelperIssue
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->select('*')
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('id') . ' = ' . (int) $pk);
+			->select('*')
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('id') . ' = ' . (int) $pk);
 
 		$db->setQuery($query);
 
@@ -311,7 +319,7 @@ class NenoHelperIssue
 	 *
 	 * @return  string The html output
 	 */
-	public static function renderIssue($issue, $viewLang = NULL)
+	public static function renderIssue($issue, $viewLang = null)
 	{
 		$displayData             = new stdClass;
 		$displayData->id         = $issue->id;
@@ -382,9 +390,9 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select($db->quoteName(array('id', 'title')))
-		  ->from($db->quoteName($issue->table_name))
-		  ->where($db->quoteName('id') . ' = ' . (int) $issue->item_id);
+			->select($db->quoteName(array('id', 'title')))
+			->from($db->quoteName($issue->table_name))
+			->where($db->quoteName('id') . ' = ' . (int) $issue->item_id);
 
 		$db->setQuery($query);
 
@@ -401,8 +409,8 @@ class NenoHelperIssue
 	private static function isFixable($issue)
 	{
 		return (!in_array($issue->error_code, array(
-		  static::NOT_SOURCE_LANG_CONTENT,
-		  static::MENU_ITEMS_HAVE_SAME_ALIAS
+			static::NOT_SOURCE_LANG_CONTENT,
+			static::MENU_ITEMS_HAVE_SAME_ALIAS
 		)));
 	}
 
@@ -425,17 +433,17 @@ class NenoHelperIssue
 		$result = true;
 
 		$query
-		  ->select($db->quoteName(array(
-			'id',
-			'item_id',
-			'error_code',
-			'lang',
-			'fixed'
-		  )))
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
-		  ->where($db->quoteName('item_id') . ' = ' . (int) $item)
-		  ->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+			->select($db->quoteName(array(
+				'id',
+				'item_id',
+				'error_code',
+				'lang',
+				'fixed'
+			)))
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table))
+			->where($db->quoteName('item_id') . ' = ' . (int) $item)
+			->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
 
 		$db->setQuery($query);
 		$db->execute();
@@ -446,16 +454,16 @@ class NenoHelperIssue
 			$query->clear();
 
 			$query
-			  ->insert($db->quoteName('#__neno_content_issues'))
-			  ->columns(array(
-				'discovered',
-				'error_code',
-				'item_id',
-				'table_name',
-				'lang',
-				'info'
-			  ))
-			  ->values('NOW(), ' . $db->quote($code) . ', ' . $db->quote($item) . ', ' . $db->quote($table) . ', ' . $db->quote($lang) . ', ' . $db->quote($info));
+				->insert($db->quoteName('#__neno_content_issues'))
+				->columns(array(
+					'discovered',
+					'error_code',
+					'item_id',
+					'table_name',
+					'lang',
+					'info'
+				))
+				->values('NOW(), ' . $db->quote($code) . ', ' . $db->quote($item) . ', ' . $db->quote($table) . ', ' . $db->quote($lang) . ', ' . $db->quote($info));
 
 			$db->setQuery($query);
 			$result = $db->execute();
@@ -473,8 +481,8 @@ class NenoHelperIssue
 				$query->clear();
 
 				$query
-				  ->delete($db->quoteName('#__neno_content_issues'))
-				  ->where($db->quoteName('id') . ' = ' . (int) $issue->id);
+					->delete($db->quoteName('#__neno_content_issues'))
+					->where($db->quoteName('id') . ' = ' . (int) $issue->id);
 
 				$db->setQuery($query);
 				$result = $db->execute();
@@ -504,9 +512,9 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->delete($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('item_id') . ' = ' . (int) $pk)
-		  ->where($db->quoteName('table_name') . ' = ' . $db->quote($tableName));
+			->delete($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk)
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($tableName));
 
 		$db->setQuery($query);
 
@@ -528,10 +536,10 @@ class NenoHelperIssue
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select($db->quoteName(array('id', 'error_code')))
-		  ->from($db->quoteName('#__neno_content_issues'))
-		  ->where($db->quoteName('item_id') . ' = ' . (int) $pk)
-		  ->where($db->quoteName('table_name') . ' = ' . $db->quote($table));
+			->select($db->quoteName(array('id', 'error_code')))
+			->from($db->quoteName('#__neno_content_issues'))
+			->where($db->quoteName('item_id') . ' = ' . (int) $pk)
+			->where($db->quoteName('table_name') . ' = ' . $db->quote($table));
 
 		$db->setQuery($query);
 
@@ -551,9 +559,9 @@ class NenoHelperIssue
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->select('*')
-		  ->from($db->quoteName($opt->table_name))
-		  ->where($db->quoteName('language') . ' = ' . $db->quote($opt->lang));
+			->select('*')
+			->from($db->quoteName($opt->table_name))
+			->where($db->quoteName('language') . ' = ' . $db->quote($opt->lang));
 
 		$db->setQuery($query);
 		$elements = $db->loadAssocList();
@@ -562,11 +570,11 @@ class NenoHelperIssue
 		{
 			$query = $db->getQuery(true);
 			$query
-			  ->select(array('f.*', 't.table_name'))
-			  ->from($db->quoteName('#__neno_content_element_fields', 'f'))
-			  ->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
-			  ->where($db->quoteName('f.translate') . ' = 1')
-			  ->where($db->quoteName('t.table_name') . ' = ' . $db->quote($opt->table_name));
+				->select(array('f.*', 't.table_name'))
+				->from($db->quoteName('#__neno_content_element_fields', 'f'))
+				->join('left', $db->quoteName('#__neno_content_element_tables', 't') . ' ON (t.id = f.table_id)')
+				->where($db->quoteName('f.translate') . ' = 1')
+				->where($db->quoteName('t.table_name') . ' = ' . $db->quote($opt->table_name));
 
 			$db->setQuery($query);
 			$fields = $db->loadAssocList();
@@ -580,11 +588,11 @@ class NenoHelperIssue
 
 					$f->convertContentToTranslation(array('id' => $element['id']), $opt->parent, $opt->lang);
 				}
-				
+
 				$query = $db->getQuery(true);
 				$query
-				  ->delete($db->quoteName($opt->table_name))
-				  ->where($db->quoteName('id') . ' = ' . (int) $element['id']);
+					->delete($db->quoteName($opt->table_name))
+					->where($db->quoteName('id') . ' = ' . (int) $element['id']);
 
 				$db->setQuery($query);
 				$db->execute();
