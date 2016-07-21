@@ -797,8 +797,8 @@ class NenoHelper
 	 */
 	public static function unifyTableName($tableName)
 	{
-		$prefix         = JFactory::getDbo()->getPrefix();
-		$patternOptions = array($prefix);
+		$prefix    = JFactory::getDbo()->getPrefix();
+		$tableName = str_replace($prefix, '#__', $tableName);
 
 		$languages = self::getLanguages(false);
 
@@ -4484,5 +4484,42 @@ class NenoHelper
 		}
 
 		return $word;
+	}
+
+	/**
+	 * Sync shadow table
+	 *
+	 * @param string $shadowTable
+	 *
+	 * @return bool
+	 *
+	 * @since 2.1.15
+	 */
+	public static function syncShadowTable($shadowTable)
+	{
+		$tableName = NenoHelper::unifyTableName($shadowTable);
+
+		/* @var $table NenoContentElementTable */
+		$table = NenoContentElementTable::load(array('table_name' => $tableName));
+
+		if (!empty($table))
+		{
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
+
+			$query->delete($db->quoteName($shadowTable));
+
+			foreach ($table->getPrimaryKey() as $primaryKey)
+			{
+				$query->where(sprintf('%s NOT IN (SELECT %s FROM %s)', $db->quoteName($primaryKey), $db->quoteName($primaryKey), $db->quoteName($tableName)));
+			}
+
+			$db->setQuery($query);
+
+			return $db->execute() !== false;
+		}
+
+
+		return false;
 	}
 }

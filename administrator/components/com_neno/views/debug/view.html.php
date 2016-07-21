@@ -82,6 +82,7 @@ class NenoViewDebug extends JViewLegacy
 		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
+		JToolbarHelper::custom('debug.syncShadowTables', 'loop', 'loop', JText::_('COM_NENO_DASHBOARD_SYNC_SHADOW_TABLES_BUTTON'), false);
 		JToolbarHelper::custom('debug.listIssues', 'cube', 'cube', JText::_('COM_NENO_ISSUES_TITLE'), false);
 		JToolbarHelper::custom('debug.downloadReport', 'download', 'download', JText::_('COM_NENO_ISSUES_DOWNLOAD_REPORT'), false);
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
