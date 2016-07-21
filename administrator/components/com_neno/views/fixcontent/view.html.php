@@ -69,7 +69,7 @@ class NenoViewFixContent extends JViewLegacy
 		NenoHelperBackend::addSubmenu('debug');
 		$this->sidebar = JHtmlSidebar::render();
 
-		if ($tpl == 'tables' || $tpl == 'menus' || $tpl == 'nullissue')
+		if ($tpl == 'tables' || $tpl == 'menus' || $tpl == 'nullissue' || $tpl == 'syncshadowtables')
 		{
 			$this->setLayout($tpl);
 			$tpl = null;
