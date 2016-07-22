@@ -129,6 +129,12 @@ class NenoContentElementTranslation extends NenoContentElement
 	public $related;
 
 	/**
+	 * @var boolean
+	 * @since 2.1.15
+	 */
+	public $deleted;
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Element data
@@ -177,6 +183,13 @@ class NenoContentElementTranslation extends NenoContentElement
 
 			$db->setQuery($query);
 			$this->translationMethods = $db->loadObjectList();
+
+			// Let's check the status of the translation
+			$contentId = $data->get('content_id') === null ? $data->get('contentId') : $data->get('content_id');
+			list(, $tableName) = NenoHelper::getOriginalText($contentId);
+			$whereValues   = NenoHelper::getWhereValuesForTranslation($this->getId());
+			$record        = NenoHelper::getRecordContentFromTranslationData($tableName, $whereValues);
+			$this->deleted = empty($record);
 		}
 	}
 

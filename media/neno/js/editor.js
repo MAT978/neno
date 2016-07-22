@@ -3,60 +3,60 @@
  */
 function initEditor() {
 
-	// Setup button bindings
-	bindEditorButtons();
+    // Setup button bindings
+    bindEditorButtons();
 
-	// Bind keyboard shortcuts
-	bindEditorKeyboardShortcuts();
+    // Bind keyboard shortcuts
+    bindEditorKeyboardShortcuts();
 
-	// Initialize tooltips
-	jQuery('.modal-tooltip').tooltip();
+    // Initialize tooltips
+    jQuery('.modal-tooltip').tooltip();
 
-	// Use codemirror editor
-	initCodemirror();
+    // Use codemirror editor
+    initCodemirror();
 
-	// Highlight the left editor to show content was loaded
-	highlightBox('.lefteditor-wrapper .CodeMirror');
+    // Highlight the left editor to show content was loaded
+    highlightBox('.lefteditor-wrapper .CodeMirror');
 
-	// Show last modified date on focus and hover
-	showInfoOnHover();
+    // Show last modified date on focus and hover
+    showInfoOnHover();
 
-	// Perform a default action when a string is loaded
-	// This could be to copy or to copy and translate
-	doDefaultAction();
+    // Perform a default action when a string is loaded
+    // This could be to copy or to copy and translate
+    doDefaultAction();
 
-	// Load the note to translators area
-	loadNotesToTranslators();
+    // Load the note to translators area
+    loadNotesToTranslators();
 
-	// Ensure users do not leave without saving
-	bindTranslationModificationCheck();
+    // Ensure users do not leave without saving
+    bindTranslationModificationCheck();
 
 }
 
 // Bind the main buttons in the editor as well as the copy and translate links on each element
 function bindEditorButtons() {
 
-	jQuery('#copy-btn').off('click').on('click', copyAll);
-	jQuery('#translate-btn').off('click').on('click', translateAll);
-	jQuery('#skip-button').off('click').on('click', loadNextTranslation);
-	jQuery('#draft-button').off('click').on('click', saveAllAsDraft);
-	jQuery('#save-next-button').off('click').on('click', saveAllTranslationsAndNext);
-	jQuery('#save-api-key-btn').off('click').on('click', saveAPIKeyModal);
-	jQuery('.dont-translate').off().on('click', setFieldAsDoNotTranslate);
+    jQuery('#copy-btn').off('click').on('click', copyAll);
+    jQuery('#translate-btn').off('click').on('click', translateAll);
+    jQuery('#skip-button').off('click').on('click', loadNextTranslation);
+    jQuery('#draft-button').off('click').on('click', saveAllAsDraft);
+    jQuery('#save-next-button').off('click').on('click', saveAllTranslationsAndNext);
+    jQuery('#save-api-key-btn').off('click').on('click', saveAPIKeyModal);
+    jQuery('.dont-translate').off().on('click', setFieldAsDoNotTranslate);
 
-	// Bind copy and translate links on fields
-	jQuery('.copy-string-link').off().on('click', copy);
-	jQuery('.translate-string-link').off().on('click', translate);
+    // Bind copy and translate links on fields
+    jQuery('.copy-string-link').off().on('click', copy);
+    jQuery('.translate-string-link').off().on('click', translate);
 
-	jQuery(function($) {
-		SqueezeBox.initialize();
-		SqueezeBox.assign(jQuery('a.modal_jform_contenthistory').get(), {
-			parse: 'rel'
-		});
-	});
-	function jModalClose() {
-		SqueezeBox.close();
-	}
+    jQuery(function ($) {
+        SqueezeBox.initialize();
+        SqueezeBox.assign(jQuery('a.modal_jform_contenthistory').get(), {
+            parse: 'rel'
+        });
+    });
+    function jModalClose() {
+        SqueezeBox.close();
+    }
 }
 
 
@@ -65,52 +65,52 @@ function bindEditorButtons() {
  */
 function translate() {
 
-	// If we are not ready to translate then show the modal asking for the API key instead
-	if (ready_for_api_translation === false) {
-		jQuery('#translatorKeyModal').modal('show');
-		return false;
-	}
+    // If we are not ready to translate then show the modal asking for the API key instead
+    if (ready_for_api_translation === false) {
+        jQuery('#translatorKeyModal').modal('show');
+        return false;
+    }
 
-	var translation_id = getTranslationId(jQuery(this));
-	var left_content = editors[translation_id].left.getValue();
+    var translation_id = getTranslationId(jQuery(this));
+    var left_content = editors[translation_id].left.getValue();
 
-	// If there is no default action set yet then ask if the user would like to set this as the default action
-	if (default_editor_load_action == '') {
-		askToSetDefaultAction('translate');
-	}
+    // If there is no default action set yet then ask if the user would like to set this as the default action
+    if (default_editor_load_action == '') {
+        askToSetDefaultAction('translate');
+    }
 
-	//Skip if empty string
-	if (left_content === '') return;
+    //Skip if empty string
+    if (left_content === '') return;
 
-	//Show translating text
-	editors[translation_id].right.setValue('Translating...');
+    //Show translating text
+    editors[translation_id].right.setValue('Translating...');
 
-	// Ajax
-	jQuery.ajax({
-		type    : 'POST',
-		url     : 'index.php?option=com_neno&task=editor.translate',
-		dataType: "json",
-		data    : {
-			text: left_content
-		},
-		success : function (data) {
+    // Ajax
+    jQuery.ajax({
+        type: 'POST',
+        url: 'index.php?option=com_neno&task=editor.translate',
+        dataType: "json",
+        data: {
+            text: left_content
+        },
+        success: function (data) {
 
-			//Highlight the right editor to show content was loaded
-			highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper .CodeMirror');
+            //Highlight the right editor to show content was loaded
+            highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper .CodeMirror');
 
-			//Add content to the editor
-			editors[translation_id].right.setValue(data.text);
+            //Add content to the editor
+            editors[translation_id].right.setValue(data.text);
 
-			//Show error if one occured
-			if (data.status === "err") {
-				jQuery('.translated-error .error-message').html(data.error);
-				jQuery('.translated-error').show();
-			}
+            //Show error if one occured
+            if (data.status === "err") {
+                jQuery('.translated-error .error-message').html(data.error);
+                jQuery('.translated-error').show();
+            }
 
-			//Show what API was used for translation
-			jQuery('[data-translation-id="' + translation_id + '"] .translated-by').show();
-		}
-	});
+            //Show what API was used for translation
+            jQuery('[data-translation-id="' + translation_id + '"] .translated-by').show();
+        }
+    });
 }
 
 /**
@@ -118,7 +118,7 @@ function translate() {
  *  - Simply simulate a click on all links
  */
 function translateAll() {
-	jQuery('.translate-string-link').click();
+    jQuery('.translate-string-link').click();
 }
 
 
@@ -127,20 +127,20 @@ function translateAll() {
  */
 function copy() {
 
-	var translation_id = getTranslationId(jQuery(this));
-	var left_content = editors[translation_id].left.getValue();
+    var translation_id = getTranslationId(jQuery(this));
+    var left_content = editors[translation_id].left.getValue();
 
-	// If there is no default action set yet then ask if the user would like to set this as the default action
-	if (default_editor_load_action == '') {
-		askToSetDefaultAction('copy');
-	}
+    // If there is no default action set yet then ask if the user would like to set this as the default action
+    if (default_editor_load_action == '') {
+        askToSetDefaultAction('copy');
+    }
 
-	// Skip if empty string
-	if (left_content === '') return;
+    // Skip if empty string
+    if (left_content === '') return;
 
-	editors[translation_id].right.setValue(left_content);
-	highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper .CodeMirror');
-	return true;
+    editors[translation_id].right.setValue(left_content);
+    highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper .CodeMirror');
+    return true;
 }
 
 /**
@@ -148,7 +148,7 @@ function copy() {
  *  - Simply simulate a click on all links
  */
 function copyAll() {
-	jQuery('.copy-string-link').click();
+    jQuery('.copy-string-link').click();
 }
 
 
@@ -161,19 +161,19 @@ function copyAll() {
  */
 function askToSetDefaultAction(action) {
 
-	var action_string = JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION[action];
-	var question = JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION_CONFIRM.replace('%s', action_string);
-	default_editor_load_action = '0';
-	if (confirm(question)) {
-		if (action === 'copy') {
-			default_editor_load_action = '1';
-		} else if (action === 'translate') {
-			default_editor_load_action = '2';
-		}
-	}
+    var action_string = JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION[action];
+    var question = JTEXT_COM_NENO_EDITOR_SET_DEFAULT_ACTION_CONFIRM.replace('%s', action_string);
+    default_editor_load_action = '0';
+    if (confirm(question)) {
+        if (action === 'copy') {
+            default_editor_load_action = '1';
+        } else if (action === 'translate') {
+            default_editor_load_action = '2';
+        }
+    }
 
-	// Save the default action answer
-	jQuery.ajax('index.php?option=com_neno&task=editor.saveDefaultAction&action=' + default_editor_load_action);
+    // Save the default action answer
+    jQuery.ajax('index.php?option=com_neno&task=editor.saveDefaultAction&action=' + default_editor_load_action);
 
 
 }
@@ -185,166 +185,176 @@ function askToSetDefaultAction(action) {
  */
 function initCodemirror() {
 
-	//Use a global object that can be accesed later
-	editors = {};
+    //Use a global object that can be accesed later
+    editors = {};
 
-	jQuery('.main-translation-div').each(function () {
-		addExtensions();
-		var translation_id = getTranslationId(jQuery(this));
-		var modeLeft = 'htmlmixed';
-		var modeRight = 'htmlmixed';
-		var originalTextarea = jQuery('#original-content-' + translation_id);
-		var editorTextarea = jQuery('#translated-content-' + translation_id);
+    jQuery('.main-translation-div').each(function () {
+        addExtensions();
+        var translation_id = getTranslationId(jQuery(this));
+        var modeLeft = 'htmlmixed';
+        var modeRight = 'htmlmixed';
+        var originalTextarea = jQuery('#original-content-' + translation_id);
+        var editorTextarea = jQuery('#translated-content-' + translation_id);
 
-		// If the string is JSON, let's specify the specific mode for JSON
-		if (isJSON(originalTextarea.val())) {
-			modeLeft = 'application/ld+json';
+        // If the string is JSON, let's specify the specific mode for JSON
+        if (isJSON(originalTextarea.val())) {
+            modeLeft = 'application/ld+json';
 
-			originalTextarea.val(prettyJSON(originalTextarea.val()));
-		}
+            originalTextarea.val(prettyJSON(originalTextarea.val()));
+        }
 
-		// If the string is JSON, let's specify the specific mode for JSON
-		if (isJSON(editorTextarea.val())) {
-			modeRight = 'application/ld+json';
+        // If the string is JSON, let's specify the specific mode for JSON
+        if (isJSON(editorTextarea.val())) {
+            modeRight = 'application/ld+json';
 
-			editorTextarea.val(prettyJSON(editorTextarea.val()));
-		}
+            editorTextarea.val(prettyJSON(editorTextarea.val()));
+        }
 
-		var editor = {};
-		editor.translation_id = translation_id;
-		editor.left = CodeMirror.fromTextArea(document.getElementById("original-content-" + translation_id), {
-			mode        : modeLeft,
-			readOnly    : true,
-			lineWrapping: true,
-			matchTags   : {bothTags: true}
-		});
-		editor.right = CodeMirror.fromTextArea(document.getElementById("translated-content-" + translation_id), {
-			mode          : modeRight,
-			lineWrapping  : true,
-			viewportMargin: 200,
-			matchTags     : {bothTags: true},
-			readOnly      : typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false,
-			extraKeys 	  : {Home: "goLineLeft", End: "goLineRight"}
-		});
+        var editor = {};
+        editor.translation_id = translation_id;
 
-		if (modeLeft != 'application/ld+json') {
-			formatEditor(editor.left);
-		}
+        var originalContentTextarea = document.getElementById("original-content-" + translation_id);
 
-		if (modeRight != 'application/ld+json') {
-			formatEditor(editor.right);
-		}
+        if (originalContentTextarea) {
+            editor.left = CodeMirror.fromTextArea(document.getElementById("original-content-" + translation_id), {
+                mode: modeLeft,
+                readOnly: true,
+                lineWrapping: true,
+                matchTags: {bothTags: true}
+            });
+        }
 
-		editors[translation_id] = editor;
+        editor.right = CodeMirror.fromTextArea(document.getElementById("translated-content-" + translation_id), {
+            mode: modeRight,
+            lineWrapping: true,
+            viewportMargin: 200,
+            matchTags: {bothTags: true},
+            readOnly: typeof editorTextarea.attr('readonly') !== typeof undefined && editorTextarea.attr('readonly') !== false,
+            extraKeys: {Home: "goLineLeft", End: "goLineRight"}
+        });
 
-		editor.right.on('scroll', mirrorscroll);
+        if (modeLeft != 'application/ld+json' && originalContentTextarea) {
+            formatEditor(editor.left);
+        }
 
-		//Check that the editors are not too high
-		if (jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .CodeMirror').height() > 500) {
-			editor.left.setSize(null, 350);
-			editor.right.setSize(null, 350);
-		}
+        if (modeRight != 'application/ld+json') {
+            formatEditor(editor.right);
+        }
 
-		editor.right.markClean();
-	});
+        editors[translation_id] = editor;
+
+        editor.right.on('scroll', mirrorscroll);
+
+        //Check that the editors are not too high
+        if (jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .CodeMirror').height() > 500) {
+
+            if (originalContentTextarea) {
+                editor.left.setSize(null, 350);
+            }
+
+            editor.right.setSize(null, 350);
+        }
+
+        editor.right.markClean();
+    });
 }
 
 function toggleSavingButtons(disabled) {
-	jQuery('#copy-btn').attr('disabled', disabled ? true : false);
-	jQuery('#translate-btn').attr('disabled', disabled ? true : false);
-	jQuery('#draft-button').attr('disabled', disabled ? true : false);
-	jQuery('#save-next-button').attr('disabled', disabled ? true : false);
+    jQuery('#copy-btn').attr('disabled', disabled ? true : false);
+    jQuery('#translate-btn').attr('disabled', disabled ? true : false);
+    jQuery('#draft-button').attr('disabled', disabled ? true : false);
+    jQuery('#save-next-button').attr('disabled', disabled ? true : false);
 }
 
 function isJSON(string) {
-	try {
-		JSON.parse(string);
-	} catch (e) {
-		return false;
-	}
-	return true;
+    try {
+        JSON.parse(string);
+    } catch (e) {
+        return false;
+    }
+    return true;
 }
 
 function prettyJSON(string) {
-	return JSON.stringify(JSON.parse(string), null, 4)
+    return JSON.stringify(JSON.parse(string), null, 4)
 }
 
 function formatEditor(editor) {
-	var totalLines = editor.lineCount();
-	var totalChars = editor.getTextArea().value.length;
-	editor.autoFormatRange({line: 0, ch: 0}, {line: totalLines, ch: totalChars});
-	editor.autoIndentRange({line: 0, ch: 0}, {line: totalLines, ch: totalChars});
+    var totalLines = editor.lineCount();
+    var totalChars = editor.getTextArea().value.length;
+    editor.autoFormatRange({line: 0, ch: 0}, {line: totalLines, ch: totalChars});
+    editor.autoIndentRange({line: 0, ch: 0}, {line: totalLines, ch: totalChars});
 }
 
 function addExtensions() {
-	CodeMirror.defineExtension("autoFormatRange", function (from, to) {
-		var cm = this;
-		var outer = cm.getMode(), text = cm.getRange(from, to).split("\n");
-		var state = CodeMirror.copyState(outer, cm.getTokenAt(from).state);
-		var tabSize = cm.getOption("tabSize");
+    CodeMirror.defineExtension("autoFormatRange", function (from, to) {
+        var cm = this;
+        var outer = cm.getMode(), text = cm.getRange(from, to).split("\n");
+        var state = CodeMirror.copyState(outer, cm.getTokenAt(from).state);
+        var tabSize = cm.getOption("tabSize");
 
-		var out = "", lines = 0, atSol = from.ch == 0;
+        var out = "", lines = 0, atSol = from.ch == 0;
 
-		function newline() {
-			out += "\n";
-			atSol = true;
-			++lines;
-		}
+        function newline() {
+            out += "\n";
+            atSol = true;
+            ++lines;
+        }
 
-		for (var i = 0; i < text.length; ++i) {
-			var stream = new CodeMirror.StringStream(text[i], tabSize);
-			while (!stream.eol()) {
-				var inner = CodeMirror.innerMode(outer, state);
-				var style = outer.token(stream, state), cur = stream.current();
-				stream.start = stream.pos;
-				if (!atSol || /\S/.test(cur)) {
-					out += cur;
-					atSol = false;
-				}
-				if (!atSol && inner.mode.newlineAfterToken &&
-					inner.mode.newlineAfterToken(style, cur, stream.string.slice(stream.pos) || text[i + 1] || "", inner.state))
-					newline();
-			}
-			if (!stream.pos && outer.blankLine) outer.blankLine(state);
-			if (!atSol) newline();
-		}
+        for (var i = 0; i < text.length; ++i) {
+            var stream = new CodeMirror.StringStream(text[i], tabSize);
+            while (!stream.eol()) {
+                var inner = CodeMirror.innerMode(outer, state);
+                var style = outer.token(stream, state), cur = stream.current();
+                stream.start = stream.pos;
+                if (!atSol || /\S/.test(cur)) {
+                    out += cur;
+                    atSol = false;
+                }
+                if (!atSol && inner.mode.newlineAfterToken &&
+                    inner.mode.newlineAfterToken(style, cur, stream.string.slice(stream.pos) || text[i + 1] || "", inner.state))
+                    newline();
+            }
+            if (!stream.pos && outer.blankLine) outer.blankLine(state);
+            if (!atSol) newline();
+        }
 
-		cm.operation(function () {
-			cm.replaceRange(out, from, to);
-			for (var cur = from.line + 1, end = from.line + lines; cur <= end; ++cur)
-				cm.indentLine(cur, "smart");
-			//cm.setSelection(from, cm.getCursor(false));
-		});
-	});
+        cm.operation(function () {
+            cm.replaceRange(out, from, to);
+            for (var cur = from.line + 1, end = from.line + lines; cur <= end; ++cur)
+                cm.indentLine(cur, "smart");
+            //cm.setSelection(from, cm.getCursor(false));
+        });
+    });
 
-	// Applies automatic mode-aware indentation to the specified range
-	CodeMirror.defineExtension("autoIndentRange", function (from, to) {
-		var cmInstance = this;
-		this.operation(function () {
-			for (var i = from.line; i <= to.line; i++) {
-				cmInstance.indentLine(i, "smart");
-			}
-		});
-	});
+    // Applies automatic mode-aware indentation to the specified range
+    CodeMirror.defineExtension("autoIndentRange", function (from, to) {
+        var cmInstance = this;
+        this.operation(function () {
+            for (var i = from.line; i <= to.line; i++) {
+                cmInstance.indentLine(i, "smart");
+            }
+        });
+    });
 }
 
 
 // Keeps left editor in same scroll position as right one
 function mirrorscroll(cm) {
 
-	var translation_id = getTranslationId(jQuery(cm.getTextArea()));
+    var translation_id = getTranslationId(jQuery(cm.getTextArea()));
 
-	// If the left mirror has been hovered then disable mirror scroll for that element
-	// We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
-	jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .lefteditor-wrapper .CodeMirror').on('mouseover', function () {
-		editors[translation_id].left.disableMirrorScroll = true;
-	});
+    // If the left mirror has been hovered then disable mirror scroll for that element
+    // We use hover because scroll would cause it to be disabled when mirror scrolled (inception)
+    jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .lefteditor-wrapper .CodeMirror').on('mouseover', function () {
+        editors[translation_id].left.disableMirrorScroll = true;
+    });
 
-	// Set the left scroll to be the same as the right
-	if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
-		var scrollInfo = cm.getScrollInfo();
-		editors[translation_id].left.scrollTo(null, scrollInfo.top);
-	}
+    // Set the left scroll to be the same as the right
+    if (typeof editors[translation_id].left.disableMirrorScroll == 'undefined') {
+        var scrollInfo = cm.getScrollInfo();
+        editors[translation_id].left.scrollTo(null, scrollInfo.top);
+    }
 
 }
 
@@ -354,54 +364,54 @@ function mirrorscroll(cm) {
  */
 function saveAllTranslationsAndNext() {
 
-	// Check the structure of each field for HTML issues
-	// And show an alert if it is not OK
-	if (checkStructure() === false) {
-		return false;
-	}
+    // Check the structure of each field for HTML issues
+    // And show an alert if it is not OK
+    if (checkStructure() === false) {
+        return false;
+    }
 
-	// Make an array with objects with contents and translation_id's
-	// And turn it into a json string for passing to php
-	var strings = [];
-	jQuery.each(editors, function (translation_id, editor) {
-		var string = {};
-		string.translation_id = translation_id;
-		formatEditor(editor.right);
-		string.text = editor.right.getValue();
-		strings.push(string);
-	});
-	var json_strings = JSON.stringify(strings);
+    // Make an array with objects with contents and translation_id's
+    // And turn it into a json string for passing to php
+    var strings = [];
+    jQuery.each(editors, function (translation_id, editor) {
+        var string = {};
+        string.translation_id = translation_id;
+        formatEditor(editor.right);
+        string.text = editor.right.getValue();
+        strings.push(string);
+    });
+    var json_strings = JSON.stringify(strings);
 
-	// Send an ajax request with the data
-	jQuery.ajax({
-		type    : 'POST',
-		url     : 'index.php?option=com_neno&task=editor.saveAllAsCompleted',
-		dataType: "json",
-		data    : {strings: json_strings},
-		success : function (messages) {
+    // Send an ajax request with the data
+    jQuery.ajax({
+        type: 'POST',
+        url: 'index.php?option=com_neno&task=editor.saveAllAsCompleted',
+        dataType: "json",
+        data: {strings: json_strings},
+        success: function (messages) {
 
-			// Mark each editor as clean
-			jQuery.each(editors, function (translation_id, editor) {
-				editor.right.markClean();
-			});
+            // Mark each editor as clean
+            jQuery.each(editors, function (translation_id, editor) {
+                editor.right.markClean();
+            });
 
-			// If there are messages they relate to consolidating strings
-			// Show the consolidation dialog
-			if (messages !== null) {
-				if (messages.length > 0) {
-					showConsolidationModal(messages);
-				}
-			}
+            // If there are messages they relate to consolidating strings
+            // Show the consolidation dialog
+            if (messages !== null) {
+                if (messages.length > 0) {
+                    showConsolidationModal(messages);
+                }
+            }
 
-			//Mark each translated string as such visually
-			jQuery.each(editors, function (translation_id, editor) {
-				updateEditorStringStatus(translation_id, 'translated');
-			});
+            //Mark each translated string as such visually
+            jQuery.each(editors, function (translation_id, editor) {
+                updateEditorStringStatus(translation_id, 'translated');
+            });
 
-			// Load the next translation
-			loadNextTranslation();
-		}
-	});
+            // Load the next translation
+            loadNextTranslation();
+        }
+    });
 
 }
 
@@ -410,14 +420,14 @@ function saveAllTranslationsAndNext() {
  * Load the next translation in the filter list
  */
 function loadNextTranslation() {
-	var nextString = jQuery('.string-activated').next('div').next('div');
-	var afterNextString = nextString.next('div').next('div');
-	if (nextString.length && !nextString.hasClass('no-results')) {
-		loadTranslation(nextString.data('id'));
-		if (!afterNextString.length) {
-			loadStrings();
-		}
-	}
+    var nextString = jQuery('.string-activated').next('div').next('div');
+    var afterNextString = nextString.next('div').next('div');
+    if (nextString.length && !nextString.hasClass('no-results')) {
+        loadTranslation(nextString.data('id'));
+        if (!afterNextString.length) {
+            loadStrings();
+        }
+    }
 }
 
 /**
@@ -427,9 +437,9 @@ function loadNextTranslation() {
  */
 function updateEditorStringStatus(translation_id, new_status) {
 
-	jQuery('#elements-wrapper').find('.string[data-id="' + translation_id + '"] .status')
-		.removeClass('translated queued changed not-translated')
-		.addClass(new_status);
+    jQuery('#elements-wrapper').find('.string[data-id="' + translation_id + '"] .status')
+        .removeClass('translated queued changed not-translated')
+        .addClass(new_status);
 
 }
 
@@ -439,57 +449,57 @@ function updateEditorStringStatus(translation_id, new_status) {
  */
 function showConsolidationModal(messages) {
 
-	// Build the HTML content for the modal
-	var modal_html = '';
-	jQuery.each(messages, function (i, message) {
-		modal_html += message.message;
-	});
+    // Build the HTML content for the modal
+    var modal_html = '';
+    jQuery.each(messages, function (i, message) {
+        modal_html += message.message;
+    });
 
-	// Add the message to the modal
-	jQuery('#consolidate-dynamic-content').html(modal_html);
+    // Add the message to the modal
+    jQuery('#consolidate-dynamic-content').html(modal_html);
 
-	var consolidateModal = jQuery('#consolidate-modal');
+    var consolidateModal = jQuery('#consolidate-modal');
 
-	// Bind the click to save the modal
-	jQuery('#consolidate-button').off('click').on('click', function () {
+    // Bind the click to save the modal
+    jQuery('#consolidate-button').off('click').on('click', function () {
 
-		// Determine what checkboxes were checked
-		var translation_ids = [];
-		jQuery('.consolidate-checkbox:checked').each(function () {
-			translation_ids.push(jQuery(this).val());
-		});
-		var ids = JSON.stringify(translation_ids);
+        // Determine what checkboxes were checked
+        var translation_ids = [];
+        jQuery('.consolidate-checkbox:checked').each(function () {
+            translation_ids.push(jQuery(this).val());
+        });
+        var ids = JSON.stringify(translation_ids);
 
-		jQuery.ajax({
-				type   : 'POST',
-				data   : {
-					ids: ids
-				},
-				url    : 'index.php?option=com_neno&task=editor.consolidateTranslations',
-				success: function () {
+        jQuery.ajax({
+                type: 'POST',
+                data: {
+                    ids: ids
+                },
+                url: 'index.php?option=com_neno&task=editor.consolidateTranslations',
+                success: function () {
 
-					// When consolidated, hide the main modal
-					consolidateModal.modal('hide');
+                    // When consolidated, hide the main modal
+                    consolidateModal.modal('hide');
 
-					var consolidateConfirmModal = jQuery('#consolidate-confirm-modal');
+                    var consolidateConfirmModal = jQuery('#consolidate-confirm-modal');
 
-					// And show the confirmation modal
-					consolidateConfirmModal.modal('show', {keyboard: true});
+                    // And show the confirmation modal
+                    consolidateConfirmModal.modal('show', {keyboard: true});
 
-					consolidateConfirmModal.on('shown.bs.modal', function () {
-						jQuery('#consolidate-button-close').focus();
-					});
+                    consolidateConfirmModal.on('shown.bs.modal', function () {
+                        jQuery('#consolidate-button-close').focus();
+                    });
 
-				}
-			}
-		);
-	});
+                }
+            }
+        );
+    });
 
-	// Show the modal and focus button
-	consolidateModal.modal('show', {keyboard: true});
-	consolidateModal.on('shown.bs.modal', function () {
-		jQuery('#consolidate-button').focus();
-	});
+    // Show the modal and focus button
+    consolidateModal.modal('show', {keyboard: true});
+    consolidateModal.on('shown.bs.modal', function () {
+        jQuery('#consolidate-button').focus();
+    });
 }
 
 /**
@@ -497,26 +507,26 @@ function showConsolidationModal(messages) {
  */
 function saveAllAsDraft() {
 
-	jQuery.each(editors, function (translation_id, editor) {
+    jQuery.each(editors, function (translation_id, editor) {
 
-		formatEditor(editor.right);
-		var text = editor.right.getValue();
+        formatEditor(editor.right);
+        var text = editor.right.getValue();
 
-		jQuery.ajax({
-				type    : 'POST',
-				url     : 'index.php?option=com_neno&task=editor.saveAsDraft',
-				dataType: "json",
-				data    : {
-					id  : translation_id,
-					text: text
-				},
-				success : function () {
-					editor.right.markClean();
-					highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .CodeMirror');
-				}
-			}
-		);
-	});
+        jQuery.ajax({
+                type: 'POST',
+                url: 'index.php?option=com_neno&task=editor.saveAsDraft',
+                dataType: "json",
+                data: {
+                    id: translation_id,
+                    text: text
+                },
+                success: function () {
+                    editor.right.markClean();
+                    highlightBox('.main-translation-div[data-translation-id="' + translation_id + '"] .CodeMirror');
+                }
+            }
+        );
+    });
 }
 
 
@@ -526,20 +536,20 @@ function saveAllAsDraft() {
  */
 function loadTranslation(id) {
 
-	// Prevent loss of data on load
-	if (confirmNotSavingChanges() === false) {
-		return;
-	}
+    // Prevent loss of data on load
+    if (confirmNotSavingChanges() === false) {
+        return;
+    }
 
-	// Get information
-	jQuery.ajax({
-		url    : 'index.php?option=com_neno&task=editor.getTranslation&id=' + id,
-		success: function (data) {
-			jQuery('#editor-wrapper').html(data);
-			initEditor();
-			selectStringInStringList(id);
-		}
-	});
+    // Get information
+    jQuery.ajax({
+        url: 'index.php?option=com_neno&task=editor.getTranslation&id=' + id,
+        success: function (data) {
+            jQuery('#editor-wrapper').html(data);
+            initEditor();
+            selectStringInStringList(id);
+        }
+    });
 }
 
 /**
@@ -547,8 +557,8 @@ function loadTranslation(id) {
  * @param id integer
  */
 function selectStringInStringList(id) {
-	jQuery('.string-activated').removeClass('string-activated');
-	jQuery('#elements-wrapper').find('.string[data-id=' + id + ']').addClass('string-activated');
+    jQuery('.string-activated').removeClass('string-activated');
+    jQuery('#elements-wrapper').find('.string[data-id=' + id + ']').addClass('string-activated');
 }
 
 
@@ -559,30 +569,30 @@ function selectStringInStringList(id) {
  */
 function checkStructure() {
 
-	var issues = false;
+    var issues = false;
 
-	jQuery('.mismatch-error').remove();
+    jQuery('.mismatch-error').remove();
 
-	jQuery.each(editors, function (translation_id, editor) {
+    jQuery.each(editors, function (translation_id, editor) {
 
-		var left_content = jQuery('<div/>').html(editor.left.getValue()).contents().find('*');
-		var right_content = jQuery('<div/>').html(editor.right.getValue()).contents().find('*');
-		var left_element_count = left_content.length;
-		var right_element_count = right_content.length;
-		if (left_element_count !== right_element_count) {
-			jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper').append('<div class="alert alert-warning mismatch-error">' + JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH + '</div>');
-			issues = true;
-		}
+        var left_content = jQuery('<div/>').html(editor.left.getValue()).contents().find('*');
+        var right_content = jQuery('<div/>').html(editor.right.getValue()).contents().find('*');
+        var left_element_count = left_content.length;
+        var right_element_count = right_content.length;
+        if (left_element_count !== right_element_count) {
+            jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .righteditor-wrapper').append('<div class="alert alert-warning mismatch-error">' + JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH + '</div>');
+            issues = true;
+        }
 
-	});
+    });
 
-	if (issues === true) {
+    if (issues === true) {
 
-		return confirm(JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH_CONFIRM);
+        return confirm(JTEXT_COM_NENO_EDITOR_NOTICE_TAG_MISMATCH_CONFIRM);
 
-	} else {
-		return true;
-	}
+    } else {
+        return true;
+    }
 
 }
 
@@ -592,60 +602,60 @@ function checkStructure() {
  */
 function saveAPIKeyModal() {
 
-	var translator = jQuery('#translator').val();
-	var translatorKey = jQuery('#translator_api_key').val();
+    var translator = jQuery('#translator').val();
+    var translatorKey = jQuery('#translator_api_key').val();
 
-	jQuery.ajax({
-			type   : 'POST',
-			data   : {
-				translator   : translator,
-				translatorKey: translatorKey
-			},
-			url    : 'index.php?option=com_neno&task=editor.saveTranslatorConfig',
-			success: function () {
-				jQuery('#save-api-key-btn').modal('hide');
-				window.location.reload();
-			}
-		}
-	);
+    jQuery.ajax({
+            type: 'POST',
+            data: {
+                translator: translator,
+                translatorKey: translatorKey
+            },
+            url: 'index.php?option=com_neno&task=editor.saveTranslatorConfig',
+            success: function () {
+                jQuery('#save-api-key-btn').modal('hide');
+                window.location.reload();
+            }
+        }
+    );
 
 }
 
 function bindEditorKeyboardShortcuts() {
 
-	jQuery('body').off('keydown').on('keydown', function (e) {
+    jQuery('body').off('keydown').on('keydown', function (e) {
 
-		// Ctrl+S
-		if (e.keyCode === 83 && e.ctrlKey) {
-			e.preventDefault();
-			saveAllAsDraft();
-		}
+        // Ctrl+S
+        if (e.keyCode === 83 && e.ctrlKey) {
+            e.preventDefault();
+            saveAllAsDraft();
+        }
 
-		// Ctrl+Enter
-		if (e.keyCode === 13 && e.ctrlKey) {
-			e.preventDefault();
-			saveAllTranslationsAndNext();
-		}
+        // Ctrl+Enter
+        if (e.keyCode === 13 && e.ctrlKey) {
+            e.preventDefault();
+            saveAllTranslationsAndNext();
+        }
 
-		// Ctrl+Space
-		if (e.keyCode === 32 && e.ctrlKey) {
-			e.preventDefault();
-			loadNextTranslation();
-		}
+        // Ctrl+Space
+        if (e.keyCode === 32 && e.ctrlKey) {
+            e.preventDefault();
+            loadNextTranslation();
+        }
 
-		// Ctrl+→
-		if (e.keyCode === 39 && e.ctrlKey && !e.shiftKey) {
-			e.preventDefault();
-			copyAll();
-		}
+        // Ctrl+→
+        if (e.keyCode === 39 && e.ctrlKey && !e.shiftKey) {
+            e.preventDefault();
+            copyAll();
+        }
 
-		// Ctrl+Shift→
-		if (e.keyCode === 39 && e.ctrlKey && e.shiftKey) {
-			e.preventDefault();
-			translateAll();
-		}
+        // Ctrl+Shift→
+        if (e.keyCode === 39 && e.ctrlKey && e.shiftKey) {
+            e.preventDefault();
+            translateAll();
+        }
 
-	});
+    });
 }
 
 
@@ -655,15 +665,15 @@ function bindEditorKeyboardShortcuts() {
  */
 function setFieldAsDoNotTranslate() {
 
-	var id = jQuery(this).data('id');
+    var id = jQuery(this).data('id');
 
-	jQuery.ajax({
-			url    : 'index.php?option=com_neno&task=groupselements.toggleContentElementField&fieldId=' + id + '&translateStatus=0',
-			success: function () {
-				window.location.reload();
-			}
-		}
-	);
+    jQuery.ajax({
+            url: 'index.php?option=com_neno&task=groupselements.toggleContentElementField&fieldId=' + id + '&translateStatus=0',
+            success: function () {
+                window.location.reload();
+            }
+        }
+    );
 
 }
 
@@ -672,12 +682,12 @@ function setFieldAsDoNotTranslate() {
  * Bind a hover to show last modified date and note to translators
  */
 function showInfoOnHover() {
-	jQuery('.editor-wrapper').on('hover', function () {
+    jQuery('.editor-wrapper').on('hover', function () {
 
-		jQuery(this).find('.last-modified').toggle();
-		jQuery(this).find('.add-comment-to-translator').toggle();
+        jQuery(this).find('.last-modified').toggle();
+        jQuery(this).find('.add-comment-to-translator').toggle();
 
-	});
+    });
 }
 
 /**
@@ -686,32 +696,32 @@ function showInfoOnHover() {
  */
 function doDefaultAction() {
 
-	// If default_editor_load_action is set to '' and not 0 it means that the user has not set a default method yet
-	if (default_editor_load_action === '') {
-		return;
-	}
+    // If default_editor_load_action is set to '' and not 0 it means that the user has not set a default method yet
+    if (default_editor_load_action === '') {
+        return;
+    }
 
-	// We do not use the copyAll or translateAll method here because we want to skip empty fields
-	jQuery.each(editors, function (translation_id, editor) {
+    // We do not use the copyAll or translateAll method here because we want to skip empty fields
+    jQuery.each(editors, function (translation_id, editor) {
 
-		// If there is content in the right hand editor then skip the default action
-		if (editor.right.getValue() !== '') {
-			return;
-		}
+        // If there is content in the right hand editor then skip the default action
+        if (editor.right.getValue() !== '') {
+            return;
+        }
 
-		// If there is NO content in the left hand editor then skip the default action
-		if (editor.left.getValue() === '') {
-			return;
-		}
+        // If there is NO content in the left hand editor then skip the default action
+        if (editor.left.getValue() === '') {
+            return;
+        }
 
-		//Simulate a click on either copy or translate depending on settings
-		if (default_editor_load_action === '1') {
-			jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .copy-string-link').click();
-		} else if (default_editor_load_action === '2') {
-			jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .translate-string-link').click();
-		}
+        //Simulate a click on either copy or translate depending on settings
+        if (default_editor_load_action === '1') {
+            jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .copy-string-link').click();
+        } else if (default_editor_load_action === '2') {
+            jQuery('.main-translation-div[data-translation-id="' + translation_id + '"] .translate-string-link').click();
+        }
 
-	});
+    });
 
 }
 
@@ -721,30 +731,30 @@ function doDefaultAction() {
  */
 function loadNotesToTranslators(only_this_translation_id) {
 
-	jQuery.each(editors, function (translation_id, editor) {
+    jQuery.each(editors, function (translation_id, editor) {
 
-		//For some reason there are undefined values in this object so skip them
-		if (typeof editor == 'undefined') {
-			return;
-		}
+        //For some reason there are undefined values in this object so skip them
+        if (typeof editor == 'undefined') {
+            return;
+        }
 
-		//If the var only_this_translation_id is passed then skip loading of all other id's
-		if (typeof only_this_translation_id != 'undefined' && only_this_translation_id != translation_id) {
-			return;
-		}
+        //If the var only_this_translation_id is passed then skip loading of all other id's
+        if (typeof only_this_translation_id != 'undefined' && only_this_translation_id != translation_id) {
+            return;
+        }
 
-		// Get information
-		jQuery.ajax({
-			url    : 'index.php?option=com_neno&task=editor.getTranslationNotes&id=' + translation_id,
-			success: function (data) {
-				var mainTranslationDiv = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']');
-				mainTranslationDiv.find('.note-to-translators').html(data);
-				mainTranslationDiv.find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
-				initTooltips();
-			}
-		});
+        // Get information
+        jQuery.ajax({
+            url: 'index.php?option=com_neno&task=editor.getTranslationNotes&id=' + translation_id,
+            success: function (data) {
+                var mainTranslationDiv = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']');
+                mainTranslationDiv.find('.note-to-translators').html(data);
+                mainTranslationDiv.find('.save-translation-comment').on('click', {translation_id: translation_id}, saveTranslatorsNote);
+                initTooltips();
+            }
+        });
 
-	});
+    });
 
 }
 
@@ -752,7 +762,7 @@ function loadNotesToTranslators(only_this_translation_id) {
  * Initialize tooltips
  */
 function initTooltips() {
-	jQuery('[data-toggle="tooltip"]').tooltip();
+    jQuery('[data-toggle="tooltip"]').tooltip();
 }
 
 /**
@@ -760,41 +770,41 @@ function initTooltips() {
  */
 function saveTranslatorsNote(event) {
 
-	var translation_id = event.data.translation_id;
+    var translation_id = event.data.translation_id;
 
-	var comment = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find(".comment-to-translator").val();
-	var data = {
-		placement: 'string',
-		stringId : translation_id,
-		comment  : comment
-	};
+    var comment = jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find(".comment-to-translator").val();
+    var data = {
+        placement: 'string',
+        stringId: translation_id,
+        comment: comment
+    };
 
-	// Check if we should also set the note for all strings
-	var checkbox = jQuery('#comment-check-' + translation_id);
+    // Check if we should also set the note for all strings
+    var checkbox = jQuery('#comment-check-' + translation_id);
 
-	if (checkbox.is(':checked')) {
-		data['alltranslations'] = 1;
-		data['contentId'] = checkbox.data('content-id');
-	}
+    if (checkbox.is(':checked')) {
+        data['alltranslations'] = 1;
+        data['contentId'] = checkbox.data('content-id');
+    }
 
-	// Chek if we should also set the note for all languages
-	var allLangs = jQuery('#comment-all-langs-' + translation_id);
+    // Chek if we should also set the note for all languages
+    var allLangs = jQuery('#comment-all-langs-' + translation_id);
 
-	if (allLangs.is(':checked')) {
-		data['allLangs'] = 1;
-		data['contentId'] = checkbox.data('content-id');
-	}
+    if (allLangs.is(':checked')) {
+        data['allLangs'] = 1;
+        data['contentId'] = checkbox.data('content-id');
+    }
 
-	jQuery.post(
-		'index.php?option=com_neno&task=saveExternalTranslatorsComment',
-		data,
-		function (response) {
-			if (response == 'ok') {
-				loadNotesToTranslators(translation_id);
-			}
-			jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.comment-modal').modal('toggle');
-		}
-	);
+    jQuery.post(
+        'index.php?option=com_neno&task=saveExternalTranslatorsComment',
+        data,
+        function (response) {
+            if (response == 'ok') {
+                loadNotesToTranslators(translation_id);
+            }
+            jQuery('.main-translation-div[data-translation-id=' + translation_id + ']').find('.comment-modal').modal('toggle');
+        }
+    );
 
 
 }
@@ -806,7 +816,7 @@ function saveTranslatorsNote(event) {
  * @returns int
  */
 function getTranslationId(element) {
-	return jQuery(element).closest('.main-translation-div').data('translation-id');
+    return jQuery(element).closest('.main-translation-div').data('translation-id');
 }
 
 
@@ -815,13 +825,13 @@ function getTranslationId(element) {
  */
 function bindTranslationModificationCheck() {
 
-	jQuery(window).off('beforeunload').on('beforeunload', function () {
-		if (hasEditorContentChanged() === true) {
-			return JTEXT_COM_NENO_EDITOR_UNSAVED_CHANGES;
-		} else {
-			return;
-		}
-	});
+    jQuery(window).off('beforeunload').on('beforeunload', function () {
+        if (hasEditorContentChanged() === true) {
+            return JTEXT_COM_NENO_EDITOR_UNSAVED_CHANGES;
+        } else {
+            return;
+        }
+    });
 
 }
 
@@ -833,28 +843,28 @@ function bindTranslationModificationCheck() {
  */
 function confirmNotSavingChanges() {
 
-	// Lets not ask for confirmation more than once during a 4 second period
-	// Has the user answered before
-	if (typeof confirmNotSaveAnswer !== 'undefined' && typeof confirmNotSaveTime !== 'undefined') {
-		var now = new Date();
-		var cutTime = now.setSeconds(now.getSeconds() - 4);
-		if (cutTime < confirmNotSaveTime) {
-			return confirmNotSaveAnswer;
-		}
-	}
+    // Lets not ask for confirmation more than once during a 4 second period
+    // Has the user answered before
+    if (typeof confirmNotSaveAnswer !== 'undefined' && typeof confirmNotSaveTime !== 'undefined') {
+        var now = new Date();
+        var cutTime = now.setSeconds(now.getSeconds() - 4);
+        if (cutTime < confirmNotSaveTime) {
+            return confirmNotSaveAnswer;
+        }
+    }
 
-	if (hasEditorContentChanged() === true) {
-		if (confirm(JTEXT_COM_NENO_EDITOR_UNSAVED_CHANGES)) {
-			confirmNotSaveTime = new Date();
-			confirmNotSaveAnswer = true;
-			return true;
-		} else {
-			confirmNotSaveTime = new Date();
-			confirmNotSaveAnswer = false;
-			return false;
-		}
-	}
-	return true;
+    if (hasEditorContentChanged() === true) {
+        if (confirm(JTEXT_COM_NENO_EDITOR_UNSAVED_CHANGES)) {
+            confirmNotSaveTime = new Date();
+            confirmNotSaveAnswer = true;
+            return true;
+        } else {
+            confirmNotSaveTime = new Date();
+            confirmNotSaveAnswer = false;
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -863,24 +873,24 @@ function confirmNotSavingChanges() {
  */
 function hasEditorContentChanged() {
 
-	var contentHasChanged = false;
-	if (typeof editors === 'undefined') {
-		return false;
-	}
-	jQuery.each(editors, function (translation_id, editor) {
+    var contentHasChanged = false;
+    if (typeof editors === 'undefined') {
+        return false;
+    }
+    jQuery.each(editors, function (translation_id, editor) {
 
-		if (editor.right.isClean() === false) {
-			contentHasChanged = true;
-			return false;
-		}
-	});
+        if (editor.right.isClean() === false) {
+            contentHasChanged = true;
+            return false;
+        }
+    });
 
-	return contentHasChanged;
+    return contentHasChanged;
 }
 
 // Bind click event in order to load translations
 function bindStringsTranslationsLoading() {
-	jQuery('.string').unbind('click').bind('click', function () {
-		loadTranslation(jQuery(this).data('id'));
-	});
+    jQuery('.string').unbind('click').bind('click', function () {
+        loadTranslation(jQuery(this).data('id'));
+    });
 }
