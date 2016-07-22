@@ -177,7 +177,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 				for ($i = 0; $i < $fieldsInfoCount; $i++)
 				{
-					$fieldInfo        = $fieldsInfo[ $i ];
+					$fieldInfo        = $fieldsInfo[$i];
 					$fieldInfo->table = $this;
 					$field            = new NenoContentElementField($fieldInfo, $loadExtraData, $loadParent);
 
@@ -740,7 +740,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		{
 			foreach ($fieldsNotDiscovered as $fieldNotDiscovered)
 			{
-				$field = NenoHelperBackend::createFieldInstance($fieldNotDiscovered, $fieldsData[ $fieldNotDiscovered ], $this);
+				$field = NenoHelperBackend::createFieldInstance($fieldNotDiscovered, $fieldsData[$fieldNotDiscovered], $this);
 
 				// If this field has been saved on the database correctly, let's persist its content
 				if ($field->persist())
@@ -783,7 +783,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 							if ($field->getId() == $fieldId)
 							{
 								$reArrangeFields = true;
-								unset($this->fields[ $key ]);
+								unset($this->fields[$key]);
 								break;
 							}
 						}
@@ -1002,5 +1002,51 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 			$db->setQuery($insertQuery);
 			$db->execute();
 		}
+	}
+
+	public function optimizeTranslations()
+	{
+		$fields   = $this->getPrimaryKeys();
+		$fieldIds = array();
+		$db       = JFactory::getDbo();
+		$query    = $db->getQuery(true);
+		$subQuery = $db->getQuery(true);
+
+		$subQuery
+			->select(1)
+			->from($db->quoteName($this->getTableName()) . ' AS t');
+
+		/* @var $field NenoContentElementField */
+		foreach ($fields as $field)
+		{
+			$fieldIds[] = $field->getId();
+			$subQuery->where('t.' . $db->quoteName($field->getFieldName()) . ' = ft.value', 'OR');
+		}
+
+		$query
+			->select('translation_id')
+			->from('#__neno_content_element_fields_x_translations AS ft')
+			->where(
+				array(
+					'field_id IN (' . implode(',', $db->quote($fieldIds)) . ')',
+					'NOT EXISTS (' . ((string) $subQuery) . ')'
+				)
+			);
+
+		$db->setQuery($query);
+		$translationIds = $db->loadColumn();
+
+		foreach ($translationIds as $translationId)
+		{
+			/* @var $translation NenoContentElementTranslation */
+			$translation = NenoContentElementTranslation::load($translationId);
+
+			if (!empty($translation))
+			{
+				$translation->remove();
+			}
+		}
+
+		return !empty($translationIds);
 	}
 }

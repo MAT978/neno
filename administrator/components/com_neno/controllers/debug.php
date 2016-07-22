@@ -206,13 +206,48 @@ class NenoControllerDebug extends JControllerAdmin
 			$shadowTableSyncResult            = new stdClass;
 			$shadowTableSyncResult->tableName = $shadowTable;
 			$shadowTableSyncResult->result    = NenoHelper::syncShadowTable($shadowTable);
-			$result[] = $shadowTableSyncResult;
+			$result[]                         = $shadowTableSyncResult;
 		}
 
 
 		$view               = $this->getView('FixContent', 'html');
 		$view->shadowTables = $result;
 		$view->display('syncshadowtables');
+	}
+
+	public function optimizeTranslationsTable()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('t.id')
+			->from('#__neno_content_element_tables AS t');
+
+		$db->setQuery($query);
+		$tableIds        = $db->loadColumn();
+		$tablesOptimized = array();
+
+		foreach ($tableIds as $tableId)
+		{
+			/* @var $table NenoContentElementTable */
+			$table            = NenoContentElementTable::load($tableId);
+			$recordsOptimized = $table->optimizeTranslations();
+
+			// If the table has been optimize
+			if (!empty($recordsOptimized))
+			{
+				$optimizationRecord                   = new stdClass;
+				$optimizationRecord->tableName        = $table->getTableName();
+				$optimizationRecord->recordsOptimized = $recordsOptimized;
+
+				$tablesOptimized[] = $optimizationRecord;
+			}
+		}
+
+		$view                  = $this->getView('FixContent', 'html');
+		$view->tablesOptimized = $tablesOptimized;
+		$view->display('optimizeTables');
 	}
 
 	/**
