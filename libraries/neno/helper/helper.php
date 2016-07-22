@@ -1353,6 +1353,7 @@ class NenoHelper
 		return $cachedData;
 	}
 
+
 	public static function getContentIdByTranslationId($translationId)
 	{
 		$cacheId = NenoCache::getCacheId(__FUNCTION__, func_get_args());
@@ -1441,11 +1442,26 @@ class NenoHelper
 
 		if (NenoCache::getCacheData($cacheId) === null)
 		{
+			$record = self::getRecordContentFromTranslationData($tableName, $whereValues);
+			$string = $record->{$string};
+
+			NenoCache::setCacheData($cacheId, $string);
+		}
+
+		return NenoCache::getCacheData($cacheId);
+	}
+
+	public static function getRecordContentFromTranslationData($tableName, $whereValues)
+	{
+		$cacheId = NenoCache::getCacheId(__FUNCTION__, func_get_args());
+
+		if (NenoCache::getCacheData($cacheId) === null)
+		{
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
 				->clear()
-				->select($db->quoteName($fieldName))
+				->select('*')
 				->from($tableName);
 
 			foreach ($whereValues as $whereField => $where)
@@ -1454,7 +1470,7 @@ class NenoHelper
 			}
 
 			$db->setQuery($query);
-			$string = $db->loadResult();
+			$string = $db->loadObject();
 
 			NenoCache::setCacheData($cacheId, $string);
 		}
