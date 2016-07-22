@@ -44,7 +44,7 @@ class NenoViewDebug extends JViewLegacy
 	 * @var
 	 */
 	public $activeFilters;
-	
+
 	/**
 	 * Display the view
 	 *
@@ -56,37 +56,38 @@ class NenoViewDebug extends JViewLegacy
 	 *
 	 * @since 1.0
 	 */
-	public function display($tpl = NULL)
+	public function display($tpl = null)
 	{
 		$this->state         = $this->get('State');
 		$this->items         = $this->get('Items');
 		$this->pagination    = $this->get('Pagination');
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
-		
+
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
 		{
 			throw new Exception(implode("\n", $errors));
 		}
-		
+
 		NenoHelperBackend::addSubmenu('debug');
-		
+
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
-		
+
 		$this->sidebar = JHtmlSidebar::render();
-		
+
 		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
 		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
 		JToolbarHelper::custom('debug.syncShadowTables', 'loop', 'loop', JText::_('COM_NENO_DASHBOARD_SYNC_SHADOW_TABLES_BUTTON'), false);
+		JToolbarHelper::custom('debug.optimizeTranslationsTable', 'filter', 'filter', JText::_('COM_NENO_DASHBOARD_OPTIMIZE_TRANSLATIONS_TABLE_BUTTON'), false);
 		JToolbarHelper::custom('debug.listIssues', 'cube', 'cube', JText::_('COM_NENO_ISSUES_TITLE'), false);
 		JToolbarHelper::custom('debug.downloadReport', 'download', 'download', JText::_('COM_NENO_ISSUES_DOWNLOAD_REPORT'), false);
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
-		
+
 		parent::display($tpl);
 	}
 }
