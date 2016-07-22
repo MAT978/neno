@@ -1443,7 +1443,7 @@ class NenoHelper
 		if (NenoCache::getCacheData($cacheId) === null)
 		{
 			$record = self::getRecordContentFromTranslationData($tableName, $whereValues);
-			$string = $record->{$string};
+			$string = $record->{$fieldName};
 
 			NenoCache::setCacheData($cacheId, $string);
 		}
