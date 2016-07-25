@@ -49,7 +49,7 @@ class PlgSystemNeno extends JPlugin
 			NenoLoader::init();
 
 			// Load custom driver.
-			JFactory::$database = NULL;
+			JFactory::$database = null;
 			JFactory::$database = NenoFactory::getDbo();
 		}
 	}
@@ -68,9 +68,9 @@ class PlgSystemNeno extends JPlugin
 
 		// Check if the extension is Neno
 		$query
-		  ->select('*')
-		  ->from('#__extensions')
-		  ->where('extension_id = ' . $db->quote($extensionId));
+			->select('*')
+			->from('#__extensions')
+			->where('extension_id = ' . $db->quote($extensionId));
 
 		$db->setQuery($query);
 		$extensionData = $db->loadObject();
@@ -78,9 +78,9 @@ class PlgSystemNeno extends JPlugin
 		if (empty($extensionData) || strpos($extensionData->element, 'neno') === false)
 		{
 			$query
-			  ->select('group_id')
-			  ->from('#__neno_content_element_groups_x_extensions')
-			  ->where('extension_id = ' . (int) $extensionId);
+				->select('group_id')
+				->from('#__neno_content_element_groups_x_extensions')
+				->where('extension_id = ' . (int) $extensionId);
 
 			$db->setQuery($query);
 			$groupId = $db->loadResult();
@@ -125,14 +125,14 @@ class PlgSystemNeno extends JPlugin
 		$extensions = $db->quote(NenoHelper::whichExtensionsShouldBeTranslated());
 
 		$query
-		  ->select('*')
-		  ->from('#__extensions')
-		  ->where(
-			array(
-			  'extension_id = ' . (int) $extensionId,
-			  'type IN (' . implode(',', $extensions) . ')',
-			)
-		  );
+			->select('*')
+			->from('#__extensions')
+			->where(
+				array(
+					'extension_id = ' . (int) $extensionId,
+					'type IN (' . implode(',', $extensions) . ')',
+				)
+			);
 
 		$db->setQuery($query);
 		$extensionData = $db->loadAssoc();
@@ -164,7 +164,12 @@ class PlgSystemNeno extends JPlugin
 	 */
 	public function onBeforeRender()
 	{
-		$app      = JFactory::getApplication();
+		$app = JFactory::getApplication();
+
+		if ($app->isAdmin())
+		{
+			NenoHelper::cleanLog();
+		}
 		$document = JFactory::getDocument();
 		$document->addScript(JUri::root() . '/media/neno/js/common.js?v=' . NenoHelperBackend::getNenoVersion());
 
@@ -176,9 +181,9 @@ class PlgSystemNeno extends JPlugin
 		// Check if there's some issue on the item
 		$context = $app->input->get('option');
 		$issued  = json_decode($app->getUserState($context . '.issue'));
-		$app->setUserState($context . '.issue', NULL);
+		$app->setUserState($context . '.issue', null);
 
-		if ($issued != NULL)
+		if ($issued != null)
 		{
 			$tableName    = $issued->table;
 			$associations = JLanguageAssociations::getAssociations($context, $tableName, $context . '.item', $issued->id);
@@ -271,12 +276,12 @@ class PlgSystemNeno extends JPlugin
 						$issue->table = $tableName;
 
 						JFactory::getApplication()
-						  ->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
+							->setUserState(strstr($context, '.', true) . '.issue', json_encode($issue));
 					}
 					else
 					{
 						$wasIssued = NenoHelperIssue::isIssued($content->id, $tableName);
-						
+
 						if ($wasIssued && $wasIssued->error_code == 'NOT_SOURCE_LANG_CONTENT')
 						{
 							NenoHelperIssue::removeIssues($content->id, $tableName);
