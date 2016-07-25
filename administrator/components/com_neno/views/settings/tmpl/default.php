@@ -29,24 +29,24 @@ $options = array();
 
 foreach ($this->items as $item)
 {
-	$options[ $item->setting_key ] = $item;
+	$options[$item->setting_key] = $item;
 }
 ?>
 
 	<style>
 		.settings-tooltip {
-			font-size      : 0.75em;
-			font-weight    : bold;
-			vertical-align : super;
-			cursor         : pointer;
+			font-size: 0.75em;
+			font-weight: bold;
+			vertical-align: super;
+			cursor: pointer;
 		}
 
 		td.setting-label {
-			width : 40% !important;
+			width: 40% !important;
 		}
 
 		table td {
-			border : none !important;
+			border: none !important;
 		}
 	</style>
 
@@ -56,7 +56,7 @@ foreach ($this->items as $item)
 			jQuery(".input-setting").off('blur').on('blur', saveSetting);
 			jQuery('fieldset.radio').off('change').on('change', saveSetting);
 			var options = {
-				html     : true,
+				html: true,
 				placement: "right"
 			};
 			jQuery('.settings-tooltip').tooltip(options);
@@ -81,16 +81,15 @@ foreach ($this->items as $item)
 				}
 			}
 			jQuery.ajax({
-				url    : 'index.php?option=com_neno&task=settings.saveSetting',
-				type   : 'POST',
-				data   : {
+				url: 'index.php?option=com_neno&task=settings.saveSetting',
+				type: 'POST',
+				data: {
 					setting: setting,
-					value  : value
+					value: value
 				},
 				success: function (response) {
 
-					switch (response)
-					{
+					switch (response) {
 						case 'ok'    :
 							element.parent().append('<span class="settings-toogle icon-checkmark"></span>');
 							setTimeout(function () {
@@ -115,7 +114,7 @@ foreach ($this->items as $item)
 	</script>
 
 	<form action="<?php echo JRoute::_('index.php?option=com_neno&view=settings'); ?>" method="post" name="adminForm"
-		id="adminForm">
+	      id="adminForm">
 		<div id="j-sidebar-container" class="span2">
 			<?php echo $this->sidebar; ?>
 		</div>
@@ -127,11 +126,11 @@ foreach ($this->items as $item)
 					<td class='left setting-label'>
 						<?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
 						<span class="settings-tooltip" data-toggle="tooltip"
-							title='<?php echo JText::_('COM_NENO_SETTINGS_SETTING_INFO_' . strtoupper($item->setting_key)); ?>'>[?]</span>
+						      title='<?php echo JText::_('COM_NENO_SETTINGS_SETTING_INFO_' . strtoupper($item->setting_key)); ?>'>[?]</span>
 					</td>
 					<td class=''>
 					<textarea name="<?php echo $item->setting_key; ?>"
-						class="input-setting input-xxlarge"><?php echo $item->setting_value; ?></textarea>
+					          class="input-setting input-xxlarge"><?php echo $item->setting_value; ?></textarea>
 					</td>
 				</tr>
 				<tr>
@@ -148,7 +147,7 @@ foreach ($this->items as $item)
 					<td class='setting-label'>
 						<?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
 						<span class="settings-tooltip" data-toggle="tooltip"
-							title='<?php echo JText::_('COM_NENO_SETTINGS_SETTING_INFO_' . strtoupper($item->setting_key)); ?>'>[?]</span>
+						      title='<?php echo JText::_('COM_NENO_SETTINGS_SETTING_INFO_' . strtoupper($item->setting_key)); ?>'>[?]</span>
 					</td>
 					<td class=''>
 						<?php echo $item->dropdown; ?>
@@ -161,9 +160,10 @@ foreach ($this->items as $item)
 					</td>
 					<td class=''>
 						<input type="text" name="<?php echo $item->setting_key; ?>"
-							class="input-setting input-xxlarge"
-							value="<?php echo $item->setting_value; ?>" />
-						<br /><a href="https://www.neno-translate.com/en/help/documentation/frequently-asked-questions/installation-and-upgrade/16-how-to-get-a-google-or-yandex-api-key"
+						       class="input-setting input-xxlarge"
+						       value="<?php echo $item->setting_value; ?>"/>
+						<br/><a
+							href="https://www.neno-translate.com/en/help/documentation/frequently-asked-questions/installation-and-upgrade/16-how-to-get-a-google-or-yandex-api-key"
 							target="_blank"><?php echo JText::_('COM_NENO_SETTINGS_SETTING_NAME_API_KEY_DOCS_LINK'); ?></a>
 					</td>
 				</tr>
@@ -175,13 +175,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -197,13 +197,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -219,13 +219,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -241,18 +241,29 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								   name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								   name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
 							</label>
 						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<?php $item = $options['log_limit']; ?>
+					<td class='setting-label'>
+						<?php echo JText::sprintf('COM_NENO_SETTINGS_SETTING_NAME_' . strtoupper($item->setting_key)); ?>
+					</td>
+					<td class=''>
+						<input type="text" name="<?php echo $item->setting_key; ?>"
+						       class="input-setting input-xxlarge"
+						       value="<?php echo $item->setting_value; ?>"/>
 					</td>
 				</tr>
 			</table>
@@ -266,13 +277,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -288,13 +299,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -312,7 +323,7 @@ foreach ($this->items as $item)
 					</td>
 				</tr>
 			</table>
-			<br />
+			<br/>
 
 			<h2><?php echo JText::_('COM_NENO_SETTINGS_SCHEDULED'); ?></h2>
 			<table class="table full-width" id="typeListScheduled">
@@ -333,13 +344,13 @@ foreach ($this->items as $item)
 					<td class=''>
 						<fieldset id="<?php echo $item->setting_key; ?>" class="radio btn-group btn-group-yesno">
 							<input type="radio" id="<?php echo $item->setting_key; ?>0"
-								name="<?php echo $item->setting_key; ?>" value="1"
+							       name="<?php echo $item->setting_key; ?>" value="1"
 								<?php echo ($item->setting_value) ? 'checked="checked"' : ''; ?>>
 							<label for="<?php echo $item->setting_key; ?>0" class="btn">
 								<?php echo JText::_('JYES'); ?>
 							</label>
 							<input type="radio" id="<?php echo $item->setting_key; ?>1"
-								name="<?php echo $item->setting_key; ?>" value="0"
+							       name="<?php echo $item->setting_key; ?>" value="0"
 								<?php echo ($item->setting_value) ? '' : 'checked="checked"'; ?>>
 							<label for="<?php echo $item->setting_key; ?>1" class="btn">
 								<?php echo JText::_('JNO'); ?>
@@ -349,8 +360,8 @@ foreach ($this->items as $item)
 				</tr>
 			</table>
 
-			<input type="hidden" name="task" value="" />
-			<input type="hidden" name="boxchecked" value="0" />
+			<input type="hidden" name="task" value=""/>
+			<input type="hidden" name="boxchecked" value="0"/>
 			<?php echo JHtml::_('form.token'); ?>
 
 		</div>

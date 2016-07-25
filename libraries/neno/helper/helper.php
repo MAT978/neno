@@ -4538,4 +4538,28 @@ class NenoHelper
 
 		return false;
 	}
+
+	/**
+	 * Clean up the log
+	 *
+	 * @since 2.1.16
+	 */
+	public static function cleanLog()
+	{
+		// Strip
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('COUNT(*)')
+			->from('#__neno_log_entries');
+
+		$db->setQuery($query);
+		$counter  = $db->loadResult();
+		$logLimit = NenoSettings::get('log_limit', 1000);
+
+		$query = 'DELETE FROM #__neno_log_entries ORDER BY time_added ASC LIMIT ' . ($counter - $logLimit);
+		$db->setQuery($query);
+		$db->execute();
+	}
 }
