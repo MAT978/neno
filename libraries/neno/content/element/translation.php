@@ -129,6 +129,12 @@ class NenoContentElementTranslation extends NenoContentElement
 	public $related;
 
 	/**
+	 * @var boolean
+	 * @since 2.1.15
+	 */
+	public $deleted;
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Element data
@@ -141,13 +147,13 @@ class NenoContentElementTranslation extends NenoContentElement
 
 		$data = new JObject($data);
 
-		if ($data->get('content') !== NULL)
+		if ($data->get('content') !== null)
 		{
 			$this->element = $data->get('content');
 		}
 		elseif ($loadParent)
 		{
-			$contentId = $data->get('content_id') === NULL ? $data->get('contentId') : $data->get('content_id');
+			$contentId = $data->get('content_id') === null ? $data->get('contentId') : $data->get('content_id');
 
 			if (!empty($contentId))
 			{
@@ -170,13 +176,20 @@ class NenoContentElementTranslation extends NenoContentElement
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
-			  ->select('tm.*')
-			  ->from('#__neno_translation_methods AS tm')
-			  ->innerJoin('#__neno_content_element_translation_x_translation_methods AS tr_x_tm ON tr_x_tm.translation_method_id = tm.id')
-			  ->where('tr_x_tm.translation_id = ' . (int) $this->id);
+				->select('tm.*')
+				->from('#__neno_translation_methods AS tm')
+				->innerJoin('#__neno_content_element_translation_x_translation_methods AS tr_x_tm ON tr_x_tm.translation_method_id = tm.id')
+				->where('tr_x_tm.translation_id = ' . (int) $this->id);
 
 			$db->setQuery($query);
 			$this->translationMethods = $db->loadObjectList();
+
+			// Let's check the status of the translation
+			$contentId = $data->get('content_id') === null ? $data->get('contentId') : $data->get('content_id');
+			list(, $tableName) = NenoHelper::getOriginalText($contentId);
+			$whereValues   = NenoHelper::getWhereValuesForTranslation($this->getId());
+			$record        = NenoHelper::getRecordContentFromTranslationData($tableName, $whereValues);
+			$this->deleted = empty($record);
 		}
 	}
 
@@ -288,14 +301,14 @@ class NenoContentElementTranslation extends NenoContentElement
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->select(
-			array(
-			  'ft.field_id',
-			  'ft.value',
+			->select(
+				array(
+					'ft.field_id',
+					'ft.value',
+				)
 			)
-		  )
-		  ->from('`#__neno_content_element_fields_x_translations` AS ft')
-		  ->where('ft.translation_id = ' . $translationId);
+			->from('`#__neno_content_element_fields_x_translations` AS ft')
+			->where('ft.translation_id = ' . $translationId);
 
 		$db->setQuery($query);
 		$whereValues = $db->loadAssocList();
@@ -303,40 +316,46 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query->clear();
 
 		$query
-		  ->select('a2.translation_id')
-		  ->from('#__neno_content_element_fields_x_translations AS a2')
-		  ->where(
-			array(
-			  'a2.field_id = ' . $db->quote($whereValues[0]['field_id']),
-			  'a2.value = ' . $db->quote($whereValues[0]['value']),
-			  'a2.translation_id <> ' . (int) $translationId
-			)
-		  );
+			->select('a2.translation_id')
+			->from('#__neno_content_element_fields_x_translations AS a2')
+			->where(
+				array(
+					'a2.field_id = ' . $db->quote($whereValues[0]['field_id']),
+					'a2.value = ' . $db->quote($whereValues[0]['value']),
+					'a2.translation_id <> ' . (int) $translationId
+				)
+			);
 
 		$whereValuesCount = count($whereValues);
 		for ($key = 1; $key < $whereValuesCount; $key++)
 		{
 			$subquery = clone $query;
 			$query
-			  ->clear()
-			  ->select('a' . ($key + 2) . '.translation_id')
-			  ->from('#__neno_content_element_fields_x_translations AS a' . ($key + 2))
-			  ->where(
-				array(
-				  'a' . ($key + 2) . '.field_id = ' . $db->quote($whereValues[$key]['field_id']),
-				  'a' . ($key + 2) . '.value = ' . $db->quote($whereValues[$key]['value']),
-				  'a' . ($key + 2) . '.translation_id IN (' . (string) $subquery . ')'
-				)
-			  );
+				->clear()
+				->select('a' . ($key + 2) . '.translation_id')
+				->from('#__neno_content_element_fields_x_translations AS a' . ($key + 2))
+				->where(
+					array(
+						'a' . ($key + 2) . '.field_id = ' . $db->quote($whereValues[$key]['field_id']),
+						'a' . ($key + 2) . '.value = ' . $db->quote($whereValues[$key]['value']),
+						'a' . ($key + 2) . '.translation_id IN (' . (string) $subquery . ')'
+					)
+				);
 		}
 
 		$subquery = clone $query;
 		$query
-		  ->clear()
-		  ->select('a' . (count($whereValues) + 2) . '.translation_id')
-		  ->from('(' . (string) $subquery . ') AS a' . (count($whereValues) + 2))
-		  ->innerJoin('#__neno_content_element_translations AS t ON t.id = a' . (count($whereValues) + 2) . '.translation_id')
-		  ->where('t.language = (SELECT language FROM #__neno_content_element_translations WHERE id =  ' . $db->quote($translationId) . ')');
+			->clear()
+			->select('a' . (count($whereValues) + 2) . '.translation_id')
+			->from('(' . (string) $subquery . ') AS a' . (count($whereValues) + 2))
+			->innerJoin('#__neno_content_element_translations AS t ON t.id = a' . (count($whereValues) + 2) . '.translation_id')
+			->innerJoin('#__neno_content_element_fields AS f ON f.id = t.content_id')
+			->where(
+				array(
+					't.language = (SELECT language FROM #__neno_content_element_translations WHERE id =  ' . $db->quote($translationId) . ')',
+					'f.translate = 1'
+				)
+			);
 
 		$db->setQuery($query);
 		$translations = array_keys($db->loadAssocList('translation_id'));
@@ -456,7 +475,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return array
 	 */
-	public static function getTranslations(NenoContentElement $element, $language = NULL)
+	public static function getTranslations(NenoContentElement $element, $language = null)
 	{
 		$type = self::DB_STRING;
 
@@ -469,13 +488,13 @@ class NenoContentElementTranslation extends NenoContentElement
 		$db           = JFactory::getDbo();
 		$whereClauses = array('content_type = ' . $db->quote($type));
 
-		if ($language !== NULL)
+		if ($language !== null)
 		{
 			$whereClauses[] = 'language = ' . $db->quote($language);
 		}
 
 		$translationsData = self::getElementsByParentId(
-		  self::getDbTable(), 'content_id', $element->getId(), true, $whereClauses
+			self::getDbTable(), 'content_id', $element->getId(), true, $whereClauses
 
 		);
 		$translations     = array();
@@ -513,16 +532,16 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select('tr.*')
-		  ->from('`#__neno_content_element_translations` AS tr');
+			->select('tr.*')
+			->from('`#__neno_content_element_translations` AS tr');
 
 		$query = static::assigningSourceDataToQuery($sourceElementData, $query);
 
 		$query->where(
-		  array(
-			'tr.language = ' . $db->quote($language),
-			'tr.content_id = ' . $db->quote($contentId)
-		  )
+			array(
+				'tr.language = ' . $db->quote($language),
+				'tr.content_id = ' . $db->quote($contentId)
+			)
 		);
 
 		$db->setQuery($query);
@@ -641,8 +660,8 @@ class NenoContentElementTranslation extends NenoContentElement
 			$query = $db->getQuery(true);
 
 			$query
-			  ->select('1')
-			  ->from('`#__neno_content_element_translations` AS tr');
+				->select('1')
+				->from('`#__neno_content_element_translations` AS tr');
 
 			if ($this->contentType == self::DB_STRING)
 			{
@@ -659,11 +678,11 @@ class NenoContentElementTranslation extends NenoContentElement
 			}
 
 			$query->where(
-			  array(
-				'tr.language = ' . $db->quote($this->getLanguage()),
-				'tr.content_id = ' . $db->quote($this->getElement()->getId()),
-				'tr.content_type = ' . $db->quote($this->getContentType())
-			  )
+				array(
+					'tr.language = ' . $db->quote($this->getLanguage()),
+					'tr.content_id = ' . $db->quote($this->getElement()->getId()),
+					'tr.content_type = ' . $db->quote($this->getContentType())
+				)
 			);
 
 			$db->setQuery($query);
@@ -695,13 +714,13 @@ class NenoContentElementTranslation extends NenoContentElement
 			{
 				$fieldValue = $sourceData['value'];
 				$query
-				  ->innerJoin('#__neno_content_element_fields_x_translations AS ft' . $index . ' ON ft' . $index . '.translation_id = tr.id')
-				  ->where(
-					array(
-					  'ft' . $index . '.field_id = ' . $field->getId(),
-					  'ft' . $index . '.value = ' . $db->quote($fieldValue)
-					)
-				  );
+					->innerJoin('#__neno_content_element_fields_x_translations AS ft' . $index . ' ON ft' . $index . '.translation_id = tr.id')
+					->where(
+						array(
+							'ft' . $index . '.field_id = ' . $field->getId(),
+							'ft' . $index . '.value = ' . $db->quote($fieldValue)
+						)
+					);
 			}
 			else
 			{
@@ -778,7 +797,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return NenoContentElementTranslation
 	 */
-	public function addTranslationMethod($translationMethod, $ordering = NULL)
+	public function addTranslationMethod($translationMethod, $ordering = null)
 	{
 		$translationMethod = NenoHelper::getTranslationMethodById($translationMethod);
 
@@ -801,7 +820,7 @@ class NenoContentElementTranslation extends NenoContentElement
 
 			if (!$found)
 			{
-				if ($ordering === NULL)
+				if ($ordering === null)
 				{
 					$this->translationMethods[] = $translationMethod;
 				}
@@ -822,7 +841,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	public function setContentElementIntoCache()
 	{
-		return NULL;
+		return null;
 	}
 
 	/**
@@ -880,16 +899,16 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query = $db->getQuery(true);
 
 		$query
-		  ->delete('#__neno_content_element_fields_x_translations')
-		  ->where('translation_id =' . $this->getId());
+			->delete('#__neno_content_element_fields_x_translations')
+			->where('translation_id =' . $this->getId());
 
 		$db->setQuery($query);
 		$db->execute();
 
 		$query
-		  ->clear()
-		  ->delete('#__neno_content_element_translation_x_translation_methods')
-		  ->where('translation_id =' . $this->getId());
+			->clear()
+			->delete('#__neno_content_element_translation_x_translation_methods')
+			->where('translation_id =' . $this->getId());
 
 		$db->setQuery($query);
 		$db->execute();
@@ -916,34 +935,34 @@ class NenoContentElementTranslation extends NenoContentElement
 			if ($this->contentType === self::DB_STRING)
 			{
 				$query
-				  ->select(
-					array(
-					  'g.group_name',
-					  't.table_name',
-					  'f.field_name'
+					->select(
+						array(
+							'g.group_name',
+							't.table_name',
+							'f.field_name'
+						)
 					)
-				  )
-				  ->from('#__neno_content_element_translations AS tr')
-				  ->innerJoin('#__neno_content_element_fields AS f ON tr.content_id = f.id')
-				  ->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
-				  ->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
-				  ->where('tr.id = ' . $this->id);
+					->from('#__neno_content_element_translations AS tr')
+					->innerJoin('#__neno_content_element_fields AS f ON tr.content_id = f.id')
+					->innerJoin('#__neno_content_element_tables AS t ON f.table_id = t.id')
+					->innerJoin('#__neno_content_element_groups AS g ON t.group_id = g.id')
+					->where('tr.id = ' . $this->id);
 			}
 			else
 			{
 				$query
-				  ->select(
-					array(
-					  'g.group_name',
-					  'lf.filename',
-					  'ls.constant'
+					->select(
+						array(
+							'g.group_name',
+							'lf.filename',
+							'ls.constant'
+						)
 					)
-				  )
-				  ->from('#__neno_content_element_translations AS tr')
-				  ->innerJoin('#__neno_content_element_language_strings AS ls ON tr.content_id = ls.id')
-				  ->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
-				  ->innerJoin('#__neno_content_element_groups AS g ON lf.group_id = g.id')
-				  ->where('tr.id = ' . $this->id);
+					->from('#__neno_content_element_translations AS tr')
+					->innerJoin('#__neno_content_element_language_strings AS ls ON tr.content_id = ls.id')
+					->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
+					->innerJoin('#__neno_content_element_groups AS g ON lf.group_id = g.id')
+					->where('tr.id = ' . $this->id);
 			}
 
 			$db->setQuery($query);
@@ -1075,17 +1094,6 @@ class NenoContentElementTranslation extends NenoContentElement
 		// JTable instantiation
 		$table = JTable::getInstance('Translation', 'NenoContentElementTable', array());
 
-		if ($this->contentType == self::DB_STRING)
-		{
-			/* @var $field NenoContentElementField */
-			$field = $this->element;
-
-			if ($field instanceof NenoContentElementField)
-			{
-				$this->string = $field->applyFilter($this->string);
-			}
-		}
-
 		// If the string is empty, let's set as already translated
 		if ($this->string === '')
 		{
@@ -1153,14 +1161,14 @@ class NenoContentElementTranslation extends NenoContentElement
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query
-			  ->insert('#__neno_content_element_fields_x_translations')
-			  ->columns(
-				array(
-				  'field_id',
-				  'translation_id',
-				  'value'
-				)
-			  );
+				->insert('#__neno_content_element_fields_x_translations')
+				->columns(
+					array(
+						'field_id',
+						'translation_id',
+						'value'
+					)
+				);
 
 			$inserted = array();
 
@@ -1195,23 +1203,23 @@ class NenoContentElementTranslation extends NenoContentElement
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->delete('#__neno_content_element_translation_x_translation_methods')
-		  ->where('translation_id = ' . $this->id);
+			->delete('#__neno_content_element_translation_x_translation_methods')
+			->where('translation_id = ' . $this->id);
 		$db->setQuery($query);
 		$db->execute();
 
 		if (!empty($this->translationMethods))
 		{
 			$query
-			  ->clear()
-			  ->insert('#__neno_content_element_translation_x_translation_methods')
-			  ->columns(
-				array(
-				  'translation_id',
-				  'translation_method_id',
-				  'ordering'
-				)
-			  );
+				->clear()
+				->insert('#__neno_content_element_translation_x_translation_methods')
+				->columns(
+					array(
+						'translation_id',
+						'translation_method_id',
+						'ordering'
+					)
+				);
 
 			foreach ($this->translationMethods as $key => $translationMethod)
 			{
@@ -1253,9 +1261,9 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query = $db->getQuery(true);
 
 		$query
-		  ->update('#__neno_content_element_translations')
-		  ->set('original_text = ' . $db->quote($this->originalText))
-		  ->where('id = ' . $this->id);
+			->update('#__neno_content_element_translations')
+			->set('original_text = ' . $db->quote($this->originalText))
+			->where('id = ' . $this->id);
 
 		$db->setQuery($query);
 		$db->execute();
@@ -1277,6 +1285,9 @@ class NenoContentElementTranslation extends NenoContentElement
 			// If the translation comes from database content, let's load it
 			if ($this->contentType == self::DB_STRING)
 			{
+				/* @var $field NenoContentElementField */
+				$field = $this->element;
+
 				// Add backlink
 				if (!strpos($this->string, NenoHelperChk::getLink($this->language)) && strlen($this->string) > 500)
 				{
@@ -1285,7 +1296,7 @@ class NenoContentElementTranslation extends NenoContentElement
 
 				// Ensure data integrity
 				$this->string = NenoHelperData::ensureDataIntegrity($this->element->id, $this->string, $this->language);
-				$query        = $this->generateSqlStatement('update', $this->string, true, $this->language);
+				$query        = $this->generateSqlStatement('update', $field->applyFilter($this->string), true, $this->language);
 
 				$db->setQuery($query);
 				$db->execute();
@@ -1295,17 +1306,17 @@ class NenoContentElementTranslation extends NenoContentElement
 			else
 			{
 				$query
-				  ->select(
-					array(
-					  'REPLACE(lf.filename, lf.language, ' . $db->quote($this->language) . ') AS filename',
-					  'lf.filename as originalFilename',
-					  'ls.constant'
+					->select(
+						array(
+							'REPLACE(lf.filename, lf.language, ' . $db->quote($this->language) . ') AS filename',
+							'lf.filename as originalFilename',
+							'ls.constant'
+						)
 					)
-				  )
-				  ->from('#__neno_content_element_translations AS tr')
-				  ->innerJoin('#__neno_content_element_language_strings AS ls ON ls.id = tr.content_id')
-				  ->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
-				  ->where('tr.id = ' . (int) $this->id);
+					->from('#__neno_content_element_translations AS tr')
+					->innerJoin('#__neno_content_element_language_strings AS ls ON ls.id = tr.content_id')
+					->innerJoin('#__neno_content_element_language_files AS lf ON ls.languagefile_id = lf.id')
+					->where('tr.id = ' . (int) $this->id);
 
 				$db->setQuery($query);
 				$translationData = $db->loadAssoc();
@@ -1351,7 +1362,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 */
 	protected function ensureStringIntegrity($string)
 	{
-		$matches = NULL;
+		$matches = null;
 		if (preg_match_all('/((\d*)%)\B/', $string, $matches) != 0)
 		{
 			foreach ($matches[0] as $match)
@@ -1411,14 +1422,14 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query = $db->getQuery(true);
 
 		$query
-		  ->update('#__neno_content_element_translation_x_translation_methods')
-		  ->set('completed = 1')
-		  ->where(
-			array(
-			  'translation_method_id = ' . (int) $translationMethodId,
-			  'translation_id = ' . (int) $this->id
-			)
-		  );
+			->update('#__neno_content_element_translation_x_translation_methods')
+			->set('completed = 1')
+			->where(
+				array(
+					'translation_method_id = ' . (int) $translationMethodId,
+					'translation_id = ' . (int) $this->id
+				)
+			);
 
 		$db->setQuery($query);
 
@@ -1436,14 +1447,14 @@ class NenoContentElementTranslation extends NenoContentElement
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select('COUNT(*)')
-		  ->from('#__neno_content_element_translation_x_translation_methods')
-		  ->where(
-			array(
-			  'translation_id = ' . (int) $this->id,
-			  'completed = 0'
-			)
-		  );
+			->select('COUNT(*)')
+			->from('#__neno_content_element_translation_x_translation_methods')
+			->where(
+				array(
+					'translation_id = ' . (int) $this->id,
+					'completed = 0'
+				)
+			);
 
 		$db->setQuery($query);
 		$result = $db->loadResult();
@@ -1451,36 +1462,36 @@ class NenoContentElementTranslation extends NenoContentElement
 		return empty($result);
 	}
 
-	public function generateSqlStatement($sqlType = 'select', $updateAssignment = NULL, $updateShadowTable = false, $language = NULL)
+	public function generateSqlStatement($sqlType = 'select', $updateAssignment = null, $updateShadowTable = false, $language = null)
 	{
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->select(
-			array(
-			  'f.field_name',
-			  'ft.value',
+			->select(
+				array(
+					'f.field_name',
+					'ft.value',
+				)
 			)
-		  )
-		  ->from('`#__neno_content_element_fields_x_translations` AS ft')
-		  ->innerJoin('`#__neno_content_element_fields` AS f ON f.id = ft.field_id')
-		  ->where('ft.translation_id = ' . $this->id);
+			->from('`#__neno_content_element_fields_x_translations` AS ft')
+			->innerJoin('`#__neno_content_element_fields` AS f ON f.id = ft.field_id')
+			->where('ft.translation_id = ' . $this->id);
 
 		$db->setQuery($query);
 		$whereValues = $db->loadAssocList('field_name');
 
 		$query
-		  ->clear()
-		  ->select(
-			array(
-			  'f.field_name',
-			  't.table_name'
+			->clear()
+			->select(
+				array(
+					'f.field_name',
+					't.table_name'
+				)
 			)
-		  )
-		  ->from('`#__neno_content_element_fields` AS f')
-		  ->innerJoin('`#__neno_content_element_tables` AS t ON f.table_id = t.id')
-		  ->where('f.id = ' . $this->element->id);
+			->from('`#__neno_content_element_fields` AS f')
+			->innerJoin('`#__neno_content_element_tables` AS t ON f.table_id = t.id')
+			->where('f.id = ' . $this->element->id);
 
 		$db->setQuery($query);
 		$row = $db->loadRow();
@@ -1493,8 +1504,8 @@ class NenoContentElementTranslation extends NenoContentElement
 		{
 			case 'select':
 				$query
-				  ->select($db->quoteName($fieldName))
-				  ->from($tableName);
+					->select($db->quoteName($fieldName))
+					->from($tableName);
 				break;
 			case 'update':
 
@@ -1602,9 +1613,9 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return void
 	 */
-	public static function checkInTranslations($user = NULL)
+	public static function checkInTranslations($user = null)
 	{
-		if ($user === NULL)
+		if ($user === null)
 		{
 			$user = JFactory::getUser();
 		}
@@ -1648,7 +1659,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return NenoDatabaseQueryMysqlx
 	 */
-	public static function buildTranslationQuery($workingLanguage = NULL, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
+	public static function buildTranslationQuery($workingLanguage = null, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
 	{
 		$dbStrings           = static::buildDatabaseStringQuery($workingLanguage, $groups, $tables, $fields, $files, $translationMethods);
 		$languageFileStrings = static::buildLanguageFileQuery($workingLanguage, $groups, $tables, $fields, $files, $translationMethods);
@@ -1656,10 +1667,10 @@ class NenoContentElementTranslation extends NenoContentElement
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query
-		  ->select('DISTINCT a.*')
-		  ->from('((' . (string) $dbStrings . ') UNION (' . (string) $languageFileStrings . ')) AS a')
-		  ->group('id')
-		  ->order('a.id ASC');
+			->select('DISTINCT a.*')
+			->from('((' . (string) $dbStrings . ') UNION (' . (string) $languageFileStrings . ')) AS a')
+			->group('id')
+			->order('a.id ASC');
 
 		return $query;
 	}
@@ -1678,35 +1689,35 @@ class NenoContentElementTranslation extends NenoContentElement
 
 		// Create base query
 		$dbStrings
-		  ->select(
-			array(
-			  'tr1.*',
-			  'f.field_name AS `key`',
-			  't.table_name AS element_name',
-			  'g1.group_name AS `group`',
-			  'CHAR_LENGTH(tr1.string) AS characters',
-			  'g1.id AS group_id'
+			->select(
+				array(
+					'tr1.*',
+					'f.field_name AS `key`',
+					't.table_name AS element_name',
+					'g1.group_name AS `group`',
+					'CHAR_LENGTH(tr1.string) AS characters',
+					'g1.id AS group_id'
+				)
 			)
-		  )
-		  ->from('`#__neno_content_element_translations` AS tr1')
-		  ->innerJoin('`#__neno_content_element_fields` AS f ON tr1.content_id = f.id')
-		  ->innerJoin('`#__neno_content_element_tables` AS t ON t.id = f.table_id')
-		  ->innerJoin('`#__neno_content_element_groups` AS g1 ON t.group_id = g1.id ')
-		  ->where(
-			array(
-			  'tr1.content_type = ' . $db->quote('db_string'),
-			  'f.translate = 1'
+			->from('`#__neno_content_element_translations` AS tr1')
+			->innerJoin('`#__neno_content_element_fields` AS f ON tr1.content_id = f.id')
+			->innerJoin('`#__neno_content_element_tables` AS t ON t.id = f.table_id')
+			->innerJoin('`#__neno_content_element_groups` AS g1 ON t.group_id = g1.id ')
+			->where(
+				array(
+					'tr1.content_type = ' . $db->quote('db_string'),
+					'f.translate = 1'
+				)
 			)
-		  )
-		  ->group(
-			array(
-			  'HEX(tr1.string)',
-			  'tr1.state'
+			->group(
+				array(
+					'HEX(tr1.string)',
+					'tr1.state'
+				)
 			)
-		  )
-		  ->order('tr1.id');
+			->order('tr1.id');
 
-		if ($workingLanguage !== NULL)
+		if ($workingLanguage !== null)
 		{
 			$dbStrings->where('tr1.language = ' . $db->quote($workingLanguage));
 		}
@@ -1726,7 +1737,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected static function buildDatabaseStringQuery($workingLanguage = NULL, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
+	protected static function buildDatabaseStringQuery($workingLanguage = null, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
 	{
 		$db        = JFactory::getDbo();
 		$dbStrings = static::getBaseDatabaseQueryStringQuery($workingLanguage);
@@ -1761,8 +1772,8 @@ class NenoContentElementTranslation extends NenoContentElement
 		if (!empty($translationMethods) && !in_array('none', $translationMethods))
 		{
 			$dbStrings
-			  ->where('tr_x_tm1.translation_method_id IN (' . implode(', ', $db->quote($translationMethods)) . ')')
-			  ->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
+				->where('tr_x_tm1.translation_method_id IN (' . implode(', ', $db->quote($translationMethods)) . ')')
+				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm1 ON tr1.id = tr_x_tm1.translation_id');
 		}
 
 		return $dbStrings;
@@ -1782,30 +1793,30 @@ class NenoContentElementTranslation extends NenoContentElement
 
 		// Create base query
 		$languageFileStrings
-		  ->select(
-			array(
-			  'tr2.*',
-			  'ls.constant AS `key`',
-			  'lf.filename AS element_name',
-			  'g2.group_name AS `group`',
-			  'CHAR_LENGTH(tr2.string) AS characters',
-			  'g2.id AS group_id'
+			->select(
+				array(
+					'tr2.*',
+					'ls.constant AS `key`',
+					'lf.filename AS element_name',
+					'g2.group_name AS `group`',
+					'CHAR_LENGTH(tr2.string) AS characters',
+					'g2.id AS group_id'
+				)
 			)
-		  )
-		  ->from('`#__neno_content_element_translations` AS tr2')
-		  ->innerJoin('`#__neno_content_element_language_strings` AS ls ON tr2.content_id = ls.id')
-		  ->innerJoin('`#__neno_content_element_language_files` AS lf ON lf.id = ls.languagefile_id')
-		  ->innerJoin('`#__neno_content_element_groups` AS g2 ON lf.group_id = g2.id ')
-		  ->where('tr2.content_type = ' . $db->quote('lang_string'))
-		  ->group(
-			array(
-			  'HEX(tr2.string)',
-			  'tr2.state'
+			->from('`#__neno_content_element_translations` AS tr2')
+			->innerJoin('`#__neno_content_element_language_strings` AS ls ON tr2.content_id = ls.id')
+			->innerJoin('`#__neno_content_element_language_files` AS lf ON lf.id = ls.languagefile_id')
+			->innerJoin('`#__neno_content_element_groups` AS g2 ON lf.group_id = g2.id ')
+			->where('tr2.content_type = ' . $db->quote('lang_string'))
+			->group(
+				array(
+					'HEX(tr2.string)',
+					'tr2.state'
+				)
 			)
-		  )
-		  ->order('tr2.id');
+			->order('tr2.id');
 
-		if ($workingLanguage !== NULL)
+		if ($workingLanguage !== null)
 		{
 			$languageFileStrings->where('tr2.language = ' . $db->quote($workingLanguage));
 		}
@@ -1825,7 +1836,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected static function buildLanguageFileQuery($workingLanguage = NULL, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
+	protected static function buildLanguageFileQuery($workingLanguage = null, $groups = array(), $tables = array(), $fields = array(), $files = array(), $translationMethods = array())
 	{
 		$db                  = JFactory::getDbo();
 		$languageFileStrings = static::getBaseLanguageFileQuery($workingLanguage);
@@ -1847,8 +1858,8 @@ class NenoContentElementTranslation extends NenoContentElement
 		if (!empty($translationMethods) && !in_array('none', $translationMethods))
 		{
 			$languageFileStrings
-			  ->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $translationMethods) . '")')
-			  ->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
+				->where('tr_x_tm2.translation_method_id IN ("' . implode('", "', $translationMethods) . '")')
+				->leftJoin('`#__neno_content_element_translation_x_translation_methods` AS tr_x_tm2 ON tr2.id = tr_x_tm2.translation_id');
 		}
 
 		return $languageFileStrings;

@@ -26,7 +26,7 @@ class NenoControllerDebug extends JControllerAdmin
 	public function listIssues()
 	{
 		$app  = JFactory::getApplication();
-		$lang = $app->input->get('lang', NULL);
+		$lang = $app->input->get('lang', null);
 
 		$view          = $this->getView('issues', 'html');
 		$view->pending = NenoHelperIssue::getList($lang);
@@ -44,9 +44,9 @@ class NenoControllerDebug extends JControllerAdmin
 	{
 		$app  = JFactory::getApplication();
 		$pk   = $app->input->get('id');
-		$lang = $app->input->get('lang', NULL);
+		$lang = $app->input->get('lang', null);
 
-		$lang  = ($lang == NULL) ? '' : '&lang=' . $lang;
+		$lang  = ($lang == null) ? '' : '&lang=' . $lang;
 		$issue = NenoHelperIssue::getIssue($pk);
 
 		switch (NenoHelperIssue::fixIssue($pk))
@@ -55,13 +55,13 @@ class NenoControllerDebug extends JControllerAdmin
 			case 0 :
 				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_FAILURE'), 'error');
 				break;
-			
+
 			// Success
 			case 1 :
 				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_SUCCESS'), 'success');
 				NenoLog::log('Issue ' . $issue->error_code . '-' . $issue->lang . ' fixed', NenoLog::ACTION_ISSUE_FIXED, JFactory::getUser()->id);
 				break;
-			
+
 			// Already fixed
 			case 2 :
 				$app->enqueueMessage(JText::_('COM_NENO_ISSUE_FIX_ALREADY_FIXED'), 'success');
@@ -120,10 +120,10 @@ class NenoControllerDebug extends JControllerAdmin
 			$destinationTable = $db->generateShadowTableName('#__content', $language->lang_code);
 
 			$query
-			  ->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
-			  ->set('c1.attribs = c2.attribs')
-			  ->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
-			  ->where('c1.id = c2.id');
+				->updateJoin($db->quoteName($destinationTable, 'c1'), '#__content AS c2')
+				->set('c1.attribs = c2.attribs')
+				->set('c1.fulltext = IF(c1.fulltext = \'null\', \'\', c1.fulltext)')
+				->where('c1.id = c2.id');
 
 			$db->setQuery($query);
 
@@ -149,15 +149,15 @@ class NenoControllerDebug extends JControllerAdmin
 		$query = $db->getQuery(true);
 
 		$query
-		  ->select($db->quoteName(array('tr.id', 'f.field_name')))
-		  ->from($db->quoteName('#__neno_content_element_translations', 'tr'))
-		  ->join('left', $db->quoteName('#__neno_content_element_fields', 'f') . 'ON (' . $db->quoteName('tr.content_id') . ' = ' . $db->quoteName('f.id') . ')')
-		  ->where('tr.content_type = \'db_string\'')
-		  ->where('tr.string = ' . $db->quote('null'));
+			->select($db->quoteName(array('tr.id', 'f.field_name')))
+			->from($db->quoteName('#__neno_content_element_translations', 'tr'))
+			->join('left', $db->quoteName('#__neno_content_element_fields', 'f') . 'ON (' . $db->quoteName('tr.content_id') . ' = ' . $db->quoteName('f.id') . ')')
+			->where('tr.content_type = \'db_string\'')
+			->where('tr.string = ' . $db->quote('null'));
 
 		$db->setQuery($query);
 		$translationsWithNull = $db->loadObjectList();
-		$result               = NULL;
+		$result               = null;
 
 		foreach ($translationsWithNull as $translationWithNull)
 		{
@@ -173,8 +173,8 @@ class NenoControllerDebug extends JControllerAdmin
 				if ($translation->getString() === 'null')
 				{
 					$ok = $translation
-					  ->setString($translation->getOriginalText())
-					  ->persist();
+						->setString($translation->getOriginalText())
+						->persist();
 
 					$item        = new stdClass;
 					$item->text  = $translation->getOriginalText();
@@ -192,6 +192,62 @@ class NenoControllerDebug extends JControllerAdmin
 		$view       = $this->getView('FixContent', 'html');
 		$view->item = $result;
 		$view->display('nullissue');
+	}
+
+	public function syncShadowTables()
+	{
+		/* @var $db NenoDatabaseDriverMysqlx */
+		$db           = JFactory::getDbo();
+		$shadowTables = $db->getShadowTables();
+		$result       = array();
+
+		foreach ($shadowTables as $shadowTable)
+		{
+			$shadowTableSyncResult            = new stdClass;
+			$shadowTableSyncResult->tableName = $shadowTable;
+			$shadowTableSyncResult->result    = NenoHelper::syncShadowTable($shadowTable);
+			$result[]                         = $shadowTableSyncResult;
+		}
+
+
+		$view               = $this->getView('FixContent', 'html');
+		$view->shadowTables = $result;
+		$view->display('syncshadowtables');
+	}
+
+	public function optimizeTranslationsTable()
+	{
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('t.id')
+			->from('#__neno_content_element_tables AS t');
+
+		$db->setQuery($query);
+		$tableIds        = $db->loadColumn();
+		$tablesOptimized = array();
+
+		foreach ($tableIds as $tableId)
+		{
+			/* @var $table NenoContentElementTable */
+			$table            = NenoContentElementTable::load($tableId);
+			$recordsOptimized = $table->optimizeTranslations();
+
+			// If the table has been optimize
+			if (!empty($recordsOptimized))
+			{
+				$optimizationRecord                   = new stdClass;
+				$optimizationRecord->tableName        = $table->getTableName();
+				$optimizationRecord->recordsOptimized = $recordsOptimized;
+
+				$tablesOptimized[] = $optimizationRecord;
+			}
+		}
+
+		$view                  = $this->getView('FixContent', 'html');
+		$view->tablesOptimized = $tablesOptimized;
+		$view->display('optimizeTables');
 	}
 
 	/**
