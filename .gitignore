@@ -1,6 +1,7 @@
 I.DS_Store
 /*
 !.gitignore
+!.gitmodules
 !pkg_neno.xml
 !script.php
 !README.md
