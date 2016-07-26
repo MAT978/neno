@@ -13,11 +13,15 @@ jimport('joomla.filesystem.file');
 
 /**
  * Class NenoPlugin
+ *
+ * @since 2.2.0
  */
 abstract class NenoPlugin extends JPlugin
 {
 	/**
 	 * Translation method plugin
+	 *
+	 * @since 2.2.0
 	 */
 	const TRANSLATION_METHOD_PLUGIN = 1;
 	/************** ABSTRACT METHODS ********************/
@@ -27,17 +31,22 @@ abstract class NenoPlugin extends JPlugin
 	 *
 	 * @return string
 	 *
-	 * @see Constants
+	 * @see   Constants
+	 * @since 2.2.0
 	 */
 	abstract public function getType();
 
 	/**
 	 * @return JDatabaseQuery
+	 *
+	 * @since 2.2.0
 	 */
 	abstract protected function getListQueryForInterface();
 
 	/**
 	 * @return string
+	 *
+	 * @since 2.2.0
 	 */
 	abstract protected function getLayoutForInterface();
 
@@ -46,9 +55,11 @@ abstract class NenoPlugin extends JPlugin
 	 *
 	 * @param int $pluginType Plugin type
 	 *
-	 * @see Constants
+	 * @see   Constants
 	 *
 	 * @return array
+	 *
+	 * @since 2.2.0
 	 */
 	public static function getPluginsByType($pluginType)
 	{
@@ -75,25 +86,27 @@ abstract class NenoPlugin extends JPlugin
 	}
 
 	/**
-	 * Render interface for this plugin
+	 * Add entry/entries to the left hand side menu
 	 *
-	 * @param int $limit limit value for the query
-	 * @param int $offset offset value for the query
+	 * @since 2.2.0
+	 */
+	public function onSidebarMenu()
+	{
+	}
+
+	/**
+	 * Render plugin view
+	 *
+	 * @param string $view View name
 	 *
 	 * @return string
+	 *
+	 * @since 2.2.0
 	 */
-	public function onInterfaceRender($limit, $offset)
+	public function onRenderView($view)
 	{
-		$db = JFactory::getDbo();
-		$db->setQuery($this->getListQueryForInterface(), $offset, $limit);
-		$results = $db->loadObjectList();
-
-		$layoutFile     = $this->getLayoutForInterface();
-		$layoutFileName = basename($layoutFile);
-		$layoutPath     = str_replace(DIRECTORY_SEPARATOR . $layoutFileName, '', $layoutFile);
-
-		return JLayoutHelper::render(JFile::stripExt($layoutFileName), $results, $layoutPath);
 	}
+
 
 	/**
 	 * Check if the plugin is of a certain type
@@ -102,6 +115,8 @@ abstract class NenoPlugin extends JPlugin
 	 * @param int $pluginToCheck Plugin to check
 	 *
 	 * @return bool
+	 *
+	 * @since 2.2.0
 	 */
 	protected static function isPluginType($pluginType, $pluginToCheck)
 	{
