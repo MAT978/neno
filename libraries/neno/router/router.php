@@ -28,6 +28,6 @@ class NenoRouter
 	 */
 	public static function routePluginView($plugin, $view)
 	{
-		return JRoute::_("index.php?option=com_neno&view=plgview&plugin=$plugin&plgview=$view");
+		return JRoute::_("index.php?option=com_neno&view=plgrender&plugin=$plugin&plgrender=$view");
 	}
 }
