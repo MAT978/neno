@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewFixContent extends JViewLegacy
+class NenoViewFixContent extends NenoView
 {
 	/**
 	 * @var array
@@ -27,16 +27,6 @@ class NenoViewFixContent extends JViewLegacy
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
-
-	/**
-	 * @var string
-	 */
-	protected $sidebar;
-
-	/**
-	 * @var string
-	 */
-	protected $extraSidebar;
 
 	/**
 	 * Display the view
@@ -53,21 +43,6 @@ class NenoViewFixContent extends JViewLegacy
 	{
 		$this->state                       = $this->get('State');
 		$this->items                       = $this->get('Items');
-		
-		// Check for errors.
-		if (count($errors = $this->get('Errors')))
-		{
-			throw new Exception(implode("\n", $errors));
-		}
-
-		$toolbar = JToolbar::getInstance();
-		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
-
-		JToolbarHelper::title(JText::_('COM_NENO_FIX_CONTENT_TITLE'), 'screen');
-
-		NenoHelperBackend::addSubmenu('debug');
-		$this->sidebar = JHtmlSidebar::render();
 
 		if ($tpl == 'tables' || $tpl == 'menus' || $tpl == 'nullissue' || $tpl == 'syncshadowtables' || $tpl == 'optimizeTables')
 		{

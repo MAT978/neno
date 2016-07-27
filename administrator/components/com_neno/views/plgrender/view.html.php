@@ -11,21 +11,13 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-
 /**
- * NenoViewGroupsElements class
+ * NenoViewPlgRender class
  *
  * @since  1.0
  */
-class NenoViewPlgRender extends JViewLegacy
+class NenoViewPlgRender extends NenoView
 {
-	/**
-	 * @var string
-	 * @since 2.2.0
-	 */
-	protected $sidebar;
-
 	/**
 	 * @var string
 	 * @since 2.2.0
@@ -46,22 +38,6 @@ class NenoViewPlgRender extends JViewLegacy
 	public function display($tpl = null)
 	{
 		$this->view = $this->get('View');
-
-		// Check for errors.
-		if (count($errors = $this->get('Errors')))
-		{
-			throw new Exception(implode("\n", $errors));
-		}
-
-		NenoHelperBackend::addSubmenu('debug');
-
-		$toolbar = JToolbar::getInstance();
-		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
-
-		$this->sidebar = NenoHtmlSidebar::render();
-
-		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
 
 		parent::display($tpl);

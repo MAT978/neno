@@ -24,6 +24,8 @@ class NenoHelperBackend
 	 * @param   string $vName View name
 	 *
 	 * @return void
+	 *
+	 * @since 1.0
 	 */
 	public static function addSubmenu($vName = '')
 	{
@@ -82,7 +84,7 @@ class NenoHelperBackend
 					JHtmlSidebar::addEntry(
 						$view['title'],
 						NenoRouter::routePluginView($plugin->get('_name'), $view['view']),
-						($vName == $view['view']) ? true : false
+						($vName == 'plgrender') ? true : false
 					);
 				}
 			}
