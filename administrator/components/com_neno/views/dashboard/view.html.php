@@ -84,7 +84,7 @@ class NenoViewDashboard extends JViewLegacy
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 		
-		$this->sidebar = JHtmlSidebar::render();
+		$this->sidebar = NenoHtmlSidebar::render();
 
 		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('dashboard');
 

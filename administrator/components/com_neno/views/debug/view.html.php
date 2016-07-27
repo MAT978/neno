@@ -76,7 +76,7 @@ class NenoViewDebug extends JViewLegacy
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 
-		$this->sidebar = JHtmlSidebar::render();
+		$this->sidebar = NenoHtmlSidebar::render();
 
 		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
 		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);

@@ -66,7 +66,7 @@ class NenoViewGroupsElements extends JViewLegacy
 
 		$this->addToolbar();
 
-		$this->sidebar = JHtmlSidebar::render();
+		$this->sidebar = NenoHtmlSidebar::render();
 
 		parent::display($tpl);
 	}

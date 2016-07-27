@@ -23,7 +23,7 @@ abstract class NenoPlugin extends JPlugin
 	 *
 	 * @since 2.2.0
 	 */
-	const TRANSLATION_METHOD_PLUGIN = 1;
+	const TRANSLATION_METHOD_PLUGIN = 'TRANSLATION_METHOD_PLUGIN';
 	/************** ABSTRACT METHODS ********************/
 
 	/**
@@ -63,22 +63,40 @@ abstract class NenoPlugin extends JPlugin
 	 */
 	public static function getPluginsByType($pluginType)
 	{
+		$plugins = static::getPluginsGroupedByType();
+
+		return isset($plugins[$pluginType]) ? $plugins[$pluginType] : array();
+	}
+
+	/**
+	 * Returns plugins grouped by type
+	 *
+	 * @return array
+	 *
+	 * @since 2.2.0
+	 */
+	public static function getPluginsGroupedByType()
+	{
+		JPluginHelper::importPlugin('neno');
 		$nenoPlugins = JPluginHelper::getPlugin('neno');
 		$plugins     = array();
+		$dispatcher  = JEventDispatcher::getInstance();
 
 		foreach ($nenoPlugins as $nenoPlugin)
 		{
-			$className = 'plgNeno' . ucfirst($nenoPlugin);
+			$className = 'plgNeno' . ucfirst($nenoPlugin->name);
 
 			if (class_exists($className))
 			{
 				/* @var $plugin NenoPlugin */
-				$plugin = new $className;
+				$plugin = new $className($dispatcher, (array) $nenoPlugin);
 
-				if (static::isPluginType($plugin->getType(), $pluginType))
+				if (!isset($plugins[$plugin->getType()]))
 				{
-					$plugins[] = $plugin;
+					$plugins[$plugin->getType()] = array();
 				}
+
+				$plugins[$plugin->getType()][] = $plugin;
 			}
 		}
 

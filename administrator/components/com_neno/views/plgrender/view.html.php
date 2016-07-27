@@ -18,7 +18,7 @@ jimport('joomla.application.component.view');
  *
  * @since  1.0
  */
-class NenoViewPlgViewsa extends JViewLegacy
+class NenoViewPlgRender extends JViewLegacy
 {
 	/**
 	 * @var string
@@ -59,7 +59,7 @@ class NenoViewPlgViewsa extends JViewLegacy
 		$toolbar->addButtonPath(JPATH_NENO . '/button');
 		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 
-		$this->sidebar = JHtmlSidebar::render();
+		$this->sidebar = NenoHtmlSidebar::render();
 
 		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
