@@ -27,9 +27,10 @@ class NenoModelPlgRender extends JModelList
 	 */
 	public function getView()
 	{
-		$input   = JFactory::getApplication()->input;
-		$plugin  = $input->getCmd('plugin');
-		$plgView = $input->getCmd('plgrender');
+		$input      = JFactory::getApplication()->input;
+		$plugin     = $input->getCmd('plugin');
+		$plgView    = $input->getCmd('plgrender');
+		$dispatcher = JEventDispatcher::getInstance();
 
 		JPluginHelper::importPlugin('neno', $plugin);
 
@@ -38,7 +39,7 @@ class NenoModelPlgRender extends JModelList
 		if (class_exists($className))
 		{
 			/* @var $pluginInstance NenoPlugin */
-			$pluginInstance = new $className;
+			$pluginInstance = new $className($dispatcher);
 
 			return $pluginInstance->onRenderView($plgView);
 		}
