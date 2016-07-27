@@ -27,7 +27,7 @@ class NenoHelperBackend
 	 */
 	public static function addSubmenu($vName = '')
 	{
-		JHtmlSidebar::addEntry(JText::_('Neno'));
+		JHtmlSidebar::addEntry(JText::_('COM_NENO'));
 
 		JHtmlSidebar::addEntry(
 			JText::_('COM_NENO_NAV_LINK_DASHBOARD'),
