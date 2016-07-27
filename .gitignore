@@ -519,6 +519,7 @@ media/*
 !media/neno
 !/plugins
 /plugins/*
+!/plugins/neno
 !/plugins/system
 /plugins/system/*
 !/plugins/system/neno
