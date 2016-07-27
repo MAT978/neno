@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  2.2.0
  */
-class NenoModelPlgView extends JModelList
+class NenoModelPlgRender extends JModelList
 {
 	/**
 	 * Get view content
@@ -29,7 +29,7 @@ class NenoModelPlgView extends JModelList
 	{
 		$input   = JFactory::getApplication()->input;
 		$plugin  = $input->getCmd('plugin');
-		$plgView = $input->getCmd('plgview');
+		$plgView = $input->getCmd('plgrender');
 
 		JPluginHelper::importPlugin('neno', $plugin);
 
