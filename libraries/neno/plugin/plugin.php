@@ -9,8 +9,6 @@
  */
 defined('_JEXEC') or die;
 
-jimport('joomla.filesystem.file');
-
 /**
  * Class NenoPlugin
  *
@@ -35,20 +33,6 @@ abstract class NenoPlugin extends JPlugin
 	 * @since 2.2.0
 	 */
 	abstract public function getType();
-
-	/**
-	 * @return JDatabaseQuery
-	 *
-	 * @since 2.2.0
-	 */
-	abstract protected function getListQueryForInterface();
-
-	/**
-	 * @return string
-	 *
-	 * @since 2.2.0
-	 */
-	abstract protected function getLayoutForInterface();
 
 	/**
 	 * Get Neno plugins by type
@@ -123,8 +107,89 @@ abstract class NenoPlugin extends JPlugin
 	 */
 	public function onRenderView($view)
 	{
+		if (file_exists($this->getViewsDirectory() . DIRECTORY_SEPARATOR . strtolower($view) . '.php'))
+		{
+			$model = $this->getModel($view);
+
+			return JLayoutHelper::render($view, $model->getData(), $this->getViewsDirectory());
+		}
+
+		throw new RuntimeException(JText::sprintf('View not found: %s', $view));
 	}
 
+	/**
+	 * Returns plugin model
+	 *
+	 * @param string $model Model name
+	 *
+	 * @return NenoPluginModel
+	 *
+	 * @since version
+	 */
+	protected function getModel($model)
+	{
+		$modelClassName = 'NenoPluginModel' . ucfirst($model);
+		$modelFilePath  = $this->getModelsDirectory() . DIRECTORY_SEPARATOR . strtolower($model) . '.php';
+
+		if (file_exists($modelFilePath))
+		{
+			JLoader::register($modelClassName, $modelFilePath);
+
+			$model = new $modelClassName;
+
+			return $model;
+		}
+
+		throw new RuntimeException(JText::sprintf('Model class not found: %s', $modelClassName));
+	}
+
+	/**
+	 * Returns layouts directory
+	 *
+	 * @return string
+	 *
+	 * @since 2.2.0
+	 */
+	protected function getViewsDirectory()
+	{
+		return $this->getCurrentFilePath() . DIRECTORY_SEPARATOR . 'views';
+	}
+
+	/**
+	 * Returns controllers directory
+	 *
+	 * @return string
+	 *
+	 * @since 2.2.0
+	 */
+	protected function getControllersDirectory()
+	{
+		return $this->getCurrentFilePath() . DIRECTORY_SEPARATOR . 'controllers';
+	}
+
+	/**
+	 * Returns models directory
+	 *
+	 * @return string
+	 *
+	 * @since 2.2.0
+	 */
+	protected function getModelsDirectory()
+	{
+		return $this->getCurrentFilePath() . DIRECTORY_SEPARATOR . 'models';
+	}
+
+	/**
+	 * Get current file path
+	 *
+	 * @return string
+	 *
+	 * @since 2.2.0
+	 */
+	protected final function getCurrentFilePath()
+	{
+		return dirname((new ReflectionClass(get_called_class()))->getFileName());
+	}
 
 	/**
 	 * Check if the plugin is of a certain type
@@ -139,5 +204,45 @@ abstract class NenoPlugin extends JPlugin
 	protected static function isPluginType($pluginType, $pluginToCheck)
 	{
 		return (!$pluginType ^ $pluginToCheck) === $pluginType;
+	}
+
+	/**
+	 * Execute action
+	 *
+	 * @param string $controller
+	 * @param string $action
+	 *
+	 *
+	 * @since version
+	 */
+	public function executeControllerAction($controller, $action)
+	{
+		$controllerClass         = 'NenoPluginController' . ucfirst($controller);
+		$controllerClassFilePath = $this->getControllersDirectory() . DIRECTORY_SEPARATOR . strtolower($controller) . '.php';
+
+		if (file_exists($controllerClassFilePath))
+		{
+			JLoader::register($controllerClass, $controllerClassFilePath);
+
+			/* @var $controllerInstance NenoPluginController */
+			$controllerInstance = new $controllerClass;
+
+			$controllerInstance->doTask($action);
+		}
+
+		throw new RuntimeException('Controller class not found: %s', $controllerClass);
+	}
+
+	/**
+	 * Returns an array of buttons to be rendered
+	 *
+	 * @param string $view
+	 *
+	 * @return array
+	 *
+	 * @since version
+	 */
+	public function onToolbarRendering($view)
+	{
 	}
 }
