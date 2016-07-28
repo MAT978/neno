@@ -28,7 +28,7 @@ JHtml::_('bootstrap.tooltip');
                 <?php $displayData['n'] = 0; ?>
                 <?php $displayData['assigned_translation_methods'] = NenoHelper::getDefaultTranslationMethods(); ?>
                 <?php $displayData['translation_methods'] = NenoHelper::getTranslationMethods('dropdown'); ?>
-                <?php echo JLayoutHelper::render('translationmethodselector', $displayData, JPATH_NENO_LAYOUTS); ?>
+                <?php echo JLayoutHelper::render('libraries.neno.translationmethodselector', $displayData); ?>
             </div>
         </div>
         <div class="span6 doc">
@@ -57,7 +57,7 @@ JHtml::_('bootstrap.tooltip');
         </div>
     </div>
 
-    <?php echo JLayoutHelper::render('installationbottom', 2, JPATH_NENO_LAYOUTS); ?>
+    <?php echo JLayoutHelper::render('libraries.neno.installationbottom', 2); ?>
 </div>
 
 <script>

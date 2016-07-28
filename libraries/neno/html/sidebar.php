@@ -34,7 +34,7 @@ class NenoHtmlSidebar extends JHtmlSidebar
 		$data->hide           = JFactory::getApplication()->input->getBool('hidemainmenu');
 
 		// Create a layout object and ask it to render the sidebar
-		$layout      = new JLayoutFile('sidebar', JPATH_NENO_LAYOUTS);
+		$layout      = new JLayoutFile('libraries.neno.sidebar');
 		$sidebarHtml = $layout->render($data);
 
 		return $sidebarHtml;

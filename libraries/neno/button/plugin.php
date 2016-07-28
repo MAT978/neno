@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class JToolbarButtonTC extends JToolbarButton
+class JToolbarButtonPlugin extends JToolbarButton
 {
 	/**
 	 * Get the button

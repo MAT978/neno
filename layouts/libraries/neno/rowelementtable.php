@@ -37,7 +37,7 @@ if ($displayData === null): ?>
 					<?php echo NenoHelper::renderWordCountProgressBar($table->word_count, true); ?>
 				</td>
 				<td class="toggle-translate-table">
-					<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
+					<?php echo JLayoutHelper::render('libraries.neno.translatetablewidget', $table); ?>
 				</td>
 				<td>
 					<a href="index.php?option=com_neno&task=groupelement.downloadContentElementFile&table_id=<?php echo $table->id; ?>"
@@ -107,7 +107,7 @@ if ($displayData === null): ?>
 					<?php echo NenoHelper::renderWordCountProgressBar($file->word_count, true); ?>
 				</td>
 				<td class="toggle-translate-file">
-					<?php echo JLayoutHelper::render('translatefilewidget', $file, JPATH_NENO_LAYOUTS); ?>
+					<?php echo JLayoutHelper::render('libraries.neno.translatefilewidget', $file); ?>
 				</td>
 				<td></td>
 			</tr>

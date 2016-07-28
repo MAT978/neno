@@ -119,7 +119,7 @@ class NenoHelperBackend
 	 */
 	public static function getSidebarInfobox($viewName = '')
 	{
-		return JLayoutHelper::render('sidebarinfobox', $viewName, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.sidebarinfobox', $viewName);
 	}
 
 	/**
@@ -179,7 +179,7 @@ class NenoHelperBackend
 			$displayData['targetLanguages'] = NenoHelper::getLanguages(false, false);
 		}
 
-		$adminTitleLayout     = JLayoutHelper::render('toolbar', $displayData, JPATH_NENO_LAYOUTS);
+		$adminTitleLayout     = JLayoutHelper::render('libraries.neno.toolbar', $displayData);
 		$layout               = new JLayoutFile('joomla.toolbar.title');
 		$html                 = $layout->render(array(
 			'title' => $adminTitleLayout,
@@ -591,7 +591,7 @@ class NenoHelperBackend
 		$displayData->specialFilter = $specialFilter;
 		$displayData->value         = $filter['value'];
 
-		return JLayoutHelper::render('singlefilter', $displayData, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.singlefilter', $displayData);
 	}
 
 	/**
@@ -1448,9 +1448,7 @@ class NenoHelperBackend
 	/**
 	 * Render a message for menu fixing results
 	 *
-	 * @param   bool   $fixed Flag for fixed item
-	 *
-	 * @param   string $menu  Menu name
+	 * @param   bool   $element Flag for fixed item
 	 *
 	 * @return  string  The message
 	 */
@@ -1464,7 +1462,7 @@ class NenoHelperBackend
 
 		$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_NULL_' . $str), $element->lang, $element->table, $element->field);
 
-		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.fixcontent', $item);
 	}
 
 	/**
@@ -1487,7 +1485,7 @@ class NenoHelperBackend
 			$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_MENU_SUCCESS'), $menu);
 		}
 
-		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.fixcontent', $item);
 	}
 
 	/**
@@ -1513,7 +1511,7 @@ class NenoHelperBackend
 			$item->message = sprintf(JText::_('COM_NENO_FIX_CONTENT_TABLE_FAILED'), $table);
 		}
 
-		return JLayoutHelper::render('fixcontent', $item, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.fixcontent', $item);
 	}
 
 	/**
@@ -1542,7 +1540,7 @@ class NenoHelperBackend
 			$displayData->newVersion = $newVersion;
 		}
 
-		return JLayoutHelper::render('versionbox', $displayData, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.versionbox', $displayData);
 	}
 
 	/**

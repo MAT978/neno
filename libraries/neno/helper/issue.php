@@ -335,7 +335,7 @@ class NenoHelperIssue
 		$displayData->fixable    = self::isFixable($issue);
 		$displayData->details    = self::getIssueDetails($issue);
 
-		return JLayoutHelper::render('issue', $displayData, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.issue', $displayData);
 	}
 
 	/**

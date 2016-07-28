@@ -1039,7 +1039,7 @@ class NenoHelper
 			$displayData->widthTranslated = 100;
 		}
 
-		return JLayoutHelper::render('wordcountprogressbar', $displayData, JPATH_NENO_LAYOUTS);
+		return JLayoutHelper::render('libraries.neno.wordcountprogressbar', $displayData);
 	}
 
 	/**
@@ -2610,13 +2610,12 @@ class NenoHelper
 		if (self::isLanguageFileOutOfDate($language['lang_code']))
 		{
 			$errors[] = JLayoutHelper::render(
-				'fixitbutton',
+				'libraries.neno.fixitbutton',
 				array(
 					'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_OUT_OF_DATE', $language['title']),
 					'language' => $language['lang_code'],
 					'issue'    => 'language_file_out_of_date'
-				),
-				JPATH_NENO_LAYOUTS
+				)
 			);
 		}
 
@@ -2630,13 +2629,12 @@ class NenoHelper
 				}
 
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
+					'libraries.neno.fixitbutton',
 					array(
 						'message'  => JText::sprintf('COM_NENO_ERRORS_LANGUAGE_DOES_NOT_CONTENT_ROW', $language['title']),
 						'language' => $language['lang_code'],
 						'issue'    => 'content_missing'
-					),
-					JPATH_NENO_LAYOUTS
+					)
 				);
 			}
 		}
@@ -2667,13 +2665,12 @@ class NenoHelper
 			if ($issuesCounter !== 0)
 			{
 				$errors[] = JLayoutHelper::render(
-					'fixitbutton',
+					'libraries.neno.fixitbutton',
 					array(
 						'message'  => JText::sprintf('COM_NENO_ERRORS_CONTENT_FOUND_IN_JOOMLA_TABLES', $language['title']),
 						'language' => $language['lang_code'],
 						'issue'    => 'content_out_of_neno'
-					),
-					JPATH_NENO_LAYOUTS
+					)
 				);
 			}
 		}
@@ -3535,11 +3532,11 @@ class NenoHelper
 			'ALIAS'
 		);
 
-		return JLayoutHelper::render('dropdownbutton', array(
+		return JLayoutHelper::render('libraries.neno.dropdownbutton', array(
 			'filters'  => $filters,
 			'selected' => $selected,
 			'fieldId'  => $fieldId
-		), JPATH_NENO_LAYOUTS);
+		));
 	}
 
 	/**
@@ -3549,7 +3546,7 @@ class NenoHelper
 	 */
 	public static function renderFilterHelperText()
 	{
-		echo htmlentities(JLayoutHelper::render('filtertooltip', null, JPATH_NENO_LAYOUTS));
+		echo htmlentities(JLayoutHelper::render('libraries.neno.filtertooltip', null));
 	}
 
 	/**

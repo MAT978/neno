@@ -123,7 +123,7 @@ $n                        = 0;
 						<?php $displayData['n'] = $n; ?>
 						<?php $displayData['assigned_translation_methods'] = $item['translationMethods']; ?>
 						<?php $displayData['translation_methods'] = $translationMethods; ?>
-						<?php echo JLayoutHelper::render('translationmethodselector', $displayData, JPATH_NENO_LAYOUTS); ?>
+						<?php echo JLayoutHelper::render('libraries.neno.translationmethodselector', $displayData); ?>
 					</div>
 				</div>
 			</div>
