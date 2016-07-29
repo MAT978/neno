@@ -656,8 +656,12 @@ function checkUncheckFamilyCheckboxes(element) {
     var this_parts = this_data_id.split('-');
     var this_id = this_parts[1];
 
+    if (element.closest('tr').hasClass('row-table')) {
+        childrenSelector = childrenSelector + ":not(.row-table)";
+    }
+
     //Check uncheck all children
-    jQuery('[data-parent="' + this_id + '"]').find('input[type=checkbox]').prop('checked', state);
+    jQuery(childrenSelector).find('input[type=checkbox]').prop('checked', state);
 
     //Uncheck parents
     if (state === false) {
