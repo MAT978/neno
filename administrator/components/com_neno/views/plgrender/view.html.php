@@ -38,8 +38,22 @@ class NenoViewPlgRender extends NenoView
 	public function display($tpl = null)
 	{
 		$this->view = $this->get('View');
+		$buttons    = $this->get('Buttons');
+
+		foreach ($buttons as $button)
+		{
+			$this->addButtonToolbar($button);
+		}
+
 		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
 
 		parent::display($tpl);
+	}
+
+	protected function addButtonToolbar($buttonData)
+	{
+		$toolbar = JToolbar::getInstance();
+		$toolbar->addButtonPath(JPATH_NENO . '/button');
+		$toolbar->appendButton('Plugin', $buttonData);
 	}
 }

@@ -25,7 +25,7 @@ class JToolbarButtonPlugin extends JToolbarButton
 	 *
 	 * @return  string
 	 *
-	 * @since   3.0
+	 * @since   2.2.0
 	 */
 	public function fetchButton()
 	{
@@ -38,12 +38,13 @@ class JToolbarButtonPlugin extends JToolbarButton
 	 * @param   array &$definition Definition
 	 *
 	 * @return string
+	 *
+	 * @since 2.2.0
 	 */
 	public function render(&$definition)
 	{
-		$data         = new stdClass;
-		$data->button = JText::sprintf('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_FAKE_BUTTON', number_format($definition[1], 0, ',', '.'));
-		$layout       = JLayoutHelper::render('libraries.neno.toolbartcbutton', $data);
+		$data   = (object) $definition[1];
+		$layout = JLayoutHelper::render('libraries.neno.toolbarpluginbutton', $data);
 
 		return $layout;
 	}
