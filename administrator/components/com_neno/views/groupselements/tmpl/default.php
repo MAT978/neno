@@ -225,7 +225,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 								value="<?php echo $group->id; ?>" /></td>
 						<td colspan="3"><a href="#" class="modalgroupform"><?php echo $group->group_name; ?></a></td>
 						<td<?php echo ($group->element_count) ? ' class="load-elements"' : ''; ?>><?php echo $group->element_count; ?></td>
-						<td><?php echo NenoHelper::renderWordCountProgressBar($group->word_count); ?></td>
+						<td><?php echo NenoHelper::renderWordCountProgressBar($group->word_count, !empty($group->assigned_translation_methods)); ?></td>
 						<td>
 							<a href="#" class="modalgroupform">
 								<?php if (empty($group->assigned_translation_methods)): ?>
