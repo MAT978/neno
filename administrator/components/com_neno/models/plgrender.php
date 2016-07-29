@@ -27,9 +27,44 @@ class NenoModelPlgRender extends JModelList
 	 */
 	public function getView()
 	{
+		$input   = JFactory::getApplication()->input;
+		$plgView = $input->getCmd('plgrender');
+
+		/* @var $pluginInstance NenoPlugin */
+		$pluginInstance = $this->getPlugin();
+
+		return $pluginInstance->onRenderView($plgView);
+	}
+
+	/**
+	 * Get toolbar buttons
+	 *
+	 * @return array
+	 *
+	 * @since 2.2.0
+	 */
+	public function getButtons()
+	{
+		$input   = JFactory::getApplication()->input;
+		$plgView = $input->getCmd('plgrender');
+
+		/* @var $pluginInstance NenoPlugin */
+		$pluginInstance = $this->getPlugin();
+
+		return $pluginInstance->onToolbarRendering($plgView);
+	}
+
+	/**
+	 * Create NenoPlugin instance
+	 *
+	 * @return NenoPlugin
+	 *
+	 * @since 2.2.0
+	 */
+	public function getPlugin()
+	{
 		$input      = JFactory::getApplication()->input;
 		$plugin     = $input->getCmd('plugin');
-		$plgView    = $input->getCmd('plgrender');
 		$dispatcher = JEventDispatcher::getInstance();
 
 		JPluginHelper::importPlugin('neno', $plugin);
@@ -41,9 +76,9 @@ class NenoModelPlgRender extends JModelList
 			/* @var $pluginInstance NenoPlugin */
 			$pluginInstance = new $className($dispatcher);
 
-			return $pluginInstance->onRenderView($plgView);
+			return $pluginInstance;
 		}
 
-		throw new RuntimeException(JText::_('Plugin class not found: %s', $className));
+		throw new RuntimeException(JText::sprintf('Plugin class not found: %s', $className));
 	}
 }
