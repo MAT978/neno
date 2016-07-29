@@ -230,7 +230,7 @@ abstract class NenoPlugin extends JPlugin
 			$controllerInstance->doTask($action);
 		}
 
-		throw new RuntimeException('Controller class not found: %s', $controllerClass);
+		throw new RuntimeException(JText::sprintf('Controller class not found: %s', $controllerClass));
 	}
 
 	/**
