@@ -29,8 +29,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		NenoHelperBackend::groupingTablesNotDiscovered();
 
 		$this
-		  ->setRedirect('index.php?option=com_neno&view=groupselements')
-		  ->redirect();
+			->setRedirect('index.php?option=com_neno&view=groupselements')
+			->redirect();
 	}
 
 	/**
@@ -153,8 +153,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$tableId = $app->input->getInt('table');
 
 		$filter = array(
-		  'field' => $field,
-		  'value' => ''
+			'field' => $field,
+			'value' => ''
 		);
 
 		echo NenoHelperBackend::renderTableFilter($tableId, $filter);
@@ -201,6 +201,24 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		JFactory::getApplication()->close();
 	}
 
+	/**
+	 * Delete group
+	 *
+	 * @since 2.1.16
+	 */
+	public function deleteGroup()
+	{
+		$groupId = $this->input->getInt('id');
+
+		/* @var $group NenoContentElementGroup */
+		$group = NenoContentElementGroup::load($groupId);
+		$group->remove();
+
+		$this
+			->setRedirect(JRoute::_('index.php?option=com_neno&view=groupselements', false))
+			->redirect();
+	}
+
 	public function getTranslationMethodSelector()
 	{
 		$app             = JFactory::getApplication();
@@ -214,7 +232,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		if (!empty($groupId))
 		{
 			$group = NenoContentElementGroup::load($groupId)
-			  ->prepareDataForView();
+				->prepareDataForView();
 		}
 		else
 		{
@@ -290,8 +308,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			if (!empty($field))
 			{
 				$field
-				  ->setFilter($filter)
-				  ->persist();
+					->setFilter($filter)
+					->persist();
 			}
 		}
 
@@ -347,7 +365,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 						/* @var $field NenoContentElementField */
 						foreach ($fields as $field)
 						{
-							$field->persistTranslations(NULL, $workingLanguage);
+							$field->persistTranslations(null, $workingLanguage);
 						}
 					}
 				}
@@ -376,7 +394,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		}
 
 		JFactory::getApplication()
-		  ->redirect('index.php?option=com_neno&view=groupselements');
+			->redirect('index.php?option=com_neno&view=groupselements');
 	}
 
 	/**
@@ -392,7 +410,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 	}
 
 	protected function executeMethodOnTranslationListPassedByInput(
-	  $method
+		$method
 	)
 	{
 		$translationIds = $this->getTranslationIdsListBasedOnInputParameters();
@@ -406,7 +424,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		}
 
 		JFactory::getApplication()
-		  ->redirect('index.php?option=com_neno&view=groupselements');
+			->redirect('index.php?option=com_neno&view=groupselements');
 	}
 
 	public function checkIntegrity()
@@ -423,10 +441,10 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			foreach ($groups as $groupId)
 			{
 				$tables = NenoContentElementTable::load(
-				  array(
-					'group_id'  => $groupId,
-					'translate' => 1
-				  )
+					array(
+						'group_id'  => $groupId,
+						'translate' => 1
+					)
 				);
 
 				// Making sure the result is an array
@@ -459,7 +477,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		}
 
 		JFactory::getApplication()
-		  ->redirect('index.php?option=com_neno&view=groupselements');
+			->redirect('index.php?option=com_neno&view=groupselements');
 	}
 
 	public function saveTableFilters()
@@ -476,23 +494,23 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			$query = $db->getQuery(true);
 
 			$query
-			  ->delete('#__neno_content_element_table_filters')
-			  ->where('table_id = ' . (int) $tableId);
+				->delete('#__neno_content_element_table_filters')
+				->where('table_id = ' . (int) $tableId);
 
 			$db->setQuery($query);
 			$db->execute();
 
 			$query
-			  ->clear()
-			  ->insert('#__neno_content_element_table_filters')
-			  ->columns(
-				array(
-				  'table_id',
-				  'field_id',
-				  'comparaison_operator',
-				  'filter_value'
-				)
-			  );
+				->clear()
+				->insert('#__neno_content_element_table_filters')
+				->columns(
+					array(
+						'table_id',
+						'field_id',
+						'comparaison_operator',
+						'filter_value'
+					)
+				);
 
 			foreach ($filters as $filter)
 			{
@@ -500,13 +518,13 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				$fieldName = NenoHelperBackend::getFieldName($filter['field']);
 
 				$commonFields = array(
-				  'state',
-				  'published',
-				  'created_by',
-				  'created_user_id',
-				  'modified_by',
-				  'modified_user_id',
-				  'catid'
+					'state',
+					'published',
+					'created_by',
+					'created_user_id',
+					'modified_by',
+					'modified_user_id',
+					'catid'
 				);
 
 				if (in_array($fieldName, $commonFields))
@@ -521,12 +539,12 @@ class NenoControllerGroupsElements extends JControllerAdmin
 				}
 
 				$query
-				  ->values(
-					$db->quote($tableId) . ','
-					. $db->quote($filter['field']) . ','
-					. $db->quote($filter['operator']) . ','
-					. $db->quote($filter['value'])
-				  );
+					->values(
+						$db->quote($tableId) . ','
+						. $db->quote($filter['field']) . ','
+						. $db->quote($filter['operator']) . ','
+						. $db->quote($filter['value'])
+					);
 			}
 
 			$db->setQuery($query);
@@ -534,10 +552,10 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 			// Change table status
 			$query
-			  ->clear()
-			  ->update('#__neno_content_element_tables')
-			  ->set('translate = 2')
-			  ->where('id = ' . $db->quote($tableId));
+				->clear()
+				->update('#__neno_content_element_tables')
+				->set('translate = 2')
+				->where('id = ' . $db->quote($tableId));
 
 			$db->setQuery($query);
 			$db->execute();
@@ -573,7 +591,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
-		$query = NenoContentElementTranslation::buildTranslationQuery($workingLanguage, $groups, $tables, NULL, $files);
+		$query = NenoContentElementTranslation::buildTranslationQuery($workingLanguage, $groups, $tables, null, $files);
 
 		$db->setQuery($query);
 		$translationIds = $db->loadArray();
@@ -602,8 +620,8 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		if ($languageFile !== false)
 		{
 			$languageFile
-			  ->setTranslate($translateStatus)
-			  ->persist();
+				->setTranslate($translateStatus)
+				->persist();
 		}
 
 		JFactory::getApplication()->close();
