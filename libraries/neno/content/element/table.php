@@ -547,7 +547,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				{
 					$field
 						->setTable($this)
-						->setTranslate($field->isTranslatable() && $this->isTranslate())
+						//->setTranslate($field->isTranslatable() && $this->isTranslate())
 						->persist();
 
 					if ($field->getFieldName() === 'language' && $this->isTranslate())
