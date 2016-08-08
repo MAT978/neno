@@ -656,6 +656,7 @@ function checkUncheckFamilyCheckboxes(element) {
     var this_parts = this_data_id.split('-');
     var this_id = this_parts[1];
 
+    var childrenSelector = '[data-parent="' + this_id + '"]';
     if (element.closest('tr').hasClass('row-table')) {
         childrenSelector = childrenSelector + ":not(.row-table)";
     }
