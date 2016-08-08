@@ -16,32 +16,28 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewDashboard extends JViewLegacy
+class NenoViewDashboard extends NenoView
 {
 	/**
 	 * @var array
 	 */
 	protected $items;
+
 	/**
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
-	/**
-	 * @var string
-	 */
-	protected $sidebar;
-	/**
-	 * @var string
-	 */
-	protected $extraSidebar;
+
 	/**
 	 * @var bool
 	 */
 	protected $isLanguageSwitcherPublished;
+
 	/**
 	 * @var JForm
 	 */
 	protected $positionField;
+
 	/**
 	 * @var stdClass
 	 */
@@ -70,23 +66,6 @@ class NenoViewDashboard extends JViewLegacy
 		{
 			$this->positionField = $this->get('PositionField');
 		}
-
-
-		// Check for errors.
-		if (count($errors = $this->get('Errors')))
-		{
-			throw new Exception(implode("\n", $errors));
-		}
-
-		NenoHelperBackend::addSubmenu('dashboard');
-
-		$toolbar = JToolbar::getInstance();
-		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
-		
-		$this->sidebar = JHtmlSidebar::render();
-
-		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('dashboard');
 
 		parent::display($tpl);
 	}

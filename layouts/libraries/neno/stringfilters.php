@@ -44,23 +44,23 @@ JHtml::_('searchtools.form', $formSelector, $data['options']);
 	<!-- Filters div -->
 	<div class="js-stools-container-filters hidden-phone clearfix">
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('simplemultiselect', array (
+			<?php echo JLayoutHelper::render('libraries.neno.simplemultiselect', array (
 				'type' => 'method',
 				'data' => $data['extraDisplayData']->methods,
 				'selected' => $data['extraDisplayData']->modelState->get('filter.translator_type'),
 				'isOverlay' => true
-			), JPATH_NENO_LAYOUTS); ?>
+			)); ?>
 		</div>
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('simplemultiselect', array (
+			<?php echo JLayoutHelper::render('libraries.neno.simplemultiselect', array (
 				'type' => 'status',
 				'data' => $data['extraDisplayData']->statuses,
 				'selected' => $data['extraDisplayData']->modelState->get('filter.translation_status'),
 				'isOverlay' => true
-			), JPATH_NENO_LAYOUTS); ?>
+			)); ?>
 		</div>
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('multiselectgroup', $data['extraDisplayData'], JPATH_NENO_LAYOUTS); ?>
+			<?php echo JLayoutHelper::render('libraries.neno.multiselectgroup', $data['extraDisplayData']); ?>
 		</div>
 	</div>
 	<input type="hidden" id="outputLayout" name="outputLayout" value="strings">

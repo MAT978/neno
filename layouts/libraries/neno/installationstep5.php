@@ -66,11 +66,11 @@ JHtml::_('bootstrap.tooltip');
 								</button>
 							</td>
 							<td>
-								<?php echo JLayoutHelper::render('installationrecordcount', $table, JPATH_NENO_LAYOUTS); ?>
+								<?php echo JLayoutHelper::render('libraries.neno.installationrecordcount', $table); ?>
 							</td>
 							<td colspan="2">
 								<div class="pull-right">
-									<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
+									<?php echo JLayoutHelper::render('libraries.neno.translatetablewidget', $table); ?>
 								</div>
 							</td>
 						</tr>
@@ -94,7 +94,7 @@ JHtml::_('bootstrap.tooltip');
 							</td>
 							<td colspan="2">
 								<div class="pull-right">
-									<?php echo JLayoutHelper::render('translatefilewidget', $languageFile, JPATH_NENO_LAYOUTS); ?>
+									<?php echo JLayoutHelper::render('libraries.neno.translatefilewidget', $languageFile); ?>
 								</div>
 							</td>
 						</tr>
@@ -129,7 +129,7 @@ JHtml::_('bootstrap.tooltip');
 		</div>
 	</div>
 
-	<?php echo JLayoutHelper::render('installationbottom', 4, JPATH_NENO_LAYOUTS); ?>
+	<?php echo JLayoutHelper::render('libraries.neno.installationbottom', 4); ?>
 </div>
 
 <div class="modal hide fade" id="preview-modal">

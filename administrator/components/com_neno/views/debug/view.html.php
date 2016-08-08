@@ -11,35 +11,33 @@
 // No direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-
 /**
  * NenoViewGroupsElements class
  *
  * @since  1.0
  */
-class NenoViewDebug extends JViewLegacy
+class NenoViewDebug extends NenoView
 {
-	/**
-	 * @var string
-	 */
-	protected $sidebar;
 	/**
 	 * @var array
 	 */
 	protected $items;
+
 	/**
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
+
 	/**
 	 * @var JPagination
 	 */
 	protected $pagination;
+
 	/**
 	 * @var JForm
 	 */
 	public $filterForm;
+
 	/**
 	 * @var
 	 */
@@ -64,21 +62,6 @@ class NenoViewDebug extends JViewLegacy
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 
-		// Check for errors.
-		if (count($errors = $this->get('Errors')))
-		{
-			throw new Exception(implode("\n", $errors));
-		}
-
-		NenoHelperBackend::addSubmenu('debug');
-
-		$toolbar = JToolbar::getInstance();
-		$toolbar->addButtonPath(JPATH_NENO . '/button');
-		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
-
-		$this->sidebar = JHtmlSidebar::render();
-
-		$this->extraSidebar = NenoHelperBackend::getSidebarInfobox('debug');
 		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
 		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);

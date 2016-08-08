@@ -59,5 +59,5 @@ JHtml::_('bootstrap.tooltip');
 		</button>
 	</div>
 
-	<?php echo JLayoutHelper::render('installationbottom', 5, JPATH_NENO_LAYOUTS); ?>
+	<?php echo JLayoutHelper::render('libraries.neno.installationbottom', 5); ?>
 </div>

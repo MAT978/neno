@@ -82,14 +82,14 @@ class NenoControllerEditor extends NenoControllerStrings
 			// Check out current translation
 			$translation->checkOut();
 
-			echo JLayoutHelper::render('editor', $translation->prepareDataForView(true), JPATH_NENO_LAYOUTS);
+			echo JLayoutHelper::render('libraries.neno.editor', $translation->prepareDataForView(true));
 
 			//Show related
 			if (!empty($translation->related))
 			{
 				// Get the setting for load_related_content
 				$loadRelatedContent = NenoSettings::get('load_related_content');
-				echo JLayoutHelper::render('editorrelatedcontentheader', $loadRelatedContent, JPATH_NENO_LAYOUTS);
+				echo JLayoutHelper::render('libraries.neno.editorrelatedcontentheader', $loadRelatedContent);
 
 				if ($loadRelatedContent)
 				{
@@ -99,7 +99,7 @@ class NenoControllerEditor extends NenoControllerStrings
 						// Check out current translation
 						$related->checkOut();
 
-						echo JLayoutHelper::render('editor', $related->prepareDataForView(true), JPATH_NENO_LAYOUTS);
+						echo JLayoutHelper::render('libraries.neno.editor', $related->prepareDataForView(true));
 					}
 				}
 			}
@@ -121,7 +121,7 @@ class NenoControllerEditor extends NenoControllerStrings
 		if (!empty($translationId))
 		{
 			$translation = NenoContentElementTranslation::getTranslation($translationId);
-			echo JLayoutHelper::render('editornotetotranslator', $translation->prepareDataForView(true), JPATH_NENO_LAYOUTS);
+			echo JLayoutHelper::render('libraries.neno.editornotetotranslator', $translation->prepareDataForView(true));
 		}
 
 		JFactory::getApplication()->close();
@@ -238,12 +238,12 @@ class NenoControllerEditor extends NenoControllerStrings
 					if ($counter != 0)
 					{
 						$message['translation_id'] = $string->translation_id;
-						$message['message']        = JLayoutHelper::render('consolidatelayout', array(
+						$message['message']        = JLayoutHelper::render('libraries.neno.consolidatelayout', array(
 							'translationId' => $string->translation_id,
 							'counter'       => $counter,
 							'originalText'  => $originalText,
 							'text'          => $string->text
-						), JPATH_NENO_LAYOUTS);
+						));
 						$message['counter']        = $counter;
 					}
 

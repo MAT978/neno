@@ -12,21 +12,17 @@
 defined('_JEXEC') or die;
 
 /**
- * NenoViewGroupsElements class
+ * NenoViewPlgRender class
  *
  * @since  1.0
  */
-class NenoViewSettings extends NenoView
+class NenoViewPlgRender extends NenoView
 {
 	/**
-	 * @var array
+	 * @var string
+	 * @since 2.2.0
 	 */
-	protected $items;
-
-	/**
-	 * @var Joomla\Registry\Registry
-	 */
-	protected $state;
+	protected $view;
 
 	/**
 	 * Display the view
@@ -37,13 +33,27 @@ class NenoViewSettings extends NenoView
 	 *
 	 * @throws Exception This will happen if there are errors during the process to load the data
 	 *
-	 * @since 1.0
+	 * @since 2.2.0
 	 */
 	public function display($tpl = null)
 	{
-		$this->state      = $this->get('State');
-		$this->items      = $this->get('Items');
+		$this->view = $this->get('View');
+		$buttons    = $this->get('Buttons');
+
+		foreach ($buttons as $button)
+		{
+			$this->addButtonToolbar($button);
+		}
+
+		JToolbarHelper::title(JText::_('COM_NENO_DASHBOARD_TITLE'), 'screen');
 
 		parent::display($tpl);
+	}
+
+	protected function addButtonToolbar($buttonData)
+	{
+		$toolbar = JToolbar::getInstance();
+		$toolbar->addButtonPath(JPATH_NENO . '/button');
+		$toolbar->appendButton('Plugin', $buttonData);
 	}
 }

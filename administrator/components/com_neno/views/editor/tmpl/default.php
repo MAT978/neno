@@ -71,7 +71,7 @@ $document->addStyleSheet(JUri::root() . '/media/neno/js/codemirror/codemirror.cs
 		<?php $extraDisplayData->statuses = $this->statuses; ?>
 		<?php $extraDisplayData->methods = $this->methods; ?>
 		<?php $extraDisplayData->modelState = $this->state; ?>
-		<?php echo JLayoutHelper::render('editorfilters', array('view' => $this, 'extraDisplayData' => $extraDisplayData), JPATH_NENO_LAYOUTS); ?>
+		<?php echo JLayoutHelper::render('libraries.neno.editorfilters', array('view' => $this, 'extraDisplayData' => $extraDisplayData)); ?>
 		<input type="hidden" name="limitstart" id="limitstart" value="0" />
 		<input type="hidden" name="list_limit" id="list_limit" value="30" />
 		<input type="hidden" name="boxchecked" id="boxchecked" value="0" />
@@ -83,7 +83,7 @@ $document->addStyleSheet(JUri::root() . '/media/neno/js/codemirror/codemirror.cs
 			</span>
 
 		<div id="elements-wrapper">
-			<?php echo JLayoutHelper::render('editorstrings', $this->items, JPATH_NENO_LAYOUTS); ?>
+			<?php echo JLayoutHelper::render('libraries.neno.editorstrings', $this->items); ?>
 		</div>
 	</div>
 </div>

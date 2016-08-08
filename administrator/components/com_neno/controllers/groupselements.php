@@ -140,7 +140,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 			$displayData->tableId = $tableId;
 
 
-			echo JLayoutHelper::render('tablefilters', $displayData, JPATH_NENO_LAYOUTS);
+			echo JLayoutHelper::render('libraries.neno.tablefilters', $displayData);
 		}
 
 		$app->close();
@@ -194,7 +194,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$displayData['group']  = $group->prepareDataForView();
 		$displayData['tables'] = NenoHelper::convertNenoObjectListToJobjectList($tables);
 		$displayData['files']  = NenoHelper::convertNenoObjectListToJobjectList($files);
-		$tablesHTML            = JLayoutHelper::render('rowelementtable', $displayData, JPATH_NENO_LAYOUTS);
+		$tablesHTML            = JLayoutHelper::render('libraries.neno.rowelementtable', $displayData);
 
 		echo $tablesHTML;
 
@@ -280,7 +280,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		$displayData['assigned_translation_methods'] = $group->assigned_translation_methods;
 		$displayData['n']                            = $n;
 
-		$selectorHTML = JLayoutHelper::render('translationmethodselector', $displayData, JPATH_NENO_LAYOUTS);
+		$selectorHTML = JLayoutHelper::render('libraries.neno.translationmethodselector', $displayData);
 
 		echo $selectorHTML;
 
