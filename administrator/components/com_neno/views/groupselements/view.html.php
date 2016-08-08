@@ -11,12 +11,14 @@
 // No direct access
 defined('_JEXEC') or die;
 
+jimport('joomla.application.component.view');
+
 /**
  * NenoViewGroupsElements class
  *
  * @since  1.0
  */
-class NenoViewGroupsElements extends NenoView
+class NenoViewGroupsElements extends JViewLegacy
 {
 	/**
 	 * @var array
@@ -27,6 +29,16 @@ class NenoViewGroupsElements extends NenoView
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
+
+	/**
+	 * @var string
+	 */
+	protected $sidebar;
+
+	/**
+	 * @var string
+	 */
+	protected $extraSidebar;
 
 	/**
 	 * Display the view
@@ -43,6 +55,18 @@ class NenoViewGroupsElements extends NenoView
 	{
 		$this->state = $this->get('State');
 		$this->items = NenoHelper::convertNenoObjectListToJobjectList($this->get('Items'));
+
+		// Check for errors.
+		if (count($errors = $this->get('Errors')))
+		{
+			throw new Exception(implode("\n", $errors));
+		}
+
+		NenoHelperBackend::addSubmenu('groupselements');
+
+		$this->addToolbar();
+
+		$this->sidebar = JHtmlSidebar::render();
 
 		parent::display($tpl);
 	}

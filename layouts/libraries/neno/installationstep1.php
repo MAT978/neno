@@ -35,5 +35,5 @@ JHtml::_('bootstrap.tooltip');
         <img src="<?php echo JUri::root(); ?>/media/neno/images/loading_mini.gif" class="hide loading-spin"/>
     </div>
 
-    <?php echo JLayoutHelper::render('libraries.neno.installationbottom', 1); ?>
+    <?php echo JLayoutHelper::render('installationbottom', 1, JPATH_NENO_LAYOUTS); ?>
 </div>

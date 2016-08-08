@@ -116,7 +116,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		<input type="hidden" name="boxchecked" value="0"/>
 		<?php echo JHtml::_('form.token'); ?>
 		<?php if (!$this->isLanguageSwitcherPublished): ?>
-			<?php echo JLayoutHelper::render('libraries.neno.languageswitcheralert', $this->positionField); ?>
+			<?php echo JLayoutHelper::render('languageswitcheralert', $this->positionField, JPATH_NENO_LAYOUTS); ?>
 		<?php endif; ?>
 		<?php if (!empty($this->menuItemAliasIssue)): ?>
 			<?php echo NenoHelperIssue::renderIssue($this->menuItemAliasIssue[0]); ?>
@@ -124,7 +124,7 @@ $workingLanguage = NenoHelper::getWorkingLanguage();
 		<div class="languages-holder">
 			<?php foreach ($this->items as $item): ?>
 				<?php $item->placement = 'dashboard'; ?>
-				<?php echo JLayoutHelper::render('libraries.neno.languageconfiguration', $item); ?>
+				<?php echo JLayoutHelper::render('languageconfiguration', $item, JPATH_NENO_LAYOUTS); ?>
 			<?php endforeach; ?>
 			<button type="button" class="btn btn-primary"
 			        id="add-languages-button">

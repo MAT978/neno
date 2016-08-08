@@ -38,11 +38,11 @@ class NenoControllerInstallation extends JControllerAdmin
 
 		if (empty($step))
 		{
-			$layout = JLayoutHelper::render('libraries.neno.installationgetstarted', NULL);
+			$layout = JLayoutHelper::render('installationgetstarted', NULL, JPATH_NENO_LAYOUTS);
 		}
 		else
 		{
-			$layout = JLayoutHelper::render('libraries.neno.installationstep' . $step, $this->getDataForStep($step));
+			$layout = JLayoutHelper::render('installationstep' . $step, $this->getDataForStep($step), JPATH_NENO_LAYOUTS);
 		}
 
 		$sidebar = '';
@@ -348,7 +348,7 @@ class NenoControllerInstallation extends JControllerAdmin
 				break;
 		}
 
-		echo JLayoutHelper::render('libraries.neno.previewcontent', $displayData);
+		echo JLayoutHelper::render('previewcontent', $displayData, JPATH_NENO_LAYOUTS);
 
 		$app->close();
 	}
@@ -1047,7 +1047,7 @@ class NenoControllerInstallation extends JControllerAdmin
 		/* @var $table NenoContentElementTable */
 		$table = NenoContentElementTable::load($tableId);
 
-		echo JLayoutHelper::render('libraries.neno.installationrecordcount', $table->prepareDataForView());
+		echo JLayoutHelper::render('installationrecordcount', $table->prepareDataForView(), JPATH_NENO_LAYOUTS);
 
 		$app->close();
 	}

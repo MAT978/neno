@@ -11,12 +11,14 @@
 // No direct access
 defined('_JEXEC') or die;
 
+jimport('joomla.application.component.view');
+
 /**
  * NenoViewGroupsElements class
  *
  * @since  1.0
  */
-class NenoViewEditor extends NenoView
+class NenoViewEditor extends JViewLegacy
 {
 	/**
 	 * @var JForm
@@ -101,6 +103,11 @@ class NenoViewEditor extends NenoView
 			throw new Exception(implode("\n", $errors));
 		}
 
+		NenoHelperBackend::addSubmenu('editor');
+		$this->addToolbar();
+
+		$this->sidebar = JHtmlSidebar::render();
+
 		parent::display($tpl);
 	}
 
@@ -174,18 +181,4 @@ class NenoViewEditor extends NenoView
 
 		return false;
 	}
-
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @return bool
-	 *
-	 * @since 2.2
-	 */
-	public function hasSidebar()
-	{
-		return false;
-	}
-
-
 }

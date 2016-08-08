@@ -43,7 +43,7 @@ JHtml::stylesheet('media/neno/css/admin.css?v=' . $version);
 <div class="languages-holder">
 	<?php foreach ($languageData as $item): ?>
 		<?php $item->placement = 'module'; ?>
-		<?php echo JLayoutHelper::render('libraries.neno.languageconfiguration', $item); ?>
+		<?php echo JLayoutHelper::render('languageconfiguration', $item, JPATH_NENO_LAYOUTS); ?>
 	<?php endforeach; ?>
 </div>
 

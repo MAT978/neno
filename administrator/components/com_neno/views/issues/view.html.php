@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewIssues extends NenoView
+class NenoViewIssues extends JViewLegacy
 {
 	/**
 	 * @var array
@@ -27,6 +27,16 @@ class NenoViewIssues extends NenoView
 	 * @var Joomla\Registry\Registry
 	 */
 	protected $state;
+
+	/**
+	 * @var string
+	 */
+	protected $sidebar;
+
+	/**
+	 * @var string
+	 */
+	protected $extraSidebar;
 
 	/**
 	 * Display the view
@@ -41,14 +51,29 @@ class NenoViewIssues extends NenoView
 	 */
 	public function display($tpl = null)
 	{
-		$this->state = $this->get('State');
-		$this->items = $this->get('Items');
+		$this->state                       = $this->get('State');
+		$this->items                       = $this->get('Items');
+		
+		// Check for errors.
+		if (count($errors = $this->get('Errors')))
+		{
+			throw new Exception(implode("\n", $errors));
+		}
+
+		$toolbar = JToolbar::getInstance();
+		$toolbar->addButtonPath(JPATH_NENO . '/button');
+		$toolbar->appendButton('TC', NenoHelperApi::getFundsAvailable());
 
 		JToolbarHelper::title(JText::_('COM_NENO_ISSUES_TITLE'), 'screen');
-		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
-		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
-		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
 
+		JToolbarHelper::custom('debug.fixMenus', 'refresh', 'refresh', JText::_('COM_NENO_DASHBOARD_FIX_MENU_BUTTON'), false);
+
+		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
+
+		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
+		
+		NenoHelperBackend::addSubmenu('debug');
+		$this->sidebar = JHtmlSidebar::render();
 
 		if ($tpl == 'list')
 		{

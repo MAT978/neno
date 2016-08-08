@@ -43,7 +43,7 @@ class JToolbarButtonTC extends JToolbarButton
 	{
 		$data         = new stdClass;
 		$data->button = JText::sprintf('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_FAKE_BUTTON', number_format($definition[1], 0, ',', '.'));
-		$layout       = JLayoutHelper::render('libraries.neno.toolbartcbutton', $data);
+		$layout       = JLayoutHelper::render('toolbartcbutton', $data, JPATH_NENO_LAYOUTS);
 
 		return $layout;
 	}

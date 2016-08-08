@@ -81,7 +81,7 @@ class NenoViewJobs extends JViewLegacy
 		NenoHelperBackend::addSubmenu('externaltranslations');
 		$this->addToolbar();
 
-		$this->sidebar = NenoHtmlSidebar::render();
+		$this->sidebar = JHtmlSidebar::render();
 
 		parent::display($tpl);
 	}

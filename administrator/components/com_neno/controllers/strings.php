@@ -69,8 +69,8 @@ class NenoControllerStrings extends JControllerAdmin
 		$input->set('field', $filterField);
 		$input->set('file', $filterFile);
 		$input->set('list', array(
-			'limit' => $input->get('limit'),
-			'start' => $input->get('limitStart')
+		  'limit' => $input->get('limit'),
+		  'start' => $input->get('limitStart')
 		));
 		$input->set('limitstart', $input->get('limitStart'));
 
@@ -114,7 +114,7 @@ class NenoControllerStrings extends JControllerAdmin
 		$displayData->state        = $stringsModel->getState();
 		$displayData->pagination   = $stringsModel->getPagination();
 
-		echo JLayoutHelper::render('libraries.neno.' . $outputLayout, $displayData);
+		echo JLayoutHelper::render($outputLayout, $displayData, JPATH_NENO_LAYOUTS);
 
 		JFactory::getApplication()->close();
 	}
@@ -145,8 +145,8 @@ class NenoControllerStrings extends JControllerAdmin
 
 		$state     = (array) $stringsModel->getState();
 		$queryVars = array(
-			'option' => 'com_neno',
-			'view'   => 'editor'
+		  'option' => 'com_neno',
+		  'view'   => 'editor'
 		);
 
 		foreach ($state as $filter => $options)
@@ -206,7 +206,7 @@ class NenoControllerStrings extends JControllerAdmin
 		}
 
 		JFactory::getApplication()
-			->redirect('index.php?' . substr($query, 0, strlen($query) - 1));
+		  ->redirect('index.php?' . substr($query, 0, strlen($query) - 1));
 	}
 
 	/**
@@ -247,7 +247,7 @@ class NenoControllerStrings extends JControllerAdmin
 			}
 			$displayData['files'] = NenoHelper::convertNenoObjectListToJobjectList($files);
 			$displayData['state'] = $model->getState();
-			$tablesHTML           = JLayoutHelper::render('libraries.neno.multiselecttables', $displayData);
+			$tablesHTML           = JLayoutHelper::render('multiselecttables', $displayData, JPATH_NENO_LAYOUTS);
 			echo $tablesHTML;
 		}
 

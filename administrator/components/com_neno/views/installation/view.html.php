@@ -16,19 +16,26 @@ defined('_JEXEC') or die;
  *
  * @since  1.0
  */
-class NenoViewInstallation extends NenoView
+class NenoViewInstallation extends JViewLegacy
 {
 	/**
-	 * {@inheritdoc}
-	 *
-	 * @return bool
-	 *
-	 * @since 2.2.0
+	 * @var string
 	 */
-	public function hasSidebar()
+	public $sidebar;
+
+	/**
+	 * Render view
+	 *
+	 * @param   null|string $tpl Template name
+	 *
+	 * @return mixed
+	 */
+	public function display($tpl = null)
 	{
-		return false;
+		NenoHelperBackend::addSubmenu('');
+
+		$this->sidebar = JHtmlSidebar::render();
+
+		return parent::display($tpl);
 	}
-
-
 }

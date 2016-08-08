@@ -1,7 +1,6 @@
 I.DS_Store
 /*
 !.gitignore
-!.gitmodules
 !pkg_neno.xml
 !script.php
 !README.md
@@ -519,7 +518,6 @@ media/*
 !media/neno
 !/plugins
 /plugins/*
-!/plugins/neno
 !/plugins/system
 /plugins/system/*
 !/plugins/system/neno

@@ -55,13 +55,13 @@ $search = JFactory::getApplication()->input->get('search', '', 'RAW');
 	<!-- Filters div -->
 	<div class="js-stools-container-filters hidden-phone clearfix">
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('libraries.neno.simplemultiselect', array('type' => 'method', 'data' => $data['extraDisplayData']->methods, 'selected' => $data['extraDisplayData']->modelState->get('filter.translator_type'))); ?>
+			<?php echo JLayoutHelper::render('simplemultiselect', array('type' => 'method', 'data' => $data['extraDisplayData']->methods, 'selected' => $data['extraDisplayData']->modelState->get('filter.translator_type')), JPATH_NENO_LAYOUTS); ?>
 		</div>
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('libraries.neno.simplemultiselect', array('type' => 'status', 'data' => $data['extraDisplayData']->statuses, 'selected' => $data['extraDisplayData']->modelState->get('filter.translation_status'))); ?>
+			<?php echo JLayoutHelper::render('simplemultiselect', array('type' => 'status', 'data' => $data['extraDisplayData']->statuses, 'selected' => $data['extraDisplayData']->modelState->get('filter.translation_status')), JPATH_NENO_LAYOUTS); ?>
 		</div>
 		<div class="multiselect-wrapper">
-			<?php echo JLayoutHelper::render('libraries.neno.multiselectgroup', $data['extraDisplayData']); ?>
+			<?php echo JLayoutHelper::render('multiselectgroup', $data['extraDisplayData'], JPATH_NENO_LAYOUTS); ?>
 		</div>
 	</div>
 	<input type="hidden" id="outputLayout" name="outputLayout" value="editorStrings">

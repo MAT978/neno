@@ -130,7 +130,7 @@ class NenoControllerDashboard extends JControllerAdmin
 			$displayData->error = true;
 		}
 
-		echo JLayoutHelper::render('libraries.neno.messages', $displayData);
+		echo JLayoutHelper::render('messages', $displayData, JPATH_NENO_LAYOUTS);
 	}
 
 	/**

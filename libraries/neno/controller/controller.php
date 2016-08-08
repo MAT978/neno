@@ -193,7 +193,7 @@ class NenoController extends JControllerLegacy
 			$displayData            = new stdClass;
 			$displayData->languages = $languages;
 			$displayData->placement = $placement;
-			echo JLayoutHelper::render('libraries.neno.installlanguages', $displayData);
+			echo JLayoutHelper::render('installlanguages', $displayData, JPATH_NENO_LAYOUTS);
 		}
 		else
 		{
@@ -273,7 +273,7 @@ class NenoController extends JControllerLegacy
 					$item              = NenoHelper::getLanguageStats($language, $item);
 				}
 
-				echo JLayoutHelper::render('libraries.neno.languageconfiguration', get_object_vars($item));
+				echo JLayoutHelper::render('languageconfiguration', get_object_vars($item), JPATH_NENO_LAYOUTS);
 			}
 			else
 			{
@@ -373,7 +373,7 @@ class NenoController extends JControllerLegacy
 			$displayData['assigned_translation_methods'] = NenoHelper::getLanguageDefault($lang, $n);
 		}
 
-		$selectorHTML = JLayoutHelper::render('libraries.neno.translationmethodselector', $displayData);
+		$selectorHTML = JLayoutHelper::render('translationmethodselector', $displayData, JPATH_NENO_LAYOUTS);
 
 		echo $selectorHTML;
 
@@ -674,7 +674,7 @@ class NenoController extends JControllerLegacy
 			$layoutData->tableToBeDiscover = NenoHelperBackend::getTablesCountToBeInstalledByLanguage($language);
 			$layoutData->tableDiscovered   = NenoHelperBackend::getTablesThatHasBeenProcessAlready($language);
 			$layoutData->tablesRemain      = $layoutData->tableToBeDiscover - $layoutData->tableDiscovered;
-			echo JLayoutHelper::render('libraries.neno.discoveralert', $layoutData);
+			echo JLayoutHelper::render('discoveralert', $layoutData, JPATH_NENO_LAYOUTS);
 		}
 		else
 		{

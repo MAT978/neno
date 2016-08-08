@@ -29,7 +29,7 @@ JHtml::_('formbehavior.chosen', 'select');
 				</div>
 				<div class="control-group">
 					<h4><?php echo JText::_('COM_NENO_GROUPELEMENT_GROUP_TRANSLATION_METHOD'); ?></h4>
-					<?php echo JLayoutHelper::render('libraries.neno.loadtranslationmethodselector', $this->item->id); ?>
+					<?php echo JLayoutHelper::render('loadtranslationmethodselector', $this->item->id, JPATH_NENO_LAYOUTS); ?>
 				</div>
 				<?php if (!empty($this->languages)): ?>
 					<div class="control-group">
