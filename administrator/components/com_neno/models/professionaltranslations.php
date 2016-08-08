@@ -64,7 +64,7 @@ class NenoModelProfessionalTranslations extends JModelList
 			array(
 			  'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
 			  'NOT EXISTS (SELECT 1 FROM #__neno_jobs_x_translations AS jt WHERE tr.id = jt.translation_id)',
-			  'tm.pricing_per_word <> 0',
+			  'trtm.translation_method_id <> 1',
 			  'trtm.ordering = 1'
 			)
 		  )
