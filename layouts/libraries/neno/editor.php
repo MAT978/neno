@@ -66,7 +66,7 @@ $isLockedUp = $translation->checked_out != $user->id;
 				<?php endif; ?>
 			</div>
 			<?php if ($translation->deleted): ?>
-				<div class="alert alert-error">Source element deleted</div>
+				<div class="alert alert-error"><?php echo JText::_('COM_NENO_EDITOR_TRANSLATION_SOURCE_DELETE'); ?></div>
 			<?php else: ?>
 				<textarea
 					class="original-content"

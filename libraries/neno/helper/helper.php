@@ -1081,7 +1081,6 @@ class NenoHelper
 				->where('lf.group_id = g.id');
 
 			$order = array(
-				'IFNULL((SELECT DISTINCT 1 FROM #__neno_content_element_groups_x_translation_methods AS gtm WHERE gtm.group_id = g.id) ,0)',
 				'group_name'
 			);
 

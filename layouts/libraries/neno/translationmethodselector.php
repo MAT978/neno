@@ -27,7 +27,7 @@ if ($displayData !== null): ?>
 					<?php if (empty($displayData['assigned_translation_methods'][$n])): ?>
 						<?php $displayData['assigned_translation_methods'][$n] = new stdClass; ?>
 					<?php endif; ?>
-					<?php $displayData['assigned_translation_methods'][$n]->id = 1; ?>
+					<?php $displayData['assigned_translation_methods'][$n]->id = 0; ?>
 				<?php endif; ?>
 				<?php // Add an "Do not translate option to the first selector ?>
 				<?php if ($n == 0): ?>
