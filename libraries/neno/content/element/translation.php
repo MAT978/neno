@@ -1709,7 +1709,7 @@ class NenoContentElementTranslation extends NenoContentElement
 			->where(
 				array(
 					'tr1.content_type = ' . $db->quote('db_string'),
-					'f.translate = 1'
+					't.translate = 1'
 				)
 			)
 			->group(
@@ -1810,7 +1810,12 @@ class NenoContentElementTranslation extends NenoContentElement
 			->innerJoin('`#__neno_content_element_language_strings` AS ls ON tr2.content_id = ls.id')
 			->innerJoin('`#__neno_content_element_language_files` AS lf ON lf.id = ls.languagefile_id')
 			->innerJoin('`#__neno_content_element_groups` AS g2 ON lf.group_id = g2.id ')
-			->where('tr2.content_type = ' . $db->quote('lang_string'))
+			->where(
+				array(
+					'tr2.content_type = ' . $db->quote('lang_string'),
+					'lf.translate = 1'
+				)
+			)
 			->group(
 				array(
 					'HEX(tr2.string)',
