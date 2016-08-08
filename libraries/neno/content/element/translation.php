@@ -185,11 +185,14 @@ class NenoContentElementTranslation extends NenoContentElement
 			$this->translationMethods = $db->loadObjectList();
 
 			// Let's check the status of the translation
-			$contentId = $data->get('content_id') === null ? $data->get('contentId') : $data->get('content_id');
-			list(, $tableName) = NenoHelper::getOriginalText($contentId);
-			$whereValues   = NenoHelper::getWhereValuesForTranslation($this->getId());
-			$record        = NenoHelper::getRecordContentFromTranslationData($tableName, $whereValues);
-			$this->deleted = empty($record);
+			if ($this->contentType == static::DB_STRING)
+			{
+				$contentId = $data->get('content_id') === null ? $data->get('contentId') : $data->get('content_id');
+				list(, $tableName) = NenoHelper::getOriginalText($contentId);
+				$whereValues   = NenoHelper::getWhereValuesForTranslation($this->getId());
+				$record        = NenoHelper::getRecordContentFromTranslationData($tableName, $whereValues);
+				$this->deleted = empty($record);
+			}
 		}
 	}
 
