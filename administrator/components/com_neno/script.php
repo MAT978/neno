@@ -80,10 +80,13 @@ class com_NenoInstallerScript
         // Prevent that Neno driver does not work in old installations.
         JLoader::register('NenoSettings', JPATH_LIBRARIES . '/neno/settings/settings.php');
 
-		if (NenoSettings::get('installation_status') == 6)
-		{
-			NenoSettings::set('installation_status', 7);
-		}
+        if (class_exists('NenoSettings'))
+        {
+            if (NenoSettings::get('installation_status') == 6)
+            {
+                NenoSettings::set('installation_status', 7);
+            }
+        }
 
 		JFile::move($installationPath . '/cli/neno.php', JPATH_ROOT . '/cli/neno.php');
 
