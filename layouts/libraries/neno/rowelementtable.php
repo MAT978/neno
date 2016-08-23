@@ -39,7 +39,7 @@ if (empty($displayData['tables']) && empty($displayData['files'])): ?>
 						class="icon-grid-view-2"></span> <?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_TABLE'); ?>
 				</td>
 				<td class="translation-progress-bar">
-					<?php echo NenoHelper::renderWordCountProgressBar($table->word_count, !empty($displayData['group']->assigned_translation_methods)); ?>
+					<?php echo NenoHelper::renderWordCountProgressBar($table->word_count, !empty($displayData['group']->assigned_translation_methods) && $table->translate); ?>
 				</td>
 				<td class="toggle-translate-table">
 					<?php echo JLayoutHelper::render('translatetablewidget', $table, JPATH_NENO_LAYOUTS); ?>
@@ -109,7 +109,7 @@ if (empty($displayData['tables']) && empty($displayData['files'])): ?>
 				<td class="type-icon"><span
 						class="icon-file-2"></span> <?php echo JText::_('COM_NENO_VIEW_GROUPSELEMENTS_FILE'); ?></td>
 				<td class="translation-progress-bar">
-					<?php echo NenoHelper::renderWordCountProgressBar($file->word_count, !empty($displayData['group']->assigned_translation_methods)); ?>
+					<?php echo NenoHelper::renderWordCountProgressBar($file->word_count, !empty($displayData['group']->assigned_translation_methods) && $file->translate); ?>
 				</td>
 				<td class="toggle-translate-file">
 					<?php echo JLayoutHelper::render('translatefilewidget', $file, JPATH_NENO_LAYOUTS); ?>

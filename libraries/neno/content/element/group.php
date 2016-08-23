@@ -50,6 +50,12 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 	protected $otherGroup;
 
 	/**
+	 * @var int
+	 * @since 2.1.22
+	 */
+	public $translatableChildren;
+
+	/**
 	 * {@inheritdoc}
 	 *
 	 * @param   mixed $data          Group data
@@ -76,6 +82,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 			if ($loadExtraData)
 			{
 				$this->getWordCount();
+				$this->getTranslateChildrenCounter();
 			}
 		}
 	}
@@ -1019,5 +1026,49 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 
 		NenoSettings::set('installation_level', $level);
 		NenoSettings::set('discovering_element_0', $elementId);
+	}
+
+	/**
+	 * Get Translate children counter
+	 *
+	 * @return int
+	 *
+	 * @since 2.1.22
+	 */
+	public function getTranslateChildrenCounter()
+	{
+		if ($this->translatableChildren == null)
+		{
+			$db                 = JFactory::getDbo();
+			$queryTables        = $db->getQuery(true);
+			$queryLanguageFiles = $db->getQuery(true);
+
+			$queryTables
+				->select('COUNT(*)')
+				->from('#__neno_content_element_tables AS t')
+				->where(
+					array(
+						't.translate = 1',
+						't.group_id = ' . $db->quote($this->getId())
+					)
+				);
+
+			$db->setQuery($queryTables);
+			$this->translatableChildren = $db->loadResult();
+
+			$queryLanguageFiles
+				->select('COUNT(*)')
+				->from('#__neno_content_element_language_files AS lf')
+				->where(
+					array(
+						'lf.translate = 1',
+						'lf.group_id = ' . $db->quote($this->getId())
+					)
+				);
+
+			$this->translatableChildren += $db->loadResult();
+		}
+
+		return $this->translatableChildren;
 	}
 }
