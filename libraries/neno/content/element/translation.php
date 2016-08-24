@@ -19,110 +19,137 @@ class NenoContentElementTranslation extends NenoContentElement
 	 * Language string (typically from language file)
 	 */
 	const LANG_STRING = 'lang_string';
+
 	/**
 	 * String from the database
 	 */
 	const DB_STRING = 'db_string';
+
 	/**
 	 * Machine translation method
 	 */
 	const MACHINE_TRANSLATION_METHOD = '2';
+
 	/**
 	 * Manual translation method
 	 */
 	const MANUAL_TRANSLATION_METHOD = '1';
+
 	/**
 	 * Professional translation method
 	 */
 	const PROFESSIONAL_TRANSLATION_METHOD = '3';
+
 	/**
 	 * This state is for a string that has been translated
 	 */
 	const TRANSLATED_STATE = 1;
+
 	/**
 	 * This state is for a string that has been sent to be translated but the translation has not arrived yet.
 	 */
 	const QUEUED_FOR_BEING_TRANSLATED_STATE = 2;
+
 	/**
 	 * This state is for a string that its source string has changed.
 	 */
 	const SOURCE_CHANGED_STATE = 3;
+
 	/**
 	 * This state is for a string that has not been translated yet or the user does not want to translated it
 	 */
 	const NOT_TRANSLATED_STATE = 4;
+
 	/**
 	 * @var array
 	 */
 	public $sourceElementData;
+
 	/**
 	 * @var integer
 	 */
 	public $charactersCounter;
+
 	/**
 	 * @var array
 	 */
 	public $translationMethods;
+
 	/**
 	 * @var string
 	 */
 	protected $originalText;
+
 	/**
 	 * @var string
 	 */
 	protected $contentType;
+
 	/**
 	 * @var NenoContentElement
 	 */
 	protected $element;
+
 	/**
 	 * @var integer
 	 */
 	protected $contentId;
+
 	/**
 	 * @var string
 	 */
 	protected $language;
+
 	/**
 	 * @var integer
 	 */
 	protected $state;
+
 	/**
 	 * @var string
 	 */
 	protected $string;
+
 	/**
 	 * @var DateTime
 	 */
 	protected $timeAdded;
+
 	/**
 	 * @var DateTime
 	 */
 	protected $timeRequested;
+
 	/**
 	 * @var Datetime
 	 */
 	protected $timeChanged;
+
 	/**
 	 * @var DateTime
 	 */
 	protected $timeCompleted;
+
 	/**
 	 * @var int
 	 */
 	protected $wordCounter;
+
 	/**
 	 * @var string
 	 */
 	protected $comment;
+
 	/**
 	 * @var int
 	 */
 	protected $checkedOut;
+
 	/**
 	 * @var DateTime
 	 */
 	protected $checkedOutTime;
+
 	/**
 	 * @var array
 	 */
@@ -192,6 +219,11 @@ class NenoContentElementTranslation extends NenoContentElement
 				$whereValues   = NenoHelper::getWhereValuesForTranslation($this->getId());
 				$record        = NenoHelper::getRecordContentFromTranslationData($tableName, $whereValues);
 				$this->deleted = empty($record);
+
+				if ($this->deleted)
+				{
+					NenoHelperIssue::generateIssue(NenoHelperIssue::SOURCE_RECORD_DELETED, $this->id, '', $this->language);
+				}
 			}
 		}
 	}
@@ -924,7 +956,7 @@ class NenoContentElementTranslation extends NenoContentElement
 	 *
 	 * @param   bool $breadcrumb Load breadcrumb
 	 *
-	 * @return JObject
+	 * @return stdClass
 	 */
 	public function prepareDataForView($breadcrumb = false)
 	{
