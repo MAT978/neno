@@ -44,6 +44,11 @@ class NenoHelperIssue
 	const SHADOW_TABLE_DESYNCHRONIZED = 'SHADOW_TABLE_DESYNCHRONIZED';
 
 	/**
+	 *
+	 */
+	const SOURCE_RECORD_DELETED = 'SOURCE_RECORD_DELETED';
+
+	/**
 	 * Formats a given date
 	 *
 	 * @param  string $date The date
@@ -132,6 +137,8 @@ class NenoHelperIssue
 
 	/**
 	 * Cleans the issues that are not related to any item and are still pending
+	 *
+	 * @return void
 	 */
 	private static function cleanIssues()
 	{
@@ -276,6 +283,18 @@ class NenoHelperIssue
 				case static::NOT_SOURCE_LANG_CONTENT :
 					$result = 3;
 					break;
+
+				case static::SOURCE_RECORD_DELETED:
+
+					/* @var $translation NenoContentElementTranslation */
+					$translation = NenoContentElementTranslation::load($issue->item_id);
+
+					if (!empty($translation))
+					{
+						$result = $translation->remove() && self::solveIssue($pk) ? 1 : 0;
+
+					}
+					break;
 			}
 		}
 
@@ -351,9 +370,19 @@ class NenoHelperIssue
 
 		if (self::isFixed($issue))
 		{
-			$user                 = JFactory::getUser($issue->fixed_by);
-			$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->table_name);
-			$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
+			$user = JFactory::getUser($issue->fixed_by);
+
+			if ($issue->error_code == static::SOURCE_RECORD_DELETED)
+			{
+				$details->message     = JText::sprintf('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code, $issue->item_id);
+				$details->description = JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code);
+			}
+			else
+			{
+				$details->message     = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_' . $issue->error_code), $issue->table_name);
+				$details->description = sprintf(JText::_('COM_NENO_ISSUE_MESSAGE_SOLVED_DESC_' . $issue->error_code), self::formatDate($issue->fixed), $user->name);
+			}
+
 		}
 		else
 		{
@@ -364,6 +393,11 @@ class NenoHelperIssue
 			elseif ($issue->error_code == static::MENU_ITEMS_HAVE_SAME_ALIAS)
 			{
 				$details->message = JText::_('COM_NENO_ISSUE_MESSAGE_ERROR_' . $issue->error_code);
+			}
+			elseif ($issue->error_code == static::SOURCE_RECORD_DELETED)
+			{
+				$item             = self::getItemDetails($issue);
+				$details->message = JText::sprintf('COM_NENO_ISSUE_MESSAGE_ERROR_SOURCE_RECORD_DELETED', $item['table_name'], $item['field_name'], JHtmlString::truncateComplex(strip_tags($item['string']), 100));
 			}
 			else
 			{
@@ -386,17 +420,41 @@ class NenoHelperIssue
 	 */
 	private static function getItemDetails($issue)
 	{
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
+		$itemDetails = null;
+		$db          = JFactory::getDbo();
+		$query       = $db->getQuery(true);
+		switch ($issue->error_code)
+		{
+			case static::SOURCE_RECORD_DELETED:
+				$query
+					->select(
+						array(
+							'tr.string',
+							'f.field_name',
+							't.table_name'
+						)
+					)
+					->from('#__neno_content_element_translations as tr')
+					->innerJoin('#__neno_content_element_fields AS f ON tr.content_id = f.id')
+					->innerJoin('#__neno_content_element_tables AS t ON t.id = f.table_id')
+					->where('tr.id = ' . $db->quote($issue->item_id));
 
-		$query
-			->select($db->quoteName(array('id', 'title')))
-			->from($db->quoteName($issue->table_name))
-			->where($db->quoteName('id') . ' = ' . (int) $issue->item_id);
+
+				break;
+			default:
+
+				$query
+					->select($db->quoteName(array('id', 'title')))
+					->from($db->quoteName($issue->table_name))
+					->where($db->quoteName('id') . ' = ' . (int) $issue->item_id);
+
+				break;
+		}
 
 		$db->setQuery($query);
+		$itemDetails = $db->loadAssoc();
 
-		return $db->loadAssoc();
+		return $itemDetails;
 	}
 
 	/**
@@ -496,6 +554,7 @@ class NenoHelperIssue
 
 		return $result;
 	}
+
 
 	/**
 	 * Removes issues according to their parent item and table
