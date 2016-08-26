@@ -4416,7 +4416,7 @@ class NenoHelper
 	 */
 	public static function isInstallationCompleted()
 	{
-		return NenoSettings::get('installation_completed') == 1 && NenoSettings::get('installation_status') == 7;
+		return NenoSettings::get('installation_completed') == 1 || NenoSettings::get('installation_status') == 7;
 	}
 
 	/**
