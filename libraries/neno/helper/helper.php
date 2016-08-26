@@ -847,7 +847,6 @@ class NenoHelper
 			'#__messages',
 			'#__messages_cfg',
 			'#__modules_menu',
-			'#__modules',
 			'#__postinstall_messages',
 			'#__redirect_links',
 			'#__users',
