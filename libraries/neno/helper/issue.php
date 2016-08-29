@@ -155,14 +155,17 @@ class NenoHelperIssue
 
 		foreach ($issues as $issue)
 		{
-			$subquery = '( SELECT id FROM ' . $db->quoteName($issue->table_name) . ' AS t WHERE (' . $db->quoteName('id') . ' = ' . (int) $issue->item_id . '))';
+			if (!empty($issue->table_name))
+			{
+				$subquery = '( SELECT id FROM ' . $db->quoteName($issue->table_name) . ' AS t WHERE (' . $db->quoteName('id') . ' = ' . (int) $issue->item_id . '))';
 
-			$query->clear();
-			$query
-				->delete($db->quoteName('#__neno_content_issues'))
-				->where(' NOT EXISTS ' . $subquery)
-				->where($db->quoteName('error_code') . ' <> ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
-				->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+				$query->clear();
+				$query
+					->delete($db->quoteName('#__neno_content_issues'))
+					->where(' NOT EXISTS ' . $subquery)
+					->where($db->quoteName('error_code') . ' <> ' . $db->quote(static::NOT_LANG_CONTENT_AVAILABLE))
+					->where($db->quoteName('fixed') . ' = ' . $db->quote('0000-00-00 00:00:00'));
+			}
 
 			$db->setQuery($query);
 			$db->execute();
