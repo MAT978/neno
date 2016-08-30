@@ -786,7 +786,7 @@ class NenoControllerInstallation extends JControllerAdmin
 			$fieldId = $db->loadResult();
 		}
 
-		$field = NenoContentElementField::load($fieldId);
+		$field = NenoContentElementField::load($fieldId, false, true);
 
 		if (!empty($field) && $field)
 		{
