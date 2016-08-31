@@ -112,7 +112,7 @@ if (!empty($this->extraSidebar))
 				<h1><?php echo JText::_('COM_NENO_TITLE_PROFESSIONAL_TRANSLATIONS'); ?></h1>
 
 				<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT'); ?></p>
-				<p><?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT_PRICE'); ?></p>
+				<p><?php echo JText::sprintf('COM_NENO_PROFESSIONAL_TRANSLATION_INTROTEXT_PRICE', 'https://www.neno-translate.com/en/pricing'); ?></p>
 
 				<?php $professionalTranslationsAvailable = false; ?>
 				<?php foreach ($this->items as $key => $item): ?>
@@ -180,7 +180,7 @@ if (!empty($this->extraSidebar))
 					</div>
 					<div class="center">
 						<button
-						  onclick="location.href='https://www.neno-translate.com/en/pricing/checkout'"
+						  onclick="location.href='https://www.neno-translate.com/en/pricing'"
 						  class="btn btn-primary">
 							<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ADD_FUNDS_BUTTON'); ?>
 						</button>

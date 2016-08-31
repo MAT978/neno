@@ -49,7 +49,7 @@ $translation = $displayData;
 
         <p><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_PRE'); ?></p>
 
-        <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=externaltranslations&open=comment&r=' . NenoHelperBackend::generateRandomString()), $translation->language, JRoute::_('index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString())); ?></p>
+        <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_EDITOR_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=professionaltranslations&open=comment&r=' . NenoHelperBackend::generateRandomString()), $translation->language, JRoute::_('index.php?option=com_neno&view=dashboard&r=' . NenoHelperBackend::generateRandomString())); ?></p>
 
         <div class="one-lang">
             <p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_POST', NenoSettings::get('source_language'), $translation->language); ?></p>
