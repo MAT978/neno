@@ -400,19 +400,10 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				}
 			}
 
-			// if it has no file, let's assign manual translation.
+			// if it has no file, let's assign language configuration
 			if (!$fileFound)
 			{
-				$this->assignedTranslationMethods = array();
-				$languages                        = NenoHelper::getLanguages(false);
-
-				foreach ($languages as $language)
-				{
-					$translationMethod                        = new stdClass;
-					$translationMethod->lang                  = $language->lang_code;
-					$translationMethod->translation_method_id = 1;
-					$this->assignedTranslationMethods[]       = $translationMethod;
-				}
+				$this->assignedTranslationMethods = NenoHelper::getTranslationMethodsForLanguages();
 			}
 		}
 	}
