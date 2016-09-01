@@ -138,7 +138,7 @@ $n                        = 0;
 
 			<p><?php echo JText::_('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_PRE'); ?></p>
 
-			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=externaltranslations&open=comment&r=' . NenoHelperBackend::generateRandomString())); ?></p>
+			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_LANGUAGE_MODAL_ADD_BODY', JRoute::_('index.php?option=com_neno&view=professionaltranslations&open=comment&r=' . NenoHelperBackend::generateRandomString())); ?></p>
 
 			<p><?php echo JText::sprintf('COM_NENO_COMMENTS_TO_TRANSLATOR_MODAL_ADD_BODY_POST', NenoSettings::get('source_language'), $item['lang_code']); ?></p>
 

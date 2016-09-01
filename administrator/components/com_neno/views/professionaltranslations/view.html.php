@@ -95,7 +95,7 @@ class NenoViewProfessionalTranslations extends JViewLegacy
 	protected function addToolbar()
 	{
 		// Set sidebar action - New in 3.0
-		JHtmlSidebar::setAction('index.php?option=com_neno&view=externaltranslations');
+		JHtmlSidebar::setAction('index.php?option=com_neno&view=professionaltranslations');
 
 		$this->extraSidebar = '';
 	}

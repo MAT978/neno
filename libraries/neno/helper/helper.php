@@ -3759,12 +3759,6 @@ class NenoHelper
 
 		$subquery1 = $db->getQuery(true);
 		$subquery2 = $db->getQuery(true);
-		$subquery3 = $db->getQuery(true);
-
-		$subquery3
-			->select('m.id')
-			->from('#__neno_content_element_translation_x_translation_methods AS m')
-			->where('m.translation_id = tr.id');
 
 		$subquery2
 			->select('tr2.*')
@@ -3794,13 +3788,15 @@ class NenoHelper
 					'l.image',
 					'tr.state',
 					'SUM(tr.word_counter) AS word_count',
-					'lc.comment'
+					'lc.comment',
+					'ld.translation_method_id'
 				)
 			)
 			->from('#__languages AS l')
+			->leftJoin('#__neno_content_language_defaults as ld on l.lang_code = ld.lang')
 			->leftJoin('#__neno_language_external_translators_comments AS lc ON l.lang_code = lc.language')
 			->leftJoin('(' . (string) $subquery1 . ') AS tr ON tr.language = l.lang_code')
-			->where('l.lang_code <> ' . $db->quote($default) . ' AND EXISTS (' . (string) $subquery3 . ')')
+			->where('l.lang_code <> ' . $db->quote($default))
 			->group(
 				array(
 					'l.lang_code',
@@ -3818,15 +3814,26 @@ class NenoHelper
 		{
 			foreach ($languages as $language)
 			{
-				$item              = new stdClass;
-				$item->lang_code   = $language[0]->lang_code;
-				$item->comment     = $language[0]->comment;
-				$item->published   = $language[0]->published;
-				$item->title       = $language[0]->title;
-				$item->image       = $language[0]->image;
-				$item->errors      = NenoHelper::getLanguageErrors((array) $language[0]);
-				$item->isInstalled = NenoHelper::isCompletelyInstall($item->lang_code);
-				$item              = NenoHelper::getLanguageStats($language, $item);
+				$item                     = new stdClass;
+				$item->lang_code          = $language[0]->lang_code;
+				$item->comment            = $language[0]->comment;
+				$item->published          = $language[0]->published;
+				$item->title              = $language[0]->title;
+				$item->image              = $language[0]->image;
+				$item->errors             = NenoHelper::getLanguageErrors((array) $language[0]);
+				$item->isInstalled        = NenoHelper::isCompletelyInstall($item->lang_code);
+				$item->translationMethods = array();
+
+				foreach ($language as $languageItem)
+				{
+					if (empty($item->translationMethods[$languageItem->translation_method_id]))
+					{
+						$item->translationMethods[$languageItem->translation_method_id] = self::getTranslationMethodById($languageItem->translation_method_id);
+					}
+				}
+
+				$item->translationMethods = array_values($item->translationMethods);
+				$item                     = NenoHelper::getLanguageStats($language, $item);
 
 				$items[] = $item;
 			}

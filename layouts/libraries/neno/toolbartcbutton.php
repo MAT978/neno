@@ -17,7 +17,7 @@ defined('_JEXEC') or die;
 	<button class="neno-no-button">
 		<?php echo $displayData->button; ?>
 	</button>
-    <button onclick="location.href='<?php echo JRoute::_('index.php?option=com_neno&view=externaltranslations&r=' . NenoHelperBackend::generateRandomString()); ?>'" class="btn btn-primary">
+    <button onclick="location.href='<?php echo JRoute::_('index.php?option=com_neno&view=professionaltranslations&r=' . NenoHelperBackend::generateRandomString()); ?>'" class="btn btn-primary">
 		<span class="icon-cart"></span>
 		<?php echo JText::_('COM_NENO_TRANSLATION_CREDIT_TOOLBAR_BUTTON'); ?>
 	</button>
