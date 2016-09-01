@@ -1065,7 +1065,7 @@ class NenoHelper
 
 			if ($avoidDoNotTranslate)
 			{
-				$arrayWhere1[] = 't.translate = 1';
+				$arrayWhere1[] = 't.translate IN (1,2)';
 			}
 
 			$subquery1
@@ -1083,7 +1083,7 @@ class NenoHelper
 				'group_name'
 			);
 
-			if ($orderByTranslationCounter !== null)
+			if (!empty($orderByTranslationCounter))
 			{
 				$queryTranslationCounter = $db->getQuery(true);
 
