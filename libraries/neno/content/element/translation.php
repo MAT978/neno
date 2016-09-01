@@ -1741,7 +1741,7 @@ class NenoContentElementTranslation extends NenoContentElement
 			->where(
 				array(
 					'tr1.content_type = ' . $db->quote('db_string'),
-					't.translate = 1'
+					't.translate IN (1,2)'
 				)
 			)
 			->group(
