@@ -81,7 +81,7 @@ if (!empty($this->extraSidebar))
 								<?php echo $item->word_count; ?>
 							</td>
 							<td>
-								<?php echo JText::sprintf('COM_NENO_FUNDS_AMOUNT', $item->funds_needed); ?>
+								<?php echo JText::sprintf('COM_NENO_FUNDS_AMOUNT', $item->funds); ?>
 							</td>
 							<td>
 								<?php echo $item->created_time; ?>

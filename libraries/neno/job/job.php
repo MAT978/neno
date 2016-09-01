@@ -84,7 +84,7 @@ class NenoJob extends NenoObject
 	/**
 	 * @var int
 	 */
-	protected $fundsNeeded;
+	protected $funds;
 	/**
 	 * @var Datetime
 	 */
@@ -203,9 +203,9 @@ class NenoJob extends NenoObject
 			  ->where('jt.job_id = ' . $this->id)
 			  ->group('jt.job_id');
 			$db->setQuery($query);
-			$wordCount         = $db->loadResult();
-			$this->wordCount   = $wordCount;
-			$this->fundsNeeded = NenoHelper::getPriceByLanguagePair($this->getFromLanguage(), $this->toLanguage) * $wordCount;
+			$wordCount       = $db->loadResult();
+			$this->wordCount = $wordCount;
+			$this->funds     = NenoHelper::getPriceByLanguagePair($this->getFromLanguage(), $this->toLanguage) * $wordCount;
 
 			return parent::persist();
 		}
