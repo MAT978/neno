@@ -179,11 +179,12 @@ if (!empty($this->extraSidebar))
 						</p>
 					</div>
 					<div class="center">
-						<button
-						  onclick="location.href='https://www.neno-translate.com/en/pricing'"
+						<a
+						  href="https://www.neno-translate.com/en/pricing"
+						  target="_blank"
 						  class="btn btn-primary">
 							<?php echo JText::_('COM_NENO_PROFESSIONAL_TRANSLATION_ADD_FUNDS_BUTTON'); ?>
-						</button>
+						</a>
 					</div>
 				</div>
 			</div>
