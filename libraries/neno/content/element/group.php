@@ -1039,7 +1039,7 @@ class NenoContentElementGroup extends NenoContentElement implements NenoContentE
 				->from('#__neno_content_element_tables AS t')
 				->where(
 					array(
-						't.translate = 1',
+						't.translate IN (1,2)',
 						't.group_id = ' . $db->quote($this->getId())
 					)
 				);
