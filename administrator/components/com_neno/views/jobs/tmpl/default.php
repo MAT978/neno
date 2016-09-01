@@ -97,8 +97,13 @@ if (!empty($this->extraSidebar))
 									<?php endif; ?>
 									<?php if ($item->state == NenoJob::JOB_STATE_COMPLETED || $item->state == NenoJob::JOB_STATE_PROCESSED): ?>
 										<a
-										  href="index.php?option=com_neno&task=jobs.fetch&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
-										  class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_FETCH_BUTTON'); ?></a>
+											href="index.php?option=com_neno&task=jobs.fetch&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
+											class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_FETCH_BUTTON'); ?></a>
+									<?php endif; ?>
+									<?php if (in_array($item->state, array(NenoJob::JOB_STATE_NO_TC, NenoJob::JOB_STATE_GENERATED, NenoJob::JOB_STATE_NOT_READY))): ?>
+										<a
+											href="index.php?option=com_neno&task=jobs.delete&jobId=<?php echo $item->id; ?>&r=<?php echo mt_rand() / mt_getrandmax(); ?>"
+											class="btn btn-small"><?php echo JText::_('COM_NENO_JOBS_DELETE_BUTTON'); ?></a>
 									<?php endif; ?>
 								</div>
 							</td>
