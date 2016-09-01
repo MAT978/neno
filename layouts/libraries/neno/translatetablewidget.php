@@ -20,9 +20,9 @@ $table = $displayData;
 	<input class="check-toggle-translate-table-radio" type="radio"
 		id="check-toggle-translate-table-<?php echo $table->id; ?>-1"
 		name="jform[check-toggle-translate-table]"
-		value="1" <?php echo ($table->translate == 1) ? 'checked="checked"' : ''; ?>>
+		value="1" <?php echo ($table->translate != 0) ? 'checked="checked"' : ''; ?>>
 	<label for="check-toggle-translate-table-<?php echo $table->id; ?>-1"
-		class="btn btn-small <?php echo ($table->translate == 1) ? 'active btn-success' : ''; ?>"
+		class="btn btn-small <?php echo ($table->translate != 0) ? 'active btn-success' : ''; ?>"
 		data-toogle="tooltip" title="<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_BUTTON_TOOLTIP'); ?>">
 		<?php echo JText::_('COM_NENO_GROUPS_ELEMENTS_TRANSLATE_BUTTON'); ?>
 	</label>
