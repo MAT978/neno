@@ -51,9 +51,9 @@ class NenoViewIssues extends JViewLegacy
 	 */
 	public function display($tpl = null)
 	{
-		$this->state                       = $this->get('State');
-		$this->items                       = $this->get('Items');
-		
+		$this->state = $this->get('State');
+		$this->items = $this->get('Items');
+
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
 		{
@@ -71,7 +71,9 @@ class NenoViewIssues extends JViewLegacy
 		JToolbarHelper::custom('debug.fixContentConfigurationIssue', 'wrench', 'wrench', JText::_('COM_NENO_DASHBOARD_FIX_CONTENT_BUTTON'), false);
 
 		JToolbarHelper::custom('debug.fixNullIssue', 'lightning', 'lightning', JText::_('COM_NENO_DASHBOARD_FIX_NULL_BUTTON'), false);
-		
+
+		JToolbarHelper::custom('debug.replicateTemplateStyles', 'pictures', 'pictures', JText::_('COM_NENO_DASHBOARD_REPLICATE_TEMPLATE_STYLES_BUTTON'), false);
+
 		NenoHelperBackend::addSubmenu('debug');
 		$this->sidebar = JHtmlSidebar::render();
 

@@ -35,6 +35,13 @@ class NenoControllerDebug extends JControllerAdmin
 		$view->display('list');
 	}
 
+	public function replicateTemplateStyles()
+	{
+		NenoHelper::replicateTemplateStyles();
+
+		JFactory::getApplication()->redirect('index.php?option=com_neno&view=debug');
+	}
+
 	/**
 	 * Issues fixer
 	 *
