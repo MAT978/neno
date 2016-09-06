@@ -1035,6 +1035,8 @@ class NenoControllerInstallation extends JControllerAdmin
 			}
 		}
 
+		NenoHelper::replicateTemplateStyles();
+
 		NenoSettings::set('installation_completed', 1);
 
 		return true;

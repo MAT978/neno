@@ -4567,4 +4567,84 @@ class NenoHelper
 		$db->setQuery($query);
 		$db->execute();
 	}
+
+	/**
+	 * Replicate template styles for all the languages
+	 *
+	 * @return void
+	 *
+	 * @since 2.1.30
+	 */
+	public static function replicateTemplateStyles()
+	{
+		$db             = JFactory::getDbo();
+		$query          = $db->getQuery(true);
+		$sourceLanguage = NenoSettings::get('source_language');
+		$languages      = self::getLanguages(false, false);
+		$languageCodes  = array();
+
+		foreach ($languages as $language)
+		{
+			$languageCodes[] = $language->lang_code;
+		}
+
+		$query
+			->select('*')
+			->from('#__template_styles AS ts1')
+			->leftJoin('#__template_styles AS ts2 ON ts1.template = ts2.template')
+			->where(
+				array(
+					'client_id = 0',
+					'home = ' . $db->quote($sourceLanguage),
+					'ts2.home NOT IN (' . implode(',', $db->quote($languageCodes)) . ')'
+				)
+			);
+
+		$db->setQuery($query);
+		$sourceLanguageTemplateStyles = $db->loadObjectList();
+
+		// If there are template styles per language, let's replicate them
+		if (!empty($sourceLanguageTemplateStyles))
+		{
+			foreach ($sourceLanguageTemplateStyles as $languageTemplateStyle)
+			{
+				$originalTemplateStyleId = $languageTemplateStyle->id;
+				foreach ($languages as $language)
+				{
+					$languageTemplateStyle->id   = null;
+					$languageTemplateStyle->home = $language->lang_code;
+
+					// If the template style was inserted, let's proceed with menu assignment
+					if ($db->insertObject('#__template_styles', $languageTemplateStyle, 'id'))
+					{
+						$query
+							->clear()
+							->select('m.id')
+							->from('#__menu')
+							->where('template_style_id = ' . $db->quote($originalTemplateStyleId));
+
+						$db->setQuery($query);
+						$menuItems = $db->loadColumn();
+
+						foreach ($menuItems as $menuItem)
+						{
+							$associations = JLanguageAssociations::getAssociations('com_menus', '#__menu', 'com_menus.item', $menuItem, 'id');
+
+							foreach ($associations[$language->lang_code] as $menuAssociate)
+							{
+								$query
+									->clear()
+									->update('#__menu')
+									->set('template_style_id = ' . $db->quote($languageTemplateStyle->id))
+									->where('id = ' . $db->quote($menuAssociate->id));
+
+								$db->setQuery($query);
+								$db->execute();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
