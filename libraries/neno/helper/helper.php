@@ -4581,7 +4581,7 @@ class NenoHelper
 		$query          = $db->getQuery(true);
 		$sourceLanguage = NenoSettings::get('source_language');
 		$languages      = self::getLanguages(false, false);
-		$languageCodes  = array();
+		$languageCodes  = array(0, 1);
 
 		foreach ($languages as $language)
 		{
@@ -4589,13 +4589,13 @@ class NenoHelper
 		}
 
 		$query
-			->select('*')
+			->select('DISTINCT ts1.*')
 			->from('#__template_styles AS ts1')
 			->leftJoin('#__template_styles AS ts2 ON ts1.template = ts2.template')
 			->where(
 				array(
-					'client_id = 0',
-					'home = ' . $db->quote($sourceLanguage),
+					'ts1.client_id = 0',
+					'ts1.home = ' . $db->quote($sourceLanguage),
 					'ts2.home NOT IN (' . implode(',', $db->quote($languageCodes)) . ')'
 				)
 			);
@@ -4608,11 +4608,13 @@ class NenoHelper
 		{
 			foreach ($sourceLanguageTemplateStyles as $languageTemplateStyle)
 			{
-				$originalTemplateStyleId = $languageTemplateStyle->id;
-				foreach ($languages as $language)
+				$originalTemplateStyleId    = $languageTemplateStyle->id;
+				$originalTemplateStyleTitle = $languageTemplateStyle->title;
+				foreach ($languageCodes as $languageCode)
 				{
-					$languageTemplateStyle->id   = null;
-					$languageTemplateStyle->home = $language->lang_code;
+					$languageTemplateStyle->id    = null;
+					$languageTemplateStyle->home  = $languageCode;
+					$languageTemplateStyle->title = sprintf('%s (%s)', $originalTemplateStyleTitle, $languageCode);
 
 					// If the template style was inserted, let's proceed with menu assignment
 					if ($db->insertObject('#__template_styles', $languageTemplateStyle, 'id'))
@@ -4630,7 +4632,7 @@ class NenoHelper
 						{
 							$associations = JLanguageAssociations::getAssociations('com_menus', '#__menu', 'com_menus.item', $menuItem, 'id');
 
-							foreach ($associations[$language->lang_code] as $menuAssociate)
+							foreach ($associations[$languageCode] as $menuAssociate)
 							{
 								$query
 									->clear()
