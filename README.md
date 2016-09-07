@@ -4,7 +4,7 @@ Neno is a translation solution for Joomla. It allows you to translate by yoursel
 
 Documentation: http://documentation.neno-translate.com
 
-## **How to contribute**
+# **How to contribute**
 
 Thank you for your interest in improving Neno Translate for Joomla. No matter how small or how big your contribution is, you have the potential to make a positive impact on hundreds of people. In this guide we are going to answer any questions you may have on how to contribute.
 
