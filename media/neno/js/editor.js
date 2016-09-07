@@ -377,7 +377,7 @@ function saveAllTranslationsAndNext() {
         var string = {};
         string.translation_id = translation_id;
         formatEditor(editor.right);
-        string.text = editor.right.getValue();
+        string.text = getEditorText(editor.right);
         strings.push(string);
     });
     var json_strings = JSON.stringify(strings);
@@ -412,7 +412,17 @@ function saveAllTranslationsAndNext() {
             loadNextTranslation();
         }
     });
+}
 
+/**
+ * Get editor text
+ *
+ * @param editor
+ *
+ * @return {string}
+ */
+function getEditorText(editor){
+   return editor.getValue().replace(/^\s+|\s+$/g, '');
 }
 
 
@@ -510,7 +520,7 @@ function saveAllAsDraft() {
     jQuery.each(editors, function (translation_id, editor) {
 
         formatEditor(editor.right);
-        var text = editor.right.getValue();
+        var text = getEditorText(editor.right);
 
         jQuery.ajax({
                 type: 'POST',
