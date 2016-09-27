@@ -539,3 +539,4 @@ cli/*
 tests/acceptance.suite.yml
 
 libraries/neno/.DS_Store
+libraries/neno/contentelements/
