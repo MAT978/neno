@@ -751,6 +751,9 @@ function bindGroupElementEvents() {
     //Bind modal clicks
     jQuery('.modalgroupform').off('click').on('click', showModalGroupForm);
 
+    // Bind preview content btn
+    jQuery('.preview-btn').off('click').on('click', previewContent);
+
     bindTranslateSomeButtonEvents();
 }
 
