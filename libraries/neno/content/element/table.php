@@ -524,6 +524,16 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 		if ($result)
 		{
+			// Get table filters
+			$tableFilters = $this->getTableFilters();
+
+			// Only add them if there's none currently
+			if (empty($tableFilters) && $this->translate == 2)
+			{
+				// Save table filters
+				$this->saveTableFilters();
+			}
+
 			/* @var $db NenoDatabaseDriverMysqlx */
 			$db = JFactory::getDbo();
 
@@ -615,7 +625,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 		if (file_exists($filePath))
 		{
 			$xml             = simplexml_load_file($filePath);
-			$this->translate = ((int) $xml->translate) == 1;
+			$this->translate = (int) $xml->translate;
 		}
 		else // Let's have a look to the table name
 		{
@@ -629,6 +639,49 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				$this->translate = $this->recordCount < 1000;
 			}
 		}
+	}
+
+	/**
+	 * Save table filters
+	 *
+	 * @since 2.2.0
+	 */
+	public function saveTableFilters()
+	{
+		$filePath = $this->getContentElementFilename();
+
+		if (file_exists($filePath))
+		{
+			$xml             = simplexml_load_file($filePath);
+			$tableAttributes = $xml->reference->table->attributes();
+
+			if (!empty($tableAttributes['filter']))
+			{
+				$db           = JFactory::getDbo();
+				$tableFilters = json_decode($tableAttributes['filter']);
+
+				foreach ($tableFilters as $tableFilter)
+				{
+					$rowRecord                       = new stdClass;
+					$rowRecord->table_id             = $this->getId();
+					$rowRecord->comparaison_operator = $tableFilter->operator;
+					$rowRecord->filter_value         = $tableFilter->value;
+
+					/* @var $field NenoContentElementField */
+					foreach ($this->fields as $field)
+					{
+						if ($field->getFieldName() == $tableFilter->field)
+						{
+							$rowRecord->field_id = $field->getId();
+							break;
+						}
+					}
+
+					$db->insertObject('#__neno_content_element_table_filters', $rowRecord, 'id');
+				}
+			}
+		}
+
 	}
 
 	/**

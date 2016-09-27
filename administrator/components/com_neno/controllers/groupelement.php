@@ -25,7 +25,7 @@ class NenoControllerGroupElement extends JControllerForm
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($config = array ())
+	public function __construct($config = array())
 	{
 		$this->view_list = 'groupselements';
 		parent::__construct($config);
@@ -51,7 +51,7 @@ class NenoControllerGroupElement extends JControllerForm
 		$tableName = str_replace('#__', '', $tableObject->table_name);
 
 		$fileName                  = $tableName . '_contentelements.xml';
-		$displayData               = array ();
+		$displayData               = array();
 		$displayData['table_name'] = $tableName;
 		$displayData['table']      = $tableObject;
 
@@ -72,6 +72,12 @@ class NenoControllerGroupElement extends JControllerForm
 		$reference->addAttribute('type', 'content');
 		$tableNode = $reference->addChild('table');
 		$tableNode->addAttribute('name', $tableName);
+		$tableFilters = $table->getTableFilters();
+
+		if (!empty($tableFilters))
+		{
+			$tableNode->addAttribute('filter', json_encode($tableFilters));
+		}
 
 		foreach ($tableObject->fields as $field)
 		{
