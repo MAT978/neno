@@ -72,9 +72,14 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	private $propagateQuery;
 	/**
-	 * @var
+	 * @var bool
 	 */
 	private $handlingMissingTableIssue = false;
+	/**
+	 * @var null|string
+	 * @since version
+	 */
+	private $missingTable = null;
 
 	/**
 	 * Set Autoincrement index in a shadow table
@@ -423,9 +428,9 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$app      = JFactory::getApplication();
 
 		return $this->getQueryType((string) $this->sql) === self::INSERT_QUERY
-		&& $language->getTag() !== NenoSettings::get('source_language')
-		&& $app->isSite() && !$this->isNenoSql((string) $this->sql)
-		&& self::hasToBeParsed((string) $this->sql);
+			&& $language->getTag() !== NenoSettings::get('source_language')
+			&& $app->isSite() && !$this->isNenoSql((string) $this->sql)
+			&& self::hasToBeParsed((string) $this->sql);
 	}
 
 	/**
@@ -439,7 +444,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 		$queryType = $this->getQueryType((string) $this->sql);
 
 		return ($queryType === self::INSERT_QUERY || $queryType === self::DELETE_QUERY || $queryType === self::UPDATE_QUERY || $queryType === self::REPLACE_QUERY)
-		&& $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery;
+			&& $this->hasToBeParsed((string) $this->sql) && $this->propagateQuery;
 	}
 
 	/**
@@ -564,13 +569,17 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 							else
 							{
 								// Delete table because it's not longer there
-
-								/* @var $table NenoContentElementTable */
-								$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
-
-								if (!empty($table))
+								if (!$this->handlingMissingTableIssue || $tableName != $this->missingTable)
 								{
-									$table->remove();
+									$this->handlingMissingTableIssue = true;
+									$this->missingTable              = $tableName;
+									/* @var $table NenoContentElementTable */
+									$table = NenoContentElementTable::load(array('table_name' => $tableName), false);
+
+									if (!empty($table))
+									{
+										$table->remove();
+									}
 								}
 							}
 						}
