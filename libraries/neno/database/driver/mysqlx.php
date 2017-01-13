@@ -385,7 +385,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 * @param   boolean $preservePreviousQuery True if the previous query will be saved before, false otherwise
 	 * @param   boolean $returnObjectList      True if the method should return a list of object as query result, false otherwise
 	 *
-	 * @return void|array
+	 * @return null|array
 	 */
 	public function executeQuery($sql, $preservePreviousQuery = true, $returnObjectList = false)
 	{
@@ -1230,7 +1230,7 @@ class NenoDatabaseDriverMysqlx extends CommonDriver
 	 */
 	public function getShadowTables()
 	{
-		$this->setQuery('SHOW TABLES LIKE ' . $this->quote($this->getPrefix() . '_%'));
+		$this->setQuery('SHOW TABLES LIKE ' . $this->quote($this->getPrefix() . '\_%'));
 
 		return $this->loadColumn();
 	}
