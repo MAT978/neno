@@ -19,61 +19,31 @@ defined('_JEXEC') or die;
 class NenoControllerSettings extends JControllerAdmin
 {
 	/**
-	 * Save a setting
+	 * Save a settings
 	 *
 	 * @return void
+	 *
+	 * @since 2.1.32
 	 */
-	public function saveSetting()
+	public function save()
 	{
 		$input = $this->input;
+		$app   = JFactory::getApplication();
 
-		$setting  = $input->getString('setting');
-		$newValue = $input->getString('value');
+		$jform = $input->post->get('jform', array(), 'ARRAY');
 
-		$error = false;
-
-		// Saving component params
-		if ($setting == 'save_history')
-		{
-			if (!$this->saveContentHistory($newValue))
-			{
-				$error = true;
-			}
-		}
-
-		// Check for errors
-		if (!$error) {
-
-			// Saving neno settings
-			if (NenoSettings::set($setting, $newValue))
-			{
-
-				if ($setting == 'license_code' || $setting == 'translator_api_key')
-				{
-					echo 'saved';
-				}
-				else
-				{
-					echo 'ok';
-				}
-			}
-		}
-
-		JFactory::getApplication()->close();
-	}
-
-	/*
-	 * Activate save history in component params
-	 *
-	 * @param   bool  $value  Value if saving or not
-	 *
-	 * @return  bool
-	 */
-	public function saveContentHistory($value)
-	{
+		/* @var $model NenoModelSettings */
 		$model = JModelLegacy::getInstance('Settings', 'NenoModel');
-		$result = $model->saveNenoHistoryConfig($value);
 
-		return $result;
+		if ($model->save($jform))
+		{
+			$app->enqueueMessage(JText::_('COM_NENO_SETTINGS_SAVE_SUCCESS'), 'success');
+		}
+		else
+		{
+			$app->enqueueMessage(JText::_('COM_NENO_SETTINGS_SAVE_ERROR'), 'error');
+		}
+
+		$app->redirect(JRoute::_('index.php?option=com_neno&view=settings', false));
 	}
 }

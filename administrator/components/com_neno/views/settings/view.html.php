@@ -80,7 +80,8 @@ class NenoViewSettings extends JViewLegacy
 	protected function addToolbar()
 	{
 		// Set sidebar action - New in 3.0
-		JHtmlSidebar::setAction('index.php?option=com_neno&view=groupselements');
+		JHtmlSidebar::setAction('index.php?option=com_neno&view=settings');
+		JToolbarHelper::apply('settings.save');
 
 		$toolbar = JToolbar::getInstance();
 		$toolbar->addButtonPath(JPATH_NENO . '/button');

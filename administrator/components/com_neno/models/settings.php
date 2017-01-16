@@ -21,7 +21,7 @@ class NenoModelSettings extends JModelList
 	/**
 	 * Constructor.
 	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @param   array $config An optional associative array of configuration settings.
 	 *
 	 * @see        JController
 	 * @since      1.6
@@ -74,16 +74,16 @@ class NenoModelSettings extends JModelList
 					$db->setQuery($query);
 					$values = $db->loadObjectList();
 
-					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'id', 'name_constant', $item->setting_value, false, true);
+					$item->dropdown = JHtml::_('select.genericlist', $values, 'jform[' . $item->setting_key . ']', null, 'id', 'name_constant', $item->setting_value, false, true);
 
 					break;
 				case 'schedule_task_option':
 					$values         = array(
-						array( 'value' => 'ajax', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_AJAX_MODULE_TITLE' ),
-						array( 'value' => 'cron', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_CRON_TITLE' ),
-						array( 'value' => 'disabled', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_DISABLE_TITLE' ),
+						array('value' => 'ajax', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_AJAX_MODULE_TITLE'),
+						array('value' => 'cron', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_CRON_TITLE'),
+						array('value' => 'disabled', 'text' => 'COM_NENO_INSTALLATION_TASK_OPTION_DISABLE_TITLE'),
 					);
-					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
+					$item->dropdown = JHtml::_('select.genericlist', $values, 'jform[' . $item->setting_key . ']', null, 'value', 'text', $item->setting_value, false, true);
 					break;
 				case 'translator':
 					$query
@@ -98,7 +98,7 @@ class NenoModelSettings extends JModelList
 					$db->setQuery($query);
 					$values = $db->loadObjectList();
 
-					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
+					$item->dropdown = JHtml::_('select.genericlist', $values, 'jform[' . $item->setting_key . ']', null, 'value', 'text', $item->setting_value, false, true);
 					break;
 				case 'default_translate_action':
 					if ($item->setting_key == '')
@@ -120,7 +120,7 @@ class NenoModelSettings extends JModelList
 							'text'  => 'COM_NENO_SETTINGS_SETTING_OPTION_DEFAULT_TRANSLATE_ACTION_TRANSLATE'
 						),
 					);
-					$item->dropdown = JHtml::_('select.genericlist', $values, $item->setting_key, null, 'value', 'text', $item->setting_value, false, true);
+					$item->dropdown = JHtml::_('select.genericlist', $values, 'jform[' . $item->setting_key . ']', null, 'value', 'text', $item->setting_value, false, true);
 					break;
 			}
 		}
@@ -176,8 +176,8 @@ class NenoModelSettings extends JModelList
 	 *
 	 * Note. Calling getState in this method will result in recursion.
 	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
+	 * @param   string $ordering  An optional ordering field.
+	 * @param   string $direction An optional direction (asc|desc).
 	 *
 	 * @return  void
 	 *
@@ -192,7 +192,7 @@ class NenoModelSettings extends JModelList
 	/**
 	 * This method takes care that all the default settings exist.
 	 *
-	 * @param   array  $items  Setting items
+	 * @param   array $items Setting items
 	 *
 	 * @return array
 	 */
@@ -203,7 +203,7 @@ class NenoModelSettings extends JModelList
 
 		foreach ($items as $item)
 		{
-			$settings[ $item->setting_key ] = $item->setting_value;
+			$settings[$item->setting_key] = $item->setting_value;
 		}
 
 		// Related content
@@ -218,14 +218,57 @@ class NenoModelSettings extends JModelList
 		return $items;
 	}
 
+	/**
+	 * Save settings
+	 *
+	 * @param array $settings
+	 *
+	 * @return bool
+	 *
+	 * @since 2.1.32
+	 */
+	public function save($settings)
+	{
+		foreach ($settings as $settingName => $settingValue)
+		{
+			$error = false;
+			// Saving component params
+			if ($settingName == 'save_history')
+			{
+				if (!$this->saveNenoHistoryConfig($settingValue))
+				{
+					$error = true;
+				}
+			}
+
+			// Check for errors
+			if ($error)
+			{
+				return false;
+			}
+
+			// Saving neno settings
+			if (NenoSettings::set($settingName, $settingValue))
+			{
+				// Let's try to remove backlink
+				if ($settingName == 'license_code' && NenoHelperApi::isPremium())
+				{
+					NenoHelperChk::removeBacklink();
+				}
+			}
+		}
+
+		return true;
+	}
+
 
 	public function saveNenoHistoryConfig($value)
 	{
-		$db = JFactory::getDbo();
+		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		$params = array(
-			'save_history' => $value,
+			'save_history'  => $value,
 			'history_limit' => 10
 		);
 
