@@ -169,15 +169,20 @@ class NenoHelperChk extends NenoHelperLicense
 	/**
 	 * Remove backlink from shadow tables
 	 *
-	 * @param string $language
+	 * @param string $languages
 	 *
 	 * @return void
 	 *
 	 *
 	 * @since 2.1.32
 	 */
-	public static function removeBacklink($language)
+	public static function removeBacklink($languages = array())
 	{
+		if (empty($languages))
+		{
+			$languages = NenoHelper::getLanguages(false);
+		}
+
 		/* @var $db NenoDatabaseDriverMysqlx */
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
@@ -185,15 +190,16 @@ class NenoHelperChk extends NenoHelperLicense
 		$query
 			->select('*')
 			->from('#__neno_backlink_metadata')
-			->where('language = ' . $db->quote($language));
+			->where('language IN (' . implode(',', $db->quote($languages)) . ')');
 
 		$db->setQuery($query);
 		$backlinksMetadata = $db->loadAssocList();
-		$link              = static::getLink($language);
+
 
 		foreach ($backlinksMetadata as $backlinkMetadata)
 		{
 			$whereStatements = json_decode($backlinkMetadata['where_statements'], true);
+			$link            = static::getLink($backlinkMetadata['language']);
 
 			$query
 				->clear()
