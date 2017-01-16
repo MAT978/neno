@@ -39,6 +39,25 @@ class NenoHelperApi
 	}
 
 	/**
+	 * Check if a user is premium or not
+	 *
+	 * @return bool
+	 *
+	 * @since version
+	 */
+	public static function isPremium()
+	{
+		list($status, $subscriptionData) = self::makeApiCall('premium');
+
+		if ($status !== false && is_array($subscriptionData))
+		{
+			return empty($subscriptionData['response']) ? false : strtotime($subscriptionData['response']['subscription_time_ended']) > time();
+		}
+
+		return false;
+	}
+
+	/**
 	 * Execute API Call
 	 *
 	 * @param   string $apiCall    API Call
@@ -53,7 +72,7 @@ class NenoHelperApi
 
 		$apiEndpoint    = NenoSettings::get('api_server_url');
 		$licenseCode    = NenoSettings::get('license_code');
-		$response       = NULL;
+		$response       = null;
 		$responseStatus = false;
 
 		if (!empty($apiEndpoint) && !empty($licenseCode))
@@ -78,12 +97,12 @@ class NenoHelperApi
 					$parameters = array_merge($parameters, self::getUserInformation());
 
 					$apiResponse = self::$httpClient->{$method}(
-					  $apiEndpoint . $apiCall,
-					  json_encode($parameters),
-					  array(
-						'Content-Type'  => 'application/json',
-						'Authorization' => $licenseCode
-					  )
+						$apiEndpoint . $apiCall,
+						json_encode($parameters),
+						array(
+							'Content-Type'  => 'application/json',
+							'Authorization' => $licenseCode
+						)
 					);
 				}
 
@@ -115,11 +134,11 @@ class NenoHelperApi
 	protected static function getUserInformation()
 	{
 		return array(
-		  'user_information' => array(
-			'domain'           => JUri::root(),
-			'source_language'  => NenoSettings::get('source_language'),
-			'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
-		  )
+			'user_information' => array(
+				'domain'           => JUri::root(),
+				'source_language'  => NenoSettings::get('source_language'),
+				'target_languages' => array_keys(NenoHelper::getTargetLanguages(false))
+			)
 		);
 	}
 
@@ -130,7 +149,7 @@ class NenoHelperApi
 	 */
 	protected static function getHttp()
 	{
-		if (self::$httpClient === NULL)
+		if (self::$httpClient === null)
 		{
 			self::$httpClient = JHttpFactory::getHttp();
 		}
