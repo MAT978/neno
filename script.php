@@ -35,7 +35,7 @@ class pkg_NenoInstallerScript
 			->update('#__extensions')
 			->set('enabled = 1')
 			->where(
-				array (
+				array(
 					'type = ' . $db->quote('plugin'),
 					'folder = ' . $db->quote('system'),
 					'element = ' . $db->quote('neno')
@@ -45,7 +45,7 @@ class pkg_NenoInstallerScript
 		$db->setQuery($query);
 		$db->execute();
 
-		$parent->getParent()->setRedirectURL(JRoute::_('index.php?option=com_neno&view=installation', false));
+		$parent->getParent()->setRedirectURL(JUri::root() . substr(JRoute::_('index.php?option=com_neno&view=maintenance', false), 1));
 
 		return true;
 	}
