@@ -169,7 +169,7 @@ class NenoHelperChk extends NenoHelperLicense
 	/**
 	 * Remove backlink from shadow tables
 	 *
-	 * @param string $languages
+	 * @param array $languages
 	 *
 	 * @return void
 	 *
