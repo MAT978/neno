@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS `#__neno_content_element_groups_x_extensions`;
 DROP TABLE IF EXISTS `#__neno_content_element_fields_x_translations`;
 DROP TABLE IF EXISTS `#__neno_machine_translation_api_language_pairs`;
 DROP TABLE IF EXISTS `#__neno_jobs_x_translations`;
-DROP TABLE IF EXISTS `#__neno_content_element_translation_x_translation_methods`;
+DROP TABLE IF EXISTS `#__neno_content_element_translation_x_trans_methods`;
 DROP TABLE IF EXISTS `#__neno_content_element_translations`;
 DROP TABLE IF EXISTS `#__neno_content_element_language_strings`;
 DROP TABLE IF EXISTS `#__neno_content_element_fields`;

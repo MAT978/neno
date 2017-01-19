@@ -131,7 +131,7 @@ class NenoJob extends NenoObject
 			array(
 			  'language = ' . $db->quote($toLanguage),
 			  'state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE,
-			  'EXISTS (SELECT 1 FROM #__neno_content_element_translation_x_translation_methods AS trtm WHERE tr.id = trtm.translation_id AND translation_method_id = ' . $translationMethod . ')',
+			  'EXISTS (SELECT 1 FROM #__neno_content_element_translation_x_trans_methods AS trtm WHERE tr.id = trtm.translation_id AND translation_method_id = ' . $translationMethod . ')',
 			  'NOT EXISTS (SELECT 1 FROM #__neno_jobs_x_translations AS jt WHERE tr.id = jt.translation_id)'
 			)
 		  );

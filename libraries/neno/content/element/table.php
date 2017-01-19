@@ -1030,7 +1030,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 
 		$deleteQuery
 			->clear()
-			->delete('#__neno_content_element_translation_x_translation_methods')
+			->delete('#__neno_content_element_translation_x_trans_methods')
 			->where('translation_id IN (' . (string) $translationQuery . ')');
 
 		$db->setQuery($deleteQuery);
@@ -1050,7 +1050,7 @@ class NenoContentElementTable extends NenoContentElement implements NenoContentE
 				->leftJoin('#__neno_content_element_groups_x_translation_methods AS gtm ON gtm.group_id = g.id')
 				->where('gtm.lang = ' . $db->quote($workingLanguage));
 
-			$insertQuery = 'INSERT INTO #__neno_content_element_translation_x_translation_methods (translation_id, translation_method_id, ordering) ' . (string) $translationQuery;
+			$insertQuery = 'INSERT INTO #__neno_content_element_translation_x_trans_methods (translation_id, translation_method_id, ordering) ' . (string) $translationQuery;
 
 			$db->setQuery($insertQuery);
 			$db->execute();

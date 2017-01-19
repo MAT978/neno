@@ -1220,7 +1220,7 @@ class NenoHelperBackend
 
 			$query = $db->getQuery(true);
 			$query
-			  ->delete('#__neno_content_element_translation_x_translation_methods')
+			  ->delete('#__neno_content_element_translation_x_trans_methods')
 			  ->where('translation_id IN (' . (string) $subQuery . ')');
 
 			$db->setQuery($query);
@@ -1253,7 +1253,7 @@ class NenoHelperBackend
 			$subQuery2 = $db->getQuery(true);
 			$subQuery2
 			  ->select('1')
-			  ->from('#__neno_content_element_translation_x_translation_methods AS trtm')
+			  ->from('#__neno_content_element_translation_x_trans_methods AS trtm')
 			  ->innerJoin('#__neno_translation_methods AS tm ON trtm.translation_method_id = tm.id')
 			  ->where(
 				array(
@@ -1285,7 +1285,7 @@ class NenoHelperBackend
 				)
 			  );
 
-			$query = 'REPLACE INTO #__neno_content_element_translation_x_translation_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
+			$query = 'REPLACE INTO #__neno_content_element_translation_x_trans_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
 			$db->setQuery($query);
 			$db->execute();
 
@@ -1314,7 +1314,7 @@ class NenoHelperBackend
 				)
 			  );
 
-			$query = 'REPLACE INTO #__neno_content_element_translation_x_translation_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
+			$query = 'REPLACE INTO #__neno_content_element_translation_x_trans_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
 			$db->setQuery($query);
 			$db->execute();
 
@@ -1341,7 +1341,7 @@ class NenoHelperBackend
 				)
 			  );
 
-			$query = 'REPLACE INTO #__neno_content_element_translation_x_translation_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
+			$query = 'REPLACE INTO #__neno_content_element_translation_x_trans_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
 			$db->setQuery($query);
 			$db->execute();
 
@@ -1370,7 +1370,7 @@ class NenoHelperBackend
 				)
 			  );
 
-			$query = 'REPLACE INTO #__neno_content_element_translation_x_translation_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
+			$query = 'REPLACE INTO #__neno_content_element_translation_x_trans_methods (translation_id,translation_method_id,ordering) (' . (string) $subQuery . ')';
 			$db->setQuery($query);
 			$db->execute();
 		}

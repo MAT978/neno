@@ -255,10 +255,10 @@ CREATE TABLE IF NOT EXISTS `#__neno_content_element_translations` (
   DEFAULT CHARSET = utf8;
 
 --
--- Table structure for table `#__neno_content_element_translation_x_translation_methods`
+-- Table structure for table `#__neno_content_element_translation_x_trans_methods`
 --
 
-CREATE TABLE IF NOT EXISTS `#__neno_content_element_translation_x_translation_methods` (
+CREATE TABLE IF NOT EXISTS `#__neno_content_element_translation_x_trans_methods` (
   `id`                    INT(11)    NOT NULL AUTO_INCREMENT,
   `translation_id`        INT(11)    NOT NULL,
   `translation_method_id` INT(11)    NOT NULL,

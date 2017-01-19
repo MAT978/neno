@@ -57,7 +57,7 @@ class NenoModelProfessionalTranslations extends JModelList
 			)
 		  )
 		  ->from('#__neno_content_element_translations AS tr')
-		  ->innerJoin('#__neno_content_element_translation_x_translation_methods AS trtm ON trtm.translation_id = tr.id')
+		  ->innerJoin('#__neno_content_element_translation_x_trans_methods AS trtm ON trtm.translation_id = tr.id')
 		  ->innerJoin('#__neno_translation_methods AS tm ON trtm.translation_method_id = tm.id')
 		  ->leftJoin('#__languages AS l ON tr.language = l.lang_code')
 		  ->where(

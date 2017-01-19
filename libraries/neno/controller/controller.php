@@ -430,7 +430,7 @@ class NenoController extends JControllerLegacy
 				// Deleting translation methods for groups
 				$query
 				  ->clear()
-				  ->delete('#__neno_content_element_groups_x_translation_methods')
+				  ->delete('#__neno_content_element_translation_x_trans_methods')
 				  ->where(
 					array(
 					  'lang = ' . $db->quote($language),
@@ -444,7 +444,7 @@ class NenoController extends JControllerLegacy
 				// Delete translation methods for translations
 				$query
 				  ->clear()
-				  ->delete('#__neno_content_element_translation_x_translation_methods')
+				  ->delete('#__neno_content_element_translation_x_trans_methods')
 				  ->where(
 					array(
 					  'translation_id IN (SELECT id FROM #__neno_content_element_translations WHERE language = ' . $db->quote($language) . ' AND state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE . ')',
@@ -463,7 +463,7 @@ class NenoController extends JControllerLegacy
 				$db->execute();
 
 				// Inserting translation methods for translations
-				$query = 'INSERT INTO #__neno_content_element_translation_x_translation_methods (translation_id, translation_method_id, ordering)
+				$query = 'INSERT INTO #__neno_content_element_translation_x_trans_methods (translation_id, translation_method_id, ordering)
 							SELECT id, ' . $db->quote($translationMethod) . ',' . $db->quote($ordering) . ' FROM #__neno_content_element_translations
 							WHERE language = ' . $db->quote($language) . ' AND state = ' . NenoContentElementTranslation::NOT_TRANSLATED_STATE;
 
