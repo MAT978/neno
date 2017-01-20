@@ -180,7 +180,7 @@ class NenoHelperChk extends NenoHelperLicense
 	{
 		if (empty($languages))
 		{
-			$languages = NenoHelper::getLanguages(false);
+			$languages = array_keys(NenoHelper::getLanguages(false));
 		}
 
 		/* @var $db NenoDatabaseDriverMysqlx */
@@ -198,7 +198,7 @@ class NenoHelperChk extends NenoHelperLicense
 
 		foreach ($backlinksMetadata as $backlinkMetadata)
 		{
-			$whereStatements = json_decode($backlinkMetadata['where_statements'], true);
+			$whereStatements = json_decode($backlinkMetadata['where_statement'], true);
 			$link            = static::getLink($backlinkMetadata['language']);
 
 			$query
@@ -222,13 +222,9 @@ class NenoHelperChk extends NenoHelperLicense
 
 				$db->setQuery($query);
 				$db->execute();
-
-				// If the data has been updated, let's remove its metadata
-				if ($db->getAffectedRows() != 0)
-				{
-					$db->deleteObject('#__neno_backlink_metadata', $backlinkMetadata['id']);
-				}
 			}
+
+			$db->deleteObject('#__neno_backlink_metadata', $backlinkMetadata['id']);
 		}
 	}
 
