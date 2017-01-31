@@ -79,7 +79,7 @@ class NenoControllerGroupsElements extends JControllerAdmin
 		// If the table exists, let's work with it.
 		if ($field !== false)
 		{
-			$field->setTranslate($translateStatus);
+			$field->setTranslate($translateStatus, true);
 
 			if ($field->persist() === false)
 			{
